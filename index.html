@@ -58,8 +58,18 @@ nav{display:flex;gap:1px;flex:1;justify-content:center;overflow:hidden}
 nav a{color:#9aa;font-size:11px;padding:.28rem .4rem;border-radius:5px;white-space:nowrap;font-weight:500;cursor:pointer;transition:color .15s,background .15s}
 nav a:hover,nav a.act{color:var(--g);background:rgba(184,150,62,.1)}
 .hrt{display:flex;gap:.3rem;align-items:center;flex-shrink:0}
-.hsr{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:.24rem .65rem;display:flex;align-items:center;gap:.3rem}
-.hsr input{background:none;border:none;color:#fff;font-size:12px;width:110px}.hsr input::placeholder{color:#607080}
+.hsr{position:relative;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:.24rem .65rem;display:flex;align-items:center;gap:.3rem;transition:border-color .18s ease,background .18s ease}
+.hsr:focus-within{border-color:var(--gl);background:rgba(255,255,255,.12)}
+.hsr input{background:none;border:none;color:#fff;font-size:12px;width:110px}.hsr input::placeholder{color:#8b9bb5}
+/* AUTOCOMPLETE */
+.ac-list{position:absolute;top:calc(100% + 8px);right:0;left:0;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 16px 40px rgba(26,39,68,.22);max-height:340px;overflow-y:auto;z-index:1200;display:none;padding:.35rem;list-style:none}
+.ac-list.open{display:block}
+.ac-item{display:flex;flex-direction:column;gap:.1rem;padding:.5rem .65rem;border-radius:8px;cursor:pointer;text-align:right}
+.ac-item .ac-n{font-size:12.5px;font-weight:700;color:var(--n);font-family:"Frank Ruhl Libre",serif}
+.ac-item .ac-m{font-size:10.5px;color:var(--mu)}
+.ac-item:hover,.ac-item.active{background:var(--cd)}
+.ac-item.active{outline:2px solid var(--gl);outline-offset:-2px}
+.ac-empty{padding:.6rem .7rem;font-size:11.5px;color:var(--mu);text-align:center}
 .blg{background:rgba(255,255,255,.08);color:#9aa;border:1px solid rgba(255,255,255,.14);padding:.22rem .48rem;border-radius:4px;font-size:11px;font-weight:700;transition:all .15s}
 .blg.act{border-color:var(--g);color:var(--g)}
 .bln{background:linear-gradient(135deg,var(--gd),var(--gl));color:var(--nd);border:none;padding:.28rem .75rem;border-radius:6px;font-size:12px;font-weight:700;transition:all .15s}
@@ -71,12 +81,14 @@ nav a:hover,nav a.act{color:var(--g);background:rgba(184,150,62,.1)}
 .hero:hover .hbg{transform:scale(1.06)}
 .harch{position:absolute;bottom:-1px;right:-6%;left:-6%;height:76px;background:var(--cr);border-radius:55% 55% 0 0/30px 30px 0 0}
 .hcnt{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem 1rem 60px;text-align:center}
-.hbdg{background:rgba(184,150,62,.17);border:1px solid rgba(184,150,62,.33);color:var(--gl);font-size:12px;padding:.25rem .95rem;border-radius:25px;margin-bottom:1.1rem;letter-spacing:.07em}
+.hcard{background:rgba(8,14,32,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:2.2rem 2.1rem 1.9rem;max-width:620px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.32);display:flex;flex-direction:column;align-items:center}
+.hbdg{background:rgba(184,150,62,.2);border:1px solid rgba(184,150,62,.4);color:var(--gl);font-size:12px;padding:.25rem .95rem;border-radius:25px;margin-bottom:1.1rem;letter-spacing:.07em}
 .hero h2{font-family:"Frank Ruhl Libre",serif;font-size:2.8rem;color:#fff;font-weight:900;line-height:1.1;margin-bottom:.4rem;text-shadow:0 2px 18px rgba(0,0,0,.45)}
-.hero h2 span{color:var(--g)}
-.htg{color:#dfe6ee;font-size:.95rem;margin-bottom:.28rem;text-shadow:0 1px 8px rgba(0,0,0,.4)}.hsb{color:#aebbcc;font-size:.84rem;margin-bottom:1.5rem;text-shadow:0 1px 8px rgba(0,0,0,.35)}
-.hbox{background:rgba(255,255,255,.96);border-radius:45px;padding:.32rem .32rem .32rem .9rem;display:flex;align-items:center;gap:.38rem;width:100%;max-width:480px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
-.hbox input{flex:1;border:none;font-size:13px;background:none}.hbox button{background:var(--n);color:var(--g);border:none;padding:.46rem 1.1rem;border-radius:38px;font-size:12.5px;font-weight:700}
+.hero h2 span{color:var(--gl)}
+.htg{color:#eef1f6;font-size:.95rem;margin-bottom:.28rem;text-shadow:0 1px 8px rgba(0,0,0,.4)}.hsb{color:#cdd6e2;font-size:.84rem;margin-bottom:1.5rem;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.hbox{position:relative;background:rgba(255,255,255,.97);border-radius:45px;padding:.32rem .32rem .32rem .9rem;display:flex;align-items:center;gap:.38rem;width:100%;max-width:480px;box-shadow:0 8px 28px rgba(0,0,0,.28);transition:box-shadow .2s ease}
+.hbox:focus-within{box-shadow:0 8px 28px rgba(0,0,0,.28),0 0 0 3px rgba(184,150,62,.45)}
+.hbox input{flex:1;border:none;font-size:13px;background:none}.hbox button{background:var(--n);color:var(--g);border:none;padding:.46rem 1.1rem;border-radius:38px;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s ease,transform .18s ease}.hbox button:hover{background:var(--nl);transform:translateY(-1px)}
 /* QUICK */
 .quick{background:#fff;border-bottom:1px solid var(--bd);padding:1.1rem}
 .qg{display:flex;justify-content:center;gap:.55rem;flex-wrap:wrap;max-width:880px;margin:0 auto}
@@ -145,6 +157,9 @@ html[dir=ltr] .cs{border-left:none;border-right:1px solid var(--bd)}
 html[dir=ltr] .bt2 th,.bt2 td{text-align:right}html[dir=ltr] .bt2 td{text-align:left}
 .bt2 td{padding:.5rem .75rem;border-bottom:1px solid var(--bd);vertical-align:middle}
 .bt2 tr:last-child td{border-bottom:none}.bt2 tr:hover td{background:#fdfaf5}
+.bt2 tr td{transition:background .2s ease}
+.row-hl td{animation:rowFlash 1.6s ease}
+@keyframes rowFlash{0%{background:rgba(184,150,62,.4)}100%{background:transparent}}
 .av{display:inline-block;padding:.12rem .42rem;border-radius:4px;font-size:9.5px;font-weight:700}
 .avy{background:rgba(22,163,74,.1);color:#15803d}.avn{background:rgba(220,38,38,.1);color:#b91c1c}
 .pgc{display:flex;align-items:center;justify-content:center;gap:.32rem;padding:.8rem;background:#fff;border-top:1px solid var(--bd)}
@@ -449,7 +464,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
     <a onclick="eA()" style="color:rgba(184,150,62,.75)" data-i="nAdm">🔐 מנהל</a>
   </nav>
   <div class="hrt">
-    <div class="hsr"><span style="color:#607080;font-size:12px">🔍</span><input id="hS" data-ip="phSearch" placeholder="חיפוש ספרים..." onkeydown="if(event.key=='Enter')dS(this.value)"></div>
+    <div class="hsr"><span style="color:#8b9bb5;font-size:12px" aria-hidden="true">🔍</span><input id="hS" data-ip="phSearch" placeholder="חיפוש ספרים..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="hS-ac" aria-label="חיפוש ספרים בקטלוג" autocomplete="off"><ul class="ac-list" id="hS-ac" role="listbox" aria-label="תוצאות חיפוש"></ul></div>
     <button class="blg act" id="bHe" onclick="sL('he')">עב</button>
     <button class="blg" id="bEn" onclick="sL('en')">EN</button>
     <button class="bln" id="lBtn" onclick="oAuth()" data-i="btnLogin">התחברות</button>
@@ -462,11 +477,13 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
   <div class="hero">
     <div class="hbg" id="heroBg" data-bg="IMG_HERO"></div>
     <div class="hcnt">
-      <div class="hbdg" data-i="hBadge">📚 אוצר התורה של מודיעין עילית</div>
-      <h2 class="fr" data-i="hTitle">ספריית <span>בית יוסף</span></h2>
-      <div class="htg" data-i="hTag">אלפי ספרים. עולם של תורה.</div>
-      <div class="hsb" data-i="hSub">בית לכל מבקש חכמה ולימוד · מודיעין עילית</div>
-      <div class="hbox"><span>🔍</span><input id="hS2" data-ip="phHero" placeholder="חפש ספר, מחבר, נושא..." onkeydown="if(event.key=='Enter')dS(this.value)"><button onclick="dS(document.getElementById('hS2').value)" data-i="btnSearchCat">חיפוש בקטלוג</button></div>
+      <div class="hcard">
+        <div class="hbdg" data-i="hBadge">📚 אוצר התורה של מודיעין עילית</div>
+        <h2 class="fr" data-i="hTitle">ספריית <span>בית יוסף</span></h2>
+        <div class="htg" data-i="hTag">אלפי ספרים. עולם של תורה.</div>
+        <div class="hsb" data-i="hSub">בית לכל מבקש חכמה ולימוד · מודיעין עילית</div>
+        <div class="hbox"><span aria-hidden="true">🔍</span><input id="hS2" data-ip="phHero" placeholder="חפש ספר, מחבר, נושא..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="hS2-ac" aria-label="חיפוש ספר, מחבר או נושא" autocomplete="off"><button onclick="dS(document.getElementById('hS2').value)" data-i="btnSearchCat">חיפוש בקטלוג</button><ul class="ac-list" id="hS2-ac" role="listbox" aria-label="תוצאות חיפוש"></ul></div>
+      </div>
     </div>
     <div class="harch"></div>
   </div>
@@ -1063,6 +1080,72 @@ function matchQ(key, words){
   return true;
 }
 // ═══════════════════════════════════════════
+// LIVE AUTOCOMPLETE (search dropdown)
+// ═══════════════════════════════════════════
+function goToBook(b){
+  G('catalog');
+  setTimeout(()=>{
+    const i=Q('cS'); if(i) i.value=b.n;
+    fC();
+    setTimeout(()=>{
+      const row=document.querySelector(`tr[data-bid="${b.i}"]`);
+      if(row){
+        row.scrollIntoView({behavior:'smooth',block:'center'});
+        row.classList.add('row-hl');
+        setTimeout(()=>row.classList.remove('row-hl'),1600);
+      }
+    },60);
+  },80);
+}
+function mkAutocomplete(inputId, listId){
+  const inp=Q(inputId), list=Q(listId);
+  if(!inp||!list) return;
+  let items=[], active=-1, deb;
+  function close(){
+    list.classList.remove('open'); list.innerHTML='';
+    inp.setAttribute('aria-expanded','false'); inp.removeAttribute('aria-activedescendant');
+    active=-1; items=[];
+  }
+  function render(q){
+    const words=nrm(q).split(' ').filter(w=>w);
+    if(!words.length){ close(); return; }
+    items=CATALOG.filter(b=>matchQ(b._k||'',words)).slice(0,8);
+    if(!items.length){
+      list.innerHTML=`<li class="ac-empty">${lang==='he'?'לא נמצאו תוצאות':'No results found'}</li>`;
+      list.classList.add('open'); inp.setAttribute('aria-expanded','true');
+      return;
+    }
+    list.innerHTML=items.map((b,idx)=>`<li class="ac-item" role="option" id="${inputId}-opt-${idx}" data-idx="${idx}">
+      <span class="ac-n">${b.n}</span><span class="ac-m">${b.a||''}${b.a&&b.s?' · ':''}${b.s||''}</span></li>`).join('');
+    list.classList.add('open'); inp.setAttribute('aria-expanded','true'); active=-1;
+    list.querySelectorAll('.ac-item').forEach(li=>{
+      li.addEventListener('mousedown',e=>{ e.preventDefault(); const b=items[+li.dataset.idx]; close(); inp.value=b.n; goToBook(b); });
+    });
+  }
+  function setActive(n){
+    const els=list.querySelectorAll('.ac-item'); if(!els.length) return;
+    active=(n+els.length)%els.length;
+    els.forEach(el=>el.classList.remove('active'));
+    els[active].classList.add('active');
+    inp.setAttribute('aria-activedescendant',els[active].id);
+    els[active].scrollIntoView({block:'nearest'});
+  }
+  inp.addEventListener('input',()=>{ clearTimeout(deb); deb=setTimeout(()=>render(inp.value),150); });
+  inp.addEventListener('keydown',e=>{
+    const open=list.classList.contains('open');
+    if(e.key==='ArrowDown'){ e.preventDefault(); if(!open) render(inp.value); else setActive(active+1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); if(open) setActive(active-1); }
+    else if(e.key==='Enter'){
+      if(open&&active>=0&&items[active]){ e.preventDefault(); const b=items[active]; close(); inp.value=b.n; goToBook(b); }
+      else { close(); dS(inp.value); }
+    }
+    else if(e.key==='Escape'){ if(open){ close(); } else { inp.blur(); } }
+  });
+  inp.addEventListener('blur',()=>setTimeout(close,120));
+  document.addEventListener('click',e=>{ if(!inp.contains(e.target)&&!list.contains(e.target)) close(); });
+}
+document.addEventListener('DOMContentLoaded',()=>{ mkAutocomplete('hS','hS-ac'); mkAutocomplete('hS2','hS2-ac'); });
+// ═══════════════════════════════════════════
 // STATE & DATA
 // ═══════════════════════════════════════════
 const BRN = ['סניף מרכזי','סניף הר פולין','סניף מייסדים'];
@@ -1363,7 +1446,7 @@ function rC(){
   const tb=Q('cTb'), cnt=Q('rC'); if(!tb) return;
   const tot=fCat.length, pgs=Math.ceil(tot/PER), st=(cPg-1)*PER, pg=fCat.slice(st,st+PER);
   cnt.textContent=tot.toLocaleString()+(lang==='he'?' ספרים':' books');
-  tb.innerHTML=pg.map((b,i)=>`<tr>
+  tb.innerHTML=pg.map((b,i)=>`<tr data-bid="${b.i}">
     <td style="color:var(--mu);font-size:10.5px">${st+i+1}</td>
     <td><strong style="color:var(--n);font-family:'Frank Ruhl Libre',serif;font-size:11.5px">${b.n}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4">${b.d}</div>`:''}</td>
     <td style="font-size:11px">${b.a||'—'}</td>
