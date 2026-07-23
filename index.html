@@ -20,9 +20,11 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--g:#b8963e;--gl:#d4af6a;--gd:#8a6f2b;--n:#1a2744;--nl:#253358;--nd:#0f1a35;--cr:#faf8f3;--cd:#f0ebe0;--tx:#2c1f0e;--mu:#6b5744;--bd:#e8dcc8}
-body{font-family:"Heebo",sans-serif;background:var(--cr);color:var(--tx);direction:rtl;overflow-x:hidden}
-.skip-link{position:absolute;right:-9999px;top:0;background:var(--n);color:#fff;padding:.7rem 1.2rem;z-index:9999;border-radius:0 0 0 8px;font-size:13px;font-weight:700;text-decoration:none}
-.skip-link:focus{right:0}
+html{direction:rtl}
+html[dir=ltr]{direction:ltr}
+body{font-family:"Heebo",sans-serif;background:var(--cr);color:var(--tx);direction:inherit;overflow-x:hidden}
+.skip-link{position:absolute;top:-100px;inset-inline-start:0;background:var(--n);color:#fff;padding:.7rem 1.2rem;z-index:9999;border-radius:0 0 8px 0;font-size:13px;font-weight:700;text-decoration:none;transition:top .15s ease}
+.skip-link:focus{top:0}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid #2d7dd2;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 body.acc-contrast{filter:contrast(1.25) saturate(1.1)}
@@ -80,6 +82,14 @@ nav a:hover,nav a.act{color:var(--g);background:rgba(184,150,62,.1)}
 .hbg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:1;transition:transform .45s ease}
 .hero:hover .hbg{transform:scale(1.06)}
 .harch{position:absolute;bottom:-1px;right:-6%;left:-6%;height:76px;background:var(--cr);border-radius:55% 55% 0 0/30px 30px 0 0}
+.bfPromo{max-width:1000px;margin:0 auto 1.6rem;display:flex;align-items:center;gap:1rem;background:linear-gradient(120deg,var(--n),var(--nl) 60%,#2d1a44);border:1px solid rgba(184,150,62,.35);border-radius:16px;padding:1.1rem 1.4rem;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 10px 30px rgba(26,39,68,.15)}
+.bfPromo:hover,.bfPromo:focus-visible{transform:translateY(-3px);box-shadow:0 16px 40px rgba(26,39,68,.25)}
+.bfPromoIc{font-size:2.2rem;flex-shrink:0}
+.bfPromoTxt{flex:1;min-width:0}
+.bfPromoH{color:var(--g);font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:1.05rem;margin-bottom:.25rem}
+.bfPromoP{color:#c3cbdb;font-size:.82rem;line-height:1.6}
+.bfPromoBtn{flex-shrink:0;background:linear-gradient(135deg,var(--gd),var(--g));color:var(--nd);font-weight:800;font-size:12px;padding:.55rem 1.1rem;border-radius:24px;white-space:nowrap}
+@media(max-width:640px){.bfPromo{flex-wrap:wrap;text-align:center;justify-content:center}.bfPromoBtn{margin:0 auto}}
 .jdiv{height:38px;background-color:var(--cr);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='38'%3E%3Cg fill='none' stroke='%23b8963e' stroke-width='1.3' opacity='.55'%3E%3Cpolygon points='30,6 39,21 21,21'/%3E%3Cpolygon points='30,32 21,17 39,17'/%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat-x;background-position:center;box-shadow:inset 0 6px 12px -8px rgba(26,39,68,.22)}
 .hcnt{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem 1rem 60px;text-align:center}
 .hcard{background:rgba(8,14,32,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:2.2rem 2.1rem 1.9rem;max-width:620px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.32);display:flex;flex-direction:column;align-items:center}
@@ -197,7 +207,33 @@ html[dir=ltr] .bt2 th,.bt2 td{text-align:right}html[dir=ltr] .bt2 td{text-align:
 .pa{font-family:"Frank Ruhl Libre",serif;font-size:1.65rem;font-weight:900;color:var(--g);margin-top:.55rem}
 .ps{font-size:11px;color:#607080;margin-top:.13rem}
 .dl{display:grid;grid-template-columns:1fr 300px;gap:1.4rem;padding:1.4rem 1rem 2.4rem;max-width:1040px;margin:0 auto}
+.dl>*{min-width:0}
 .dc{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:1.3rem}
+/* קרן הבניין — הדמיית תוכנית קומה אינטראקטיבית */
+.bfSection{background:radial-gradient(circle at 15% 20%,rgba(184,150,62,.08),transparent 45%),radial-gradient(circle at 85% 80%,rgba(26,39,68,.05),transparent 45%),var(--cr);padding:1.4rem 1rem 2.4rem}
+.bfIntro{max-width:640px;margin:0 auto 1.3rem;text-align:center;font-size:.88rem;color:var(--mu);line-height:1.8}
+.bfTabs{display:flex;justify-content:center;gap:.5rem;margin-bottom:1.2rem}
+.bfTab{background:#fff;border:1px solid var(--bd);border-radius:20px;padding:.42rem 1.3rem;font-size:12.5px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .18s}
+.bfTab.act,.bfTab:hover{background:var(--n);color:var(--g);border-color:var(--n)}
+.bfFloorWrap{max-width:980px;margin:0 auto;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:1.2rem;box-shadow:0 10px 34px rgba(26,39,68,.08)}
+.bfRow{display:flex;gap:.7rem;align-items:stretch;margin-bottom:.7rem}
+.bfHall{flex:0 0 110px;background:linear-gradient(160deg,var(--n),var(--nl));color:var(--g);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10.5px;font-weight:700;padding:.6rem;cursor:pointer;transition:transform .18s,box-shadow .18s;min-height:170px}
+.bfHall:hover,.bfHall:focus-visible{transform:translateY(-2px);box-shadow:0 10px 24px rgba(26,39,68,.22)}
+.bfRoomsGrid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:.35rem}
+.bfRoom{background:rgba(184,150,62,.14);border:1px solid rgba(184,150,62,.35);border-radius:6px;min-height:32px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:var(--gd);cursor:pointer;transition:all .15s}
+.bfRoom:hover,.bfRoom:focus-visible{background:var(--gl);color:var(--nd);transform:scale(1.06)}
+.bfExtraRow{display:flex;flex-wrap:wrap;gap:.5rem;padding-top:.7rem;border-top:1px dashed var(--bd)}
+.bfExtra{flex:1 1 130px;background:rgba(26,39,68,.06);border:1px solid rgba(26,39,68,.15);border-radius:8px;padding:.6rem;text-align:center;font-size:10.5px;font-weight:700;color:var(--n);cursor:pointer;transition:all .15s;min-height:56px;display:flex;align-items:center;justify-content:center}
+.bfExtra:hover,.bfExtra:focus-visible{background:var(--n);color:var(--g);transform:translateY(-2px)}
+.bfLegend{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;margin-top:1.1rem;font-size:11px;color:var(--mu)}
+.bfLg{display:flex;align-items:center;gap:.35rem}.bfLg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.bfTip{position:fixed;z-index:1500;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 20px 48px rgba(26,39,68,.28);padding:.85rem .95rem;max-width:230px;font-size:11.5px;display:none}
+.bfTip.open{display:block}
+.bfTip h5{font-family:"Frank Ruhl Libre",serif;font-size:13px;color:var(--n);margin-bottom:.3rem}
+.bfTip .bfAmt{color:var(--gd);font-weight:800;font-size:13px;margin-bottom:.55rem}
+.bfTip button{width:100%;background:linear-gradient(135deg,var(--gd),var(--g));color:var(--nd);border:none;padding:.45rem;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer}
+.bfTip .bfClose{position:absolute;top:.4rem;left:.5rem;background:none;width:auto;color:var(--mu);font-size:14px;padding:0;cursor:pointer}
+@media(max-width:640px){.bfRoomsGrid{grid-template-columns:repeat(4,1fr)}.bfHall{flex-basis:80px;font-size:9.5px;min-height:130px}.bfRow{flex-direction:row}}
 .dc h4{font-family:"Frank Ruhl Libre",serif;font-size:1.15rem;color:var(--n);margin-bottom:.95rem;font-weight:700}
 .ams{display:grid;grid-template-columns:repeat(3,1fr);gap:.42rem;margin-bottom:.72rem}
 .ab{border:2px solid var(--bd);background:var(--cr);padding:.5rem;text-align:center;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .18s}
@@ -399,6 +435,17 @@ html[dir=ltr] .ap{right:auto;left:0;transform:translateX(-110%)}
 @keyframes tI{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 /* FOOTER */
 footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px solid rgba(184,150,62,.15)}
+.nlBand{background:linear-gradient(120deg,var(--n),var(--nl));border-top:1px solid rgba(184,150,62,.25)}
+.nlWrap{max-width:820px;margin:0 auto;padding:1.6rem 1.2rem;display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;justify-content:space-between}
+.nlTxt h4{font-family:"Frank Ruhl Libre",serif;color:var(--g);font-size:1.05rem;margin-bottom:.25rem}
+.nlTxt p{color:#c3cbdb;font-size:.82rem}
+.nlForm{display:flex;gap:.5rem;flex:1;min-width:260px;max-width:380px}
+.nlForm input{flex:1;min-width:0;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:24px;padding:.55rem 1rem;font-size:12.5px}
+.nlForm input::placeholder{color:#8b9bb5}
+.nlForm input:focus{border-color:var(--gl);background:rgba(255,255,255,.14)}
+.nlForm button{background:linear-gradient(135deg,var(--gd),var(--g));color:var(--nd);border:none;padding:.55rem 1.3rem;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;transition:transform .15s}
+.nlForm button:hover{transform:translateY(-1px)}
+.nlMsg{width:100%;text-align:center;font-size:11.5px;color:var(--gl);margin-top:.2rem}
 .fg3{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1.7rem;margin-bottom:1.7rem}
 .fb img{height:36px;width:auto;filter:brightness(0) invert(1);opacity:.55;margin-bottom:.58rem;display:block}
 .fb h4{font-family:"Frank Ruhl Libre",serif;font-size:1.1rem;color:var(--g);margin-bottom:.45rem;font-weight:700}
@@ -423,8 +470,13 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
   .dl,.cl{grid-template-columns:1fr}
   .fg3{grid-template-columns:1fr 1fr;gap:1.1rem}
   .stats{grid-template-columns:repeat(2,1fr)}
-  nav a{font-size:10px;padding:.25rem .3rem}
   .hsr{display:none}
+  .burger{display:block}
+  /* תפריט נפתח מתחת להדר */
+  nav{position:fixed;top:56px;right:0;left:0;background:rgba(10,18,42,.99);flex-direction:column;padding:.5rem 0;
+      max-height:0;overflow:hidden;transition:max-height .28s ease;z-index:890;border-bottom:1px solid rgba(184,150,62,.2)}
+  nav.open{max-height:75vh;overflow-y:auto}
+  nav a{font-size:14px;padding:.7rem 1.2rem;border-radius:0;text-align:start;border-bottom:1px solid rgba(255,255,255,.05)}
   /* אזור ניהול: תפריט אופקי נגלל במקום מוסתר */
   .adw{grid-template-columns:1fr}
   .adn{display:flex;overflow-x:auto;gap:.2rem;padding:.4rem .5rem;white-space:nowrap;-webkit-overflow-scrolling:touch;position:sticky;top:56px;z-index:80}
@@ -437,12 +489,6 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
   .adm{padding:.9rem}
 }
 @media(max-width:560px){
-  .burger{display:block}
-  /* תפריט נפתח מתחת להדר */
-  nav{position:fixed;top:56px;right:0;left:0;background:rgba(10,18,42,.99);flex-direction:column;padding:.5rem 0;
-      max-height:0;overflow:hidden;transition:max-height .28s ease;z-index:890;border-bottom:1px solid rgba(184,150,62,.2)}
-  nav.open{max-height:75vh;overflow-y:auto}
-  nav a{font-size:14px;padding:.7rem 1.2rem;border-radius:0;text-align:start;border-bottom:1px solid rgba(255,255,255,.05)}
   .hero h2{font-size:1.85rem}
   .fg3{grid-template-columns:1fr}
   .logo img{height:34px}
@@ -462,6 +508,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
     <a class="act" onclick="G('home')" data-i="nHome">בית</a>
     <a onclick="G('about')" data-i="nAbout">אודותינו</a>
     <a onclick="G('catalog')" data-i="nCat">קטלוג</a>
+    <a onclick="goBuilding()" data-i="nBld">🏛️ קרן הבניין</a>
     <a onclick="G('sales')" data-i="nSales">מכירות</a>
     <a onclick="G('branches')" data-i="nBr">סניפים</a>
     <a onclick="G('donate')" data-i="nDon">תרומות</a>
@@ -506,6 +553,14 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
     <div class="qb" onclick="G('db')"><div class="qi">💾</div><span class="ql" data-i="qDb">מאגרים</span></div>
     <div class="qb" onclick="G('archive')"><div class="qi">🎞️</div><span class="ql" data-i="qArc">ארכיון</span></div>
   </div></div>
+  <div class="bfPromo" onclick="goBuilding()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')goBuilding()">
+    <div class="bfPromoIc">🏛️</div>
+    <div class="bfPromoTxt">
+      <div class="bfPromoH" data-i="bfPromoH">קרן הבניין החדש — הצטרפו למפעל הדורי</div>
+      <div class="bfPromoP" data-i="bfPromoP">גלו הדמיה אינטראקטיבית של הבניין החדש ובחרו חדר, אולם או אגף להנצחה על שמכם</div>
+    </div>
+    <div class="bfPromoBtn" data-i="bfPromoBtn">🎗️ לצפייה ולהנצחה ←</div>
+  </div>
   <div class="stats">
     <div class="si"><div class="sn" id="sB">0</div><div class="sl" data-i="sBooks">ספרים בקטלוג</div></div>
     <div class="si"><div class="sn" id="sR">0</div><div class="sl" data-i="sRead">קוראים רשומים</div></div>
@@ -623,6 +678,21 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
       </div>
     </div>
   </div>
+  <div class="bfSection" id="bldSection">
+    <div class="stit"><div class="ss" data-i="bfSub">קרן הבניין</div><h3 class="fr sh" data-i="bfH">בחרו חדר, אולם או אגף להנצחה</h3><div class="gb"></div></div>
+    <p class="bfIntro" data-i="bfIntro">הבניין החדש (100×50 מ׳, שתי קומות) יכלול בית כנסת, לובי מרכזי, משרדי הנהלה, ושמונה אולמות ספרים גדולים לצד כ-40 חדרי לימוד. לחצו או הצביעו על כל חלק בהדמיה כדי לראות את סכום ההקדשה ולהנציח על שמכם.</p>
+    <div class="bfTabs" role="tablist">
+      <button class="bfTab act" onclick="bfShowFloor(1,this)" data-i="bfF1">קומה א׳</button>
+      <button class="bfTab" onclick="bfShowFloor(2,this)" data-i="bfF2">קומה ב׳</button>
+    </div>
+    <div class="bfFloorWrap" id="bfFloor1"></div>
+    <div class="bfFloorWrap" id="bfFloor2" style="display:none"></div>
+    <div class="bfLegend">
+      <span class="bfLg"><i style="background:var(--n)"></i><span data-i="bfLgHall">אולם ספרים גדול</span></span>
+      <span class="bfLg"><i style="background:var(--gl)"></i><span data-i="bfLgRoom">חדר לימוד</span></span>
+      <span class="bfLg"><i style="background:#8a6f2b"></i><span data-i="bfLgOther">שטח ציבורי / משרד</span></span>
+    </div>
+  </div>
   <div class="dl">
     <div>
       <div class="dts">
@@ -648,7 +718,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
         <div class="fg2"><label>שם מלא</label><input placeholder="ישראל ישראלי"></div>
         <div class="fg2"><label>אימייל</label><input type="email" placeholder="email@example.com"></div>
         <div class="fg2"><label data-i="cfTel">טלפון</label><input type="tel" placeholder="050-0000000"></div>
-        <div class="fg2"><label>הנצחה / לכבוד</label><input placeholder="לזכר נשמת..."></div>
+        <div class="fg2"><label data-i="dDedL">הנצחה / לכבוד</label><input id="dDed" data-ip="dDedP" placeholder="לזכר נשמת..."></div>
         <button class="db" onclick="sDT(2)" data-i="dGo">💛 המשך לתשלום מאובטח</button>
         <div style="text-align:center;font-size:10.5px;color:var(--mu);margin-top:.38rem" data-i="dSec">🔒 תשלום מאובטח · קבלה תישלח למייל</div>
       </div>
@@ -969,6 +1039,20 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
   </div>
 </div>
 
+<div class="nlBand">
+  <div class="nlWrap">
+    <div class="nlTxt">
+      <h4 data-i="nlH">הצטרפו לרשימת התפוצה</h4>
+      <p data-i="nlP">עדכונים על ספרים חדשים, אירועים והתקדמות קרן הבניין</p>
+    </div>
+    <form class="nlForm" id="nlForm" onsubmit="return nlSubmit(event)">
+      <input type="email" id="nlEmail" data-i="nlEmail" data-ip="nlEmail" placeholder="כתובת אימייל" aria-label="כתובת אימייל" required>
+      <button type="submit" data-i="nlBtn">הרשמה</button>
+    </form>
+    <div class="nlMsg" id="nlMsg" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
 <footer>
   <div class="fg3">
     <div class="fb">
@@ -1047,6 +1131,16 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
       <button class="asbm" onclick="dRg()">הרשמה לספריה</button>
       <div id="rErr" style="text-align:center;font-size:11.5px;color:#c0392b;margin-top:.4rem;display:none"></div>
     </div>
+  </div>
+</div>
+
+<div class="aov" id="acctOv" onclick="if(event.target===this)Q('acctOv').classList.remove('op')">
+  <div class="am">
+    <button class="ax" onclick="Q('acctOv').classList.remove('op')" aria-label="סגור חלון">×</button>
+    <div class="al"><img data-img="IMG_LOGO" alt="logo"><h3 id="acctName">—</h3><div class="asub" id="acctEmail">—</div></div>
+    <h4 style="font-family:'Frank Ruhl Libre',serif;font-size:1rem;color:var(--n);margin:.9rem 0 .55rem" data-i="authHist">היסטוריית תרומות ורכישות</h4>
+    <div id="acctHist" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem"></div>
+    <button class="asbm" style="background:rgba(220,38,38,.08);color:#c0392b;margin-top:1rem" onclick="if(confirm(lang==='he'?'להתנתק מהחשבון?':'Log out?'))logoutMember()" data-i="authLogout">התנתקות</button>
   </div>
 </div>
 
@@ -1389,6 +1483,21 @@ const TR = {
   fNav:{he:'ניווט',en:'Navigate'}, fSvc:{he:'שירותים',en:'Services'}, fCon:{he:'צור קשר',en:'Contact'},
   fs1:{he:'השאלת ספרים',en:'Book Lending'}, fs2:{he:'חיפוש מתקדם',en:'Advanced Search'},
   fs3:{he:'ייעוץ ספרן',en:'Librarian Advice'}, fs4:{he:'תרומת ספרים',en:'Book Donations'}, fs5:{he:'מאגרי מחשב',en:'Digital Databases'},
+  nBld:{he:'🏛️ קרן הבניין',en:'🏛️ Building Fund'}, btnFilters:{he:'🔍 סינון',en:'🔍 Filters'},
+  bfSub:{he:'קרן הבניין',en:'Building Fund'}, bfH:{he:'בחרו חדר, אולם או אגף להנצחה',en:'Choose a Room, Hall or Wing to Dedicate'},
+  bfIntro:{he:'הבניין החדש (100×50 מ׳, שתי קומות) יכלול בית כנסת, לובי מרכזי, משרדי הנהלה, ושמונה אולמות ספרים גדולים לצד כ-40 חדרי לימוד. לחצו או הצביעו על כל חלק בהדמיה כדי לראות את סכום ההקדשה ולהנציח על שמכם.',en:"Our new building (100×50m, two floors) will include a synagogue, central lobby, offices, and eight grand book halls alongside about 40 study rooms. Click or hover any part of the model below to see dedication pricing and name it in your honor."},
+  bfF1:{he:'קומה א׳',en:'1st Floor'}, bfF2:{he:'קומה ב׳',en:'2nd Floor'},
+  bfLgHall:{he:'אולם ספרים גדול',en:'Grand Book Hall'}, bfLgRoom:{he:'חדר לימוד',en:'Study Room'}, bfLgOther:{he:'שטח ציבורי / משרד',en:'Public Area / Office'},
+  dDedL:{he:'הנצחה / לכבוד',en:'Dedication / In Honor Of'}, dDedP:{he:'לזכר נשמת...',en:'In memory of...'},
+  nlH:{he:'הצטרפו לרשימת התפוצה',en:'Join Our Mailing List'}, nlP:{he:'עדכונים על ספרים חדשים, אירועים והתקדמות קרן הבניין',en:'Updates on new books, events, and building-fund progress'},
+  nlEmail:{he:'כתובת אימייל',en:'Email address'}, nlBtn:{he:'הרשמה',en:'Subscribe'}, nlOk:{he:'✅ תודה שנרשמת!',en:'✅ Thanks for subscribing!'},
+  authSignup:{he:'הרשמה',en:'Sign Up'}, authLogin:{he:'התחברות',en:'Login'}, authReset:{he:'שכחתי סיסמה',en:'Forgot Password'},
+  authEmail:{he:'אימייל',en:'Email'}, authPass:{he:'סיסמה',en:'Password'}, authName:{he:'שם מלא',en:'Full Name'},
+  authGo:{he:'המשך',en:'Continue'}, authHist:{he:'היסטוריית תרומות ורכישות',en:'Donation & Purchase History'},
+  authLogout:{he:'התנתקות',en:'Logout'}, authNoHist:{he:'עדיין אין פעילות להצגה',en:'No activity yet'},
+  bfPromoH:{he:'קרן הבניין החדש — הצטרפו למפעל הדורי',en:'The New Building Fund — Join Our Historic Project'},
+  bfPromoP:{he:'גלו הדמיה אינטראקטיבית של הבניין החדש ובחרו חדר, אולם או אגף להנצחה על שמכם',en:'Explore an interactive model of our new building and choose a room, hall or wing to dedicate in your honor'},
+  bfPromoBtn:{he:'🎗️ לצפייה ולהנצחה ←',en:'🎗️ View & Dedicate ←'},
 };
 function tr(k){ return (TR[k] && TR[k][lang]) || k; }
 
@@ -1411,6 +1520,7 @@ function sL(l){
   if(typeof fC==='function') fC();
   if(typeof rHB==='function') rHB();
   if(typeof rSale==='function') rSale('');
+  if(typeof bfRenderFloor==='function'){ bfRenderFloor(1); bfRenderFloor(2); }
   T(l==='he'?'🇮🇱 עברית':'🇺🇸 English');
 }
 
@@ -1570,6 +1680,137 @@ function sDT(n){
 }
 function sAmt(el,v){document.querySelectorAll('.ab').forEach(b=>b.classList.remove('act')); el.classList.add('act'); if(v&&Q('dAm')) Q('dAm').value=v;}
 function sDP(el){document.querySelectorAll('.dp').forEach(b=>b.classList.remove('act')); el.classList.add('act');}
+
+// ═══════════════════════════════════════════
+// קרן הבניין — הדמיית תוכנית קומה אינטראקטיבית
+// ═══════════════════════════════════════════
+function bfRoomsRange(from,to,amt){
+  const arr=[]; for(let i=from;i<=to;i++) arr.push({id:'room'+i,he:'חדר לימוד '+i,en:'Study Room '+i,amt}); return arr;
+}
+const BF_DATA = {
+  1:{
+    hallL:{id:'h1l',he:'אולם ספרים גדול – אגף מערבי',en:'Grand Book Hall – West Wing',amt:180000},
+    hallR:{id:'h1r',he:'אולם ספרים גדול – אגף מזרחי',en:'Grand Book Hall – East Wing',amt:180000},
+    rooms:bfRoomsRange(1,20,18000),
+    extra:[
+      {id:'shul',he:'בית הכנסת',en:'Synagogue',amt:250000},
+      {id:'lobby',he:'לובי כניסה מרכזי',en:'Central Entrance Lobby',amt:150000},
+      {id:'off1',he:'משרד הנהלה 1',en:'Administration Office 1',amt:30000},
+      {id:'off2',he:'משרד הנהלה 2',en:'Administration Office 2',amt:30000},
+      {id:'off3',he:'משרד הנהלה 3',en:'Administration Office 3',amt:30000},
+      {id:'off4',he:'משרד הנהלה 4',en:'Administration Office 4',amt:30000},
+      {id:'sort',he:'חדר מיון וארגון ספרים',en:'Book Sorting & Organization Room',amt:45000},
+    ]
+  },
+  2:{
+    hallL:{id:'h2l',he:'אולם ספרים גדול – אגף מערבי (קומה ב׳)',en:'Grand Book Hall – West Wing (2nd Floor)',amt:180000},
+    hallR:{id:'h2r',he:'אולם ספרים גדול – אגף מזרחי (קומה ב׳)',en:'Grand Book Hall – East Wing (2nd Floor)',amt:180000},
+    rooms:bfRoomsRange(21,40,18000),
+    extra:[]
+  }
+};
+function bfRoomEl(room,cls){
+  const label=(room.he.match(/\d+$/)||[])[0];
+  const d=document.createElement('div');
+  d.className=cls; d.tabIndex=0; d.setAttribute('role','button');
+  d.dataset.he=room.he; d.dataset.en=room.en; d.dataset.amt=room.amt;
+  d.textContent = cls==='bfRoom' ? (label||'📖') : (lang==='he'?room.he:room.en);
+  d.addEventListener('click',e=>{ e.stopPropagation(); bfOpenTip(d,room); });
+  d.addEventListener('mouseenter',()=>bfOpenTip(d,room));
+  d.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); bfOpenTip(d,room);} });
+  return d;
+}
+function bfRenderFloor(n){
+  const wrap=Q('bfFloor'+n); if(!wrap) return;
+  const f=BF_DATA[n]; wrap.innerHTML='';
+  const row=document.createElement('div'); row.className='bfRow';
+  row.appendChild(bfRoomEl(f.hallL,'bfHall'));
+  const grid=document.createElement('div'); grid.className='bfRoomsGrid';
+  f.rooms.forEach(r=>grid.appendChild(bfRoomEl(r,'bfRoom')));
+  row.appendChild(grid);
+  row.appendChild(bfRoomEl(f.hallR,'bfHall'));
+  wrap.appendChild(row);
+  if(f.extra.length){
+    const erow=document.createElement('div'); erow.className='bfExtraRow';
+    f.extra.forEach(r=>erow.appendChild(bfRoomEl(r,'bfExtra')));
+    wrap.appendChild(erow);
+  }
+}
+function bfShowFloor(n,el){
+  document.querySelectorAll('.bfTab').forEach(t=>t.classList.remove('act')); el.classList.add('act');
+  Q('bfFloor1').style.display = n===1?'block':'none';
+  Q('bfFloor2').style.display = n===2?'block':'none';
+  bfCloseTip();
+}
+let bfTipEl=null;
+function bfOpenTip(target,room){
+  if(!bfTipEl){
+    bfTipEl=document.createElement('div'); bfTipEl.className='bfTip'; bfTipEl.setAttribute('role','tooltip'); bfTipEl.id='bfTip';
+    document.body.appendChild(bfTipEl);
+  }
+  const name = lang==='he'?room.he:room.en;
+  const amtLbl = lang==='he'?('₪'+room.amt.toLocaleString()):('$'+Math.round(room.amt/3.7).toLocaleString());
+  bfTipEl.innerHTML='';
+  const closeBtn=document.createElement('button'); closeBtn.className='bfClose'; closeBtn.setAttribute('aria-label','סגור'); closeBtn.textContent='✕';
+  closeBtn.addEventListener('click',bfCloseTip);
+  const h5=document.createElement('h5'); h5.textContent=name;
+  const amtDiv=document.createElement('div'); amtDiv.className='bfAmt'; amtDiv.textContent=(lang==='he'?'סכום הקדשה: ':'Dedication: ')+amtLbl;
+  const dedBtn=document.createElement('button'); dedBtn.textContent=lang==='he'?'🎗️ הקדש חדר זה':'🎗️ Dedicate This';
+  dedBtn.addEventListener('click',()=>bfDedicate(room));
+  bfTipEl.append(closeBtn,h5,amtDiv,dedBtn);
+  const r=target.getBoundingClientRect();
+  bfTipEl.classList.add('open');
+  const tw=bfTipEl.offsetWidth||230, th=bfTipEl.offsetHeight||100;
+  let left=r.left+r.width/2-tw/2; left=Math.max(10,Math.min(left,window.innerWidth-tw-10));
+  let top=r.top-th-10; if(top<10) top=r.bottom+10;
+  bfTipEl.style.left=left+'px'; bfTipEl.style.top=top+'px';
+}
+function bfCloseTip(){ if(bfTipEl) bfTipEl.classList.remove('open'); }
+document.addEventListener('click',e=>{ if(bfTipEl && !bfTipEl.contains(e.target) && !e.target.closest('.bfRoom,.bfHall,.bfExtra')) bfCloseTip(); });
+function bfDedicate(room){
+  bfCloseTip();
+  G('donate');
+  const name = lang==='he'?room.he:room.en;
+  setTimeout(()=>{
+    if(Q('dAm')) Q('dAm').value=room.amt;
+    document.querySelectorAll('.ab').forEach(b=>b.classList.remove('act'));
+    if(Q('dDed')) Q('dDed').value=(lang==='he'?'לע"נ / לכבוד — הנצחת ':'In honor/memory of — dedicating ')+name;
+    const dc=Q('dF'); if(dc) dc.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+function goBuilding(){
+  G('donate');
+  setTimeout(()=>{ const el=Q('bldSection'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },100);
+}
+document.addEventListener('DOMContentLoaded',()=>{ bfRenderFloor(1); bfRenderFloor(2); });
+
+// ═══════════════════════════════════════════
+// ניוזלטר — הרשמה לרשימת תפוצה
+// TODO: להזין כאן את קוד ההטמעה (Account ID + Form/Group ID) מהחשבון ב-MailerLite
+// לדוגמה: https://assets.mailerlite.com/jsonp/XXXXXX/forms/YYYYYYYYYYYYYYYYYY/subscribe
+// ═══════════════════════════════════════════
+const MAILERLITE_FORM_URL = '';
+async function nlSubmit(ev){
+  ev.preventDefault();
+  const email = Q('nlEmail').value.trim();
+  const msg = Q('nlMsg');
+  if(!email) return false;
+  let sentToMailerLite = false;
+  if(MAILERLITE_FORM_URL){
+    try{
+      await fetch(MAILERLITE_FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'fields[email]='+encodeURIComponent(email)});
+      sentToMailerLite = true;
+    }catch(e){ console.warn('MailerLite signup failed:', e); }
+  }
+  // גיבוי בענן (Supabase) — נשמר תמיד, גם אם MailerLite עדיין לא חובר
+  if(typeof sbSave==='function'){
+    try{ await sbSave('newsletter_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), {email, ts:new Date().toISOString(), synced:sentToMailerLite}); }
+    catch(e){ console.warn('newsletter backup save failed:', e); }
+  }
+  if(msg){ msg.textContent = tr('nlOk'); }
+  Q('nlForm').reset();
+  return false;
+}
 function sT(el,sel){document.querySelectorAll(sel).forEach(e=>e.classList.remove('act')); el.classList.add('act');}
 
 // ═══════════════════════════════════════════
@@ -1599,8 +1840,25 @@ function fillBranchSelect(){
 
 function setLoggedInUI(){
   const b=Q('lBtn');
-  if(mUser){ b.textContent='👤 '+mUser.name; b.onclick=function(){ if(confirm('להתנתק מהחשבון?')) logoutMember(); }; }
+  if(mUser){ b.textContent='👤 '+mUser.name; b.removeAttribute('data-i'); b.onclick=openMyAccount; }
   else { b.textContent = lang==='he'?'התחברות':'Login'; b.setAttribute('data-i','btnLogin'); b.onclick=oAuth; }
+}
+
+async function openMyAccount(){
+  if(!mUser) return;
+  Q('acctName').textContent=mUser.name;
+  Q('acctEmail').textContent=mUser.email;
+  Q('acctOv').classList.add('op');
+  const hist=Q('acctHist');
+  hist.innerHTML='<div style="text-align:center;color:var(--mu);font-size:11.5px;padding:.6rem">'+(lang==='he'?'טוען...':'Loading...')+'</div>';
+  if(!sbReady && !initSB()){ hist.innerHTML='<div style="color:#c0392b;font-size:11.5px;text-align:center">❌ '+(lang==='he'?'אין חיבור לענן':'No connection')+'</div>'; return; }
+  try{
+    const {data,error} = await SB.from('donations').select('*').eq('member_id',mUser.id).order('created_at',{ascending:false});
+    if(error || !data || !data.length){ hist.innerHTML='<div style="text-align:center;color:var(--mu);font-size:11.5px;padding:.6rem">'+tr('authNoHist')+'</div>'; return; }
+    hist.innerHTML = data.map(d=>`<div style="border:1px solid var(--bd);border-radius:8px;padding:.55rem .7rem;font-size:11.5px;display:flex;justify-content:space-between;gap:.5rem">
+      <span>${d.note||(lang==='he'?'תרומה':'Donation')}</span>
+      <span style="font-weight:800;color:var(--gd)">₪${Number(d.amount||0).toLocaleString()}</span></div>`).join('');
+  }catch(e){ console.warn('history load failed',e); hist.innerHTML='<div style="color:#c0392b;font-size:11.5px;text-align:center">❌ '+(lang==='he'?'שגיאה בטעינה':'Load error')+'</div>'; }
 }
 
 async function restoreMemberSession(){
