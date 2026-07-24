@@ -5,7 +5,7 @@
 <meta name="google-site-verification" content="BOxiz5eJQ0VFjCJbP2g09lsKR96F2LhcbYigasgCnDw" />
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ספריית בית יוסף – מודיעין עילית | אוצר התורה</title>
-<meta name="description" content="ספריית בית יוסף במודיעין עילית – ספריית התורה הגדולה עם למעלה מ-59,000 ספרי קודש, גמרא, הלכה, מוסר וחסידות. 3 סניפים, קטלוג מקוון מלא, השאלת ספרים וייעוץ ספרן.">
+<meta name="description" content="ספריית בית יוסף במודיעין עילית – ספריית התורה הגדולה עם למעלה מ-59,000 ספרי קודש, גמרא, הלכה, מוסר וחסידות. 2 סניפים, קטלוג מקוון מלא, השאלת ספרים וייעוץ ספרן.">
 <meta name="keywords" content="ספריית בית יוסף, ספרייה מודיעין עילית, ספרי קודש, קטלוג ספרים, ספריית תורה, השאלת ספרים, גמרא, הלכה, מוסר, חסידות, ספרייה חרדית, אוצר התורה">
 <meta name="author" content="ספריית בית יוסף">
 <meta name="robots" content="index, follow">
@@ -13,7 +13,7 @@
 <meta name="geo.placename" content="מודיעין עילית">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ספריית בית יוסף – מודיעין עילית">
-<meta property="og:description" content="ספריית התורה הגדולה במודיעין עילית – 59,000+ ספרי קודש, 3 סניפים, קטלוג מקוון מלא.">
+<meta property="og:description" content="ספריית התורה הגדולה במודיעין עילית – 59,000+ ספרי קודש, 2 סניפים, קטלוג מקוון מלא.">
 <meta property="og:locale" content="he_IL">
 <meta property="og:site_name" content="ספריית בית יוסף">
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=David+Libre:wght@400;700&family=Secular+One&family=Alef:wght@400;700&family=Varela+Round&display=swap" rel="stylesheet">
@@ -498,12 +498,13 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets.js"></script>
 <script src="catalog.js"></script>
+<script src="site-data.js" onerror="console.warn('site-data.js not found yet — no permanent GitHub-saved data. This is normal until the admin panel saves for the first time.')"></script>
 </head>
 <body>
 <a href="#mainContent" class="skip-link">דלג לתוכן הראשי</a>
 <header>
   <button class="burger" onclick="tglNav()" aria-label="תפריט">☰</button>
-  <div class="logo" onclick="G('home')"><img data-img="IMG_LOGO" alt="ספריית בית יוסף" id="Limg"></div>
+  <div class="logo" onclick="logoClick()"><img data-img="IMG_LOGO" alt="ספריית בית יוסף" id="Limg"></div>
   <nav id="mNav" aria-label="ניווט ראשי">
     <a class="act" onclick="G('home')" data-i="nHome">בית</a>
     <a onclick="G('about')" data-i="nAbout">אודותינו</a>
@@ -516,7 +517,6 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
     <a onclick="G('db')" data-i="nDb">מאגרים</a>
     <a onclick="G('archive')" data-i="nArc">ארכיון</a>
     <a onclick="G('contact')" data-i="nCon">צור קשר</a>
-    <a onclick="eA()" style="color:rgba(184,150,62,.75)" data-i="nAdm">🔐 מנהל</a>
   </nav>
   <div class="hrt">
     <div class="hsr"><span style="color:#8b9bb5;font-size:12px" aria-hidden="true">🔍</span><input id="hS" data-ip="phSearch" placeholder="חיפוש ספרים..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="hS-ac" aria-label="חיפוש ספרים בקטלוג" autocomplete="off"><ul class="ac-list" id="hS-ac" role="listbox" aria-label="תוצאות חיפוש"></ul></div>
@@ -590,7 +590,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
         <div style="font-size:10px;color:var(--g);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.32rem" data-i="dirLbl">📜 דבר המייסד</div>
         <h4 class="fr" style="font-size:1.05rem;color:var(--n);margin-bottom:.6rem;font-weight:900" data-i="dirH">דבר הספריה</h4>
         <p style="font-size:12px;color:var(--mu);line-height:1.88">ספריית בית יוסף נוסדה מתוך חזון עמוק של אהבת התורה ואהבת הלומד. ראיתי לנגד עיניי מוסד שיהיה בית אמיתי לכל אחד.</p>
-        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem">לאורך 28 שנות פעילות, גדלנו מספריה קטנה לאחת הגדולות בעולם החרדי – עם למעלה מ-59,000 ספרים, שלושה סניפים, ואלפי קוראים.</p>
+        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem">לאורך 28 שנות פעילות, גדלנו מספריה קטנה לאחת הגדולות בעולם החרדי – עם למעלה מ-59,000 ספרים, שני סניפים, ואלפי קוראים.</p>
         <div style="margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--bd);font-size:11px;color:var(--n);font-family:'Frank Ruhl Libre',serif;font-weight:700">✍️ הרב יצחק לווין | מייסד ומנכ"ל ספריית בית יוסף</div>
       </div>
     </div>
@@ -598,7 +598,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
   <div class="prg" style="grid-template-columns:repeat(auto-fill,minmax(245px,1fr))">
     <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h4 data-i="ac1h">חזון ומטרות</h4><p data-i="ac1p">חזוננו הוא להנגיש את ספרות התורה לכל מבקש.</p></div>
     <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4 data-i="ac2h">תרומה לקהילה</h4><p data-i="ac2p">מדי שנה מעניקה הספריה שירות ל-8,400 קוראים רשומים.</p></div>
-    <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div><h4 data-i="ac3h">נתוני הספריה</h4><p data-i="ac3p">59,321 ספרים · 3 סניפים · 8,400 קוראים · 28 שנות פעילות.</p></div>
+    <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div><h4 data-i="ac3h">נתוני הספריה</h4><p data-i="ac3p">59,321 ספרים · 2 סניפים · 8,400 קוראים · 28 שנות פעילות.</p></div>
     <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div><h4 data-i="ac4h">אוספים מיוחדים</h4><p data-i="ac4p">אוסף ייחודי של ספרים נדירים ועתיקים.</p></div>
     <div class="prc"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></div><h4 data-i="ac5h">הישגים</h4><p data-i="ac5p">הכרה מגדולי ישראל ומכתבי הוקרה מגדולי הדור.</p></div>
   </div>
@@ -619,7 +619,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
       <div class="fg"><span class="fl" data-i="cBranch">סניף</span>
         <select class="fs" id="fBr" onchange="fC()">
           <option value="" data-i="cAllBr">כל הסניפים</option>
-          <option>סניף מרכזי</option><option>סניף הר פולין</option><option>סניף מייסדים</option>
+          <option>סניף מרכזי</option><option>בית יוסף</option>
         </select></div>
       <div class="fg"><span class="fl" data-i="cAvail">זמינות</span>
         <label class="fk"><input type="checkbox" id="fAv" checked onchange="fC()"><span data-i="cYes">זמין</span></label>
@@ -653,13 +653,21 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
       <tbody id="cTb"></tbody></table>
       </div>
       <div class="pgc" id="pC"></div>
+      <div class="bfPromo" style="margin-top:1.6rem" onclick="goBuilding()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')goBuilding()">
+        <div class="bfPromoIc">🏛️</div>
+        <div class="bfPromoTxt">
+          <div class="bfPromoH" data-i="bfPromoH">קרן הבניין החדש — הצטרפו למפעל הדורי</div>
+          <div class="bfPromoP" data-i="bfPromoP">גלו הדמיה אינטראקטיבית של הבניין החדש ובחרו חדר, אולם או אגף להנצחה על שמכם</div>
+        </div>
+        <div class="bfPromoBtn" data-i="bfPromoBtn">🎗️ לצפייה ולהנצחה ←</div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- BRANCHES -->
 <div class="pg" id="pg-branches">
-  <div class="ph" style="background:linear-gradient(135deg,var(--nd),#1a3a2a)"><div class="phov"></div><div class="phc"><h2 data-i="brH">סניפי הספריה</h2><p data-i="brP">שלושה סניפים המשרתים את כל רחבי מודיעין עילית</p></div></div>
+  <div class="ph" style="background:linear-gradient(135deg,var(--nd),#1a3a2a)"><div class="phov"></div><div class="phc"><h2 data-i="brH">סניפי הספריה</h2><p data-i="brP">שני סניפים המשרתים את כל רחבי מודיעין עילית</p></div></div>
   <div class="brg" id="brGrid"></div>
   </div>
 <!-- DONATE -->
@@ -715,15 +723,15 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
           <button class="dp" onclick="sDP(this)" data-i="dYear">שנתית</button>
         </div>
         <div class="fg2"><label data-i="dAmt">סכום (₪)</label><input type="number" value="360" id="dAm"></div>
-        <div class="fg2"><label>שם מלא</label><input placeholder="ישראל ישראלי"></div>
-        <div class="fg2"><label>אימייל</label><input type="email" placeholder="email@example.com"></div>
-        <div class="fg2"><label data-i="cfTel">טלפון</label><input type="tel" placeholder="050-0000000"></div>
+        <div class="fg2"><label>שם מלא</label><input id="dName" placeholder="ישראל ישראלי"></div>
+        <div class="fg2"><label>אימייל</label><input type="email" id="dMail" placeholder="email@example.com"></div>
+        <div class="fg2"><label data-i="cfTel">טלפון</label><input type="tel" id="dPhone" placeholder="050-0000000"></div>
         <div class="fg2"><label data-i="dDedL">הנצחה / לכבוד</label><input id="dDed" data-ip="dDedP" placeholder="לזכר נשמת..."></div>
-        <button class="db" onclick="sDT(2)" data-i="dGo">💛 המשך לתשלום מאובטח</button>
+        <button class="db" onclick="goPay()" data-i="dGo">💛 המשך לתשלום מאובטח</button>
         <div style="text-align:center;font-size:10.5px;color:var(--mu);margin-top:.38rem" data-i="dSec">🔒 תשלום מאובטח · קבלה תישלח למייל</div>
       </div>
       <div id="dN" style="display:none" class="nwr">
-        <iframe src="https://www.matara.pro/nedarimplus/online/?mosad=7004700" title="תרומה – נדרים פלוס" allow="payment" loading="lazy"></iframe>
+        <iframe id="nedarimFrame" src="about:blank" title="תרומה – נדרים פלוס" allow="payment" loading="lazy"></iframe>
       </div>
     </div>
     <div class="dsd">
@@ -971,7 +979,7 @@ footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px
         <div style="overflow-x:auto">
           <table class="atbl" id="cmTable">
             <thead><tr>
-              <th style="width:55px">#</th><th>שם הספר</th><th>מחבר</th>
+              <th style="width:55px">#</th><th style="width:56px">תמונה</th><th>שם הספר</th><th>מחבר</th>
               <th style="width:120px">נושא</th><th style="width:120px">סניף</th>
               <th style="width:75px">זמינות</th><th style="width:90px">פעולות</th>
             </tr></thead>
@@ -1169,7 +1177,9 @@ if(typeof CAT_RAW==='undefined'){
       '⚠️ קובץ הקטלוג (catalog.js) לא נטען.<br>ודא ששלושת הקבצים הועלו יחד:<br><b>index.html · catalog.js · assets.js</b></div>');
   });
 }
-const CATALOG=CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:["סניף מרכזי","סניף הר פולין","סניף מייסדים"][r[6]]}));
+const CATALOG=CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:["סניף מרכזי","בית יוסף","בית יוסף"][r[6]]}));
+if(typeof SITE_DATA!=='undefined' && Array.isArray(SITE_DATA.extraBooks)) CATALOG.unshift(...SITE_DATA.extraBooks);
+if(typeof SITE_DATA!=='undefined' && SITE_DATA.bookImages) CATALOG.forEach(b=>{ if(SITE_DATA.bookImages[b.i]) b.img=SITE_DATA.bookImages[b.i]; });
 // ── נרמול טקסט לחיפוש: מאחד גרשיים, מסיר סימני פיסוק ──
 function nrm(s){
   return (s||'').toLowerCase()
@@ -1254,7 +1264,7 @@ document.addEventListener('DOMContentLoaded',()=>{ mkAutocomplete('hS','hS-ac');
 // ═══════════════════════════════════════════
 // STATE & DATA
 // ═══════════════════════════════════════════
-const BRN = ['סניף מרכזי','סניף הר פולין','סניף מייסדים'];
+let BRN = ['סניף מרכזי','בית יוסף'];
 
 // ═══════════════════════════════════════════
 // SUPABASE — שמירה בענן לכל המבקרים
@@ -1313,6 +1323,21 @@ async function sbLoadAll(){
       if(BRANCHES[0].email) ['cEml','fEml2'].forEach(id=>{const e=Q(id); if(e) e.textContent=BRANCHES[0].email;});
     }
   }
+  // 1.4 ספרים חדשים שנוספו ידנית (מסונכרן בין מבקרים)
+  const exb = await sbLoad('extra_books');
+  if(exb && Array.isArray(exb) && exb.length){
+    const knownIds = new Set(CATALOG.map(b=>b.i));
+    const fresh = exb.filter(b=>!knownIds.has(b.i));
+    if(fresh.length){ CATALOG.unshift(...fresh); EXTRA_BOOKS=[...fresh,...EXTRA_BOOKS]; fCat=[...CATALOG]; if(typeof fC==='function') fC(); if(typeof rHB==='function') rHB(); }
+  }
+  // 1.5 תמונות ספרים (קטלוג + יד שנייה)
+  const bImg = await sbLoad('book_images');
+  if(bImg && typeof bImg==='object'){
+    BOOK_IMAGES = bImg;
+    CATALOG.forEach(b=>{ if(BOOK_IMAGES[b.i]) b.img=BOOK_IMAGES[b.i]; });
+    if(typeof fC==='function') fC();
+    if(typeof cmRender==='function') cmRender();
+  }
   // 2. הגדרות כלליות (סטטיסטיקות, טלפון, מייל)
   const st = await sbLoad('settings');
   if(st){
@@ -1342,6 +1367,7 @@ async function sbLoadAll(){
 
 let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false;
 let APWD = localStorage.getItem('aP')||'admin123';
+let EXTRA_BOOKS = (typeof SITE_DATA!=='undefined' && Array.isArray(SITE_DATA.extraBooks)) ? SITE_DATA.extraBooks : [];
 let addedBks=[], PRODS=[
   {id:1,title:'משנה ברורה',author:'החפץ חיים',price:95,orig:120,cat:'kodesh',tag:'20%',img:'',desc:'6 כרכים מלאים'},
   {id:2,title:'שולחן ערוך',author:'מרן הב"י',price:280,orig:0,cat:'kodesh',tag:'',img:'',desc:'4 חלקים עם פירושים'},
@@ -1352,16 +1378,19 @@ let addedBks=[], PRODS=[
 ];
 let BRANCHES = [
   {name:'סניף מרכזי', badge:'⭐ סניף מרכזי', desc:'הסניף הגדול – מרכז הספריה', headClass:'m',
-   street:'רחוב הרב שך 12, מודיעין עילית', phone:'08-976-1234', email:'main@beit-yosef-lib.co.il',
-   info:'40,000+ ספרים · 80 שולחנות', h1:'08:00–22:00', h2:'08:00–13:00', extra:'מוצ"ש 21:00–23:00'},
-  {name:'סניף הר פולין', badge:'', desc:'שכונת הר פולין', headClass:'b2',
-   street:'רחוב רבי עקיבא 8, הר פולין', phone:'08-976-5678', email:'',
-   info:'12,000 ספרים · 30 שולחנות', h1:'09:00–21:00', h2:'09:00–12:30', extra:''},
-  {name:'סניף מייסדים', badge:'חדש!', desc:'שכונת מייסדים', headClass:'b3',
-   street:'שדרות המייסדים 3, מייסדים', phone:'08-976-9012', email:'',
-   info:'7,000 ספרים · 20 שולחנות', h1:'10:00–20:00', h2:'09:00–12:00', extra:''},
+   street:'רחוב שדה חמד 22, מודיעין עילית', phone:'08-976-1234', email:'main@beit-yosef-lib.co.il',
+   info:'ספרים רבים · שולחנות לימוד', h1:'08:00–22:00', h2:'08:00–13:00', extra:'מוצ"ש 21:00–23:00'},
+  {name:'בית יוסף', badge:'', desc:'סניף בית יוסף', headClass:'b2',
+   street:'רחוב שדה חמד 26, מודיעין עילית', phone:'08-976-5678', email:'',
+   info:'ספרים רבים · שולחנות לימוד', h1:'09:00–21:00', h2:'09:00–12:30', extra:''},
 ];
 const BG=[['#1a2744','#2d3f6a'],['#2d1a44','#453066'],['#1a3a2a','#2a5040'],['#3a1a1a','#602a2a'],['#1a2744','#253860'],['#2a3a1a','#3d5526']];
+// שכבת נתונים קבועה שנשמרה ל-GitHub דרך פאנל הניהול (אם קיימת) — דורסת את ברירות המחדל,
+// ואילו Supabase (שנטען מאוחר יותר ב-window.load) עדיין דורס אותה בזמן אמת אם יש עדכון חדש יותר.
+if(typeof SITE_DATA!=='undefined'){
+  if(Array.isArray(SITE_DATA.branches) && SITE_DATA.branches.length){ BRANCHES = SITE_DATA.branches; BRN = BRANCHES.map(b=>b.name); }
+  if(Array.isArray(SITE_DATA.products) && SITE_DATA.products.length) PRODS = SITE_DATA.products;
+}
 
 // ═══════════════════════════════════════════
 // HELPERS
@@ -1426,7 +1455,7 @@ const TR = {
   thBr:{he:'סניף',en:'Branch'}, thStat:{he:'זמינות',en:'Status'},
   btnDl:{he:'📥 הורד קטלוג',en:'📥 Download Catalog'}, tabAll:{he:'כל הספרים',en:'All Books'},
   brH:{he:'סניפי הספריה',en:'Library Branches'},
-  brP:{he:'שלושה סניפים המשרתים את כל רחבי מודיעין עילית',en:"Three branches serving all of Modi'in Illit"},
+  brP:{he:'שני סניפים המשרתים את כל רחבי מודיעין עילית',en:"Two branches serving all of Modi'in Illit"},
   dnH:{he:'קרן הבניין ותרומות',en:'Building Fund & Donations'},
   dnP:{he:'שותפים בהחזקת התורה – כל תרומה מחזקת את בית הספרים',en:'Partners in Torah – every donation strengthens our library'},
   dnNow:{he:'תרום עכשיו',en:'Donate Now'}, dnTab1:{he:'טופס תרומה',en:'Donation Form'},
@@ -1454,7 +1483,7 @@ const TR = {
   dirLbl:{he:'📜 דבר המייסד',en:'📜 Founder\u2019s Message'}, dirH:{he:'דבר הספריה',en:'From the Library'},
   ac1h:{he:'חזון ומטרות',en:'Vision & Goals'}, ac1p:{he:'חזוננו הוא להנגיש את ספרות התורה לכל מבקש.',en:'Our vision is to make Torah literature accessible to every seeker.'},
   ac2h:{he:'תרומה לקהילה',en:'Community Impact'}, ac2p:{he:'מדי שנה מעניקה הספריה שירות ל-8,400 קוראים רשומים.',en:'Each year the library serves 8,400 registered readers.'},
-  ac3h:{he:'נתוני הספריה',en:'By the Numbers'}, ac3p:{he:'59,321 ספרים · 3 סניפים · 8,400 קוראים · 28 שנות פעילות.',en:'59,321 books · 3 branches · 8,400 readers · 28 years.'},
+  ac3h:{he:'נתוני הספריה',en:'By the Numbers'}, ac3p:{he:'59,321 ספרים · 2 סניפים · 8,400 קוראים · 28 שנות פעילות.',en:'59,321 books · 2 branches · 8,400 readers · 28 years.'},
   ac4h:{he:'אוספים מיוחדים',en:'Special Collections'}, ac4p:{he:'אוסף ייחודי של ספרים נדירים ועתיקים.',en:'A unique collection of rare and antique books.'},
   ac5h:{he:'הישגים',en:'Achievements'}, ac5p:{he:'הכרה מגדולי ישראל ומכתבי הוקרה מגדולי הדור.',en:'Recognition and letters of appreciation from leading Torah authorities.'},
   srtRel:{he:'מיין: רלוונטיות',en:'Sort: Relevance'}, srtAZ:{he:'א-ת',en:'A → Z'}, srtZA:{he:'ת-א',en:'Z → A'}, srtAu:{he:'לפי מחבר',en:'By Author'},
@@ -1570,7 +1599,7 @@ function rC(){
   cnt.textContent=tot.toLocaleString()+(lang==='he'?' ספרים':' books');
   tb.innerHTML=pg.map((b,i)=>`<tr data-bid="${b.i}">
     <td style="color:var(--mu);font-size:10.5px">${st+i+1}</td>
-    <td><strong style="color:var(--n);font-family:'Frank Ruhl Libre',serif;font-size:11.5px">${b.n}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4">${b.d}</div>`:''}</td>
+    <td><div style="display:flex;align-items:flex-start;gap:.5rem">${b.img?`<img src="${b.img}" alt="" loading="lazy" style="width:32px;height:44px;object-fit:cover;border-radius:4px;border:1px solid var(--bd);flex-shrink:0">`:''}<div><strong style="color:var(--n);font-family:'Frank Ruhl Libre',serif;font-size:11.5px">${b.n}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4">${b.d}</div>`:''}</div></div></td>
     <td style="font-size:11px">${b.a||'—'}</td>
     <td style="font-size:10.5px">${b.s}</td>
     <td style="font-size:10.5px">${b.b}</td>
@@ -1680,6 +1709,39 @@ function sDT(n){
 }
 function sAmt(el,v){document.querySelectorAll('.ab').forEach(b=>b.classList.remove('act')); el.classList.add('act'); if(v&&Q('dAm')) Q('dAm').value=v;}
 function sDP(el){document.querySelectorAll('.dp').forEach(b=>b.classList.remove('act')); el.classList.add('act');}
+
+// ═══════════════════════════════════════════
+// מעבר לתשלום — נדרים פלוס (מזין סכום ופרטי הזמנה בקישור, כך שלא אובדים)
+// הערה: שמות הפרמטרים (Amount/FullName/Phone/Email/Comment) מבוססים על תיעוד
+// נפוץ של נדרים פלוס/מטרה. מומלץ לאמת מול לוח הבקרה של המוסד (7004700)
+// שהפרמטרים אכן ממלאים את הטופס אצלכם, ולעדכן כאן במידת הצורך.
+// ═══════════════════════════════════════════
+const NEDARIM_BASE = 'https://www.matara.pro/nedarimplus/online/';
+const NEDARIM_MOSAD = '7004700';
+function goPay(){
+  const amount = (Q('dAm')?.value||'').trim();
+  const name = (Q('dName')?.value||'').trim();
+  const email = (Q('dMail')?.value||'').trim();
+  const phone = (Q('dPhone')?.value||'').trim();
+  const dedication = (Q('dDed')?.value||'').trim();
+  if(!amount || Number(amount)<=0){ T(lang==='he'?'❌ נא להזין סכום תרומה':'❌ Please enter a donation amount'); return; }
+  // שמירה זמנית מקומית — כדי שהפרטים לא יאבדו אם המשתמש חוזר לאחור
+  const order = {amount, name, email, phone, dedication, ts:new Date().toISOString()};
+  try{ localStorage.setItem('pendingDonation', JSON.stringify(order)); }catch(e){}
+  if(typeof sbSave==='function'){ sbSave('pending_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), order).catch(()=>{}); }
+  const params = new URLSearchParams({
+    Mosad: NEDARIM_MOSAD,
+    Amount: amount,
+    FullName: name,
+    Phone: phone,
+    Email: email,
+    Comment: dedication || (lang==='he'?'תרומה מאתר הספרייה':'Donation via library website')
+  });
+  const frame = Q('nedarimFrame');
+  if(frame) frame.src = NEDARIM_BASE+'?'+params.toString();
+  sDT(2);
+  Q('dN')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 // ═══════════════════════════════════════════
 // קרן הבניין — הדמיית תוכנית קומה אינטראקטיבית
@@ -2081,6 +2143,14 @@ function T(msg){const el=Q('toastEl'); el.textContent=msg; el.classList.add('on'
 // ═══════════════════════════════════════════
 // ADMIN GATE
 // ═══════════════════════════════════════════
+let _logoClicks=0, _logoClickT=null;
+function logoClick(){
+  _logoClicks++;
+  clearTimeout(_logoClickT);
+  if(_logoClicks>=3){ _logoClicks=0; eA(); return; }
+  _logoClickT=setTimeout(()=>{ _logoClicks=0; },600);
+  if(_logoClicks===1) G('home');
+}
 function eA(){
   closeNav();
   if(aUnlk){G('admin'); return;}
@@ -2208,11 +2278,12 @@ function pHTML(nm){
         <option>תפילה</option><option>פרשת שבוע</option><option>מוסר ומחשבה</option><option>קבלה</option><option>חסידות</option><option>תנ"ך</option><option>ספרי ילדים</option>
       </select></div>
       <div class="apf"><label>סניף</label><select id="nbBr" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:.44rem .6rem;font-size:12px;background:var(--cr)">
-        <option>סניף מרכזי</option><option>סניף הר פולין</option><option>סניף מייסדים</option>
+        <option>סניף מרכזי</option><option>בית יוסף</option>
       </select></div>
       <div class="apf"><label>זמינות</label><select id="nbV" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:.44rem .6rem;font-size:12px;background:var(--cr)">
         <option value="1">זמין</option><option value="0">מושאל</option>
       </select></div>
+      ${fld('nbImg','קישור לתמונת עטיפה (URL) — אופציונלי','')}
       <button class="asv" onclick="addBk()">+ הוסף לקטלוג</button>
     </div>
     <div class="aps"><div class="apst">ספרים שנוספו בסשן זה (${addedBks.length})</div>
@@ -2356,7 +2427,18 @@ function pHTML(nm){
       <button class="asv nvy" onclick="showCloudData()">📋 הצג נתונים שמורים</button>
       <div id="cloudData" style="font-size:11.5px;margin-top:.6rem;line-height:1.9;font-family:monospace"></div>
     </div>
-    <div class="tip">💡 אם הכל ירוק אבל שינויים עדיין נעלמים — סימן שהקובץ ב-Netlify ישן. הורד והעלה מחדש.</div>`;
+    <div class="tip">💡 אם הכל ירוק אבל שינויים עדיין נעלמים — סימן שהקובץ ב-Netlify ישן. הורד והעלה מחדש.</div>
+    <div class="aps"><div class="apst">🐙 שמירה קבועה ל-GitHub</div>
+      <div style="font-size:11.5px;color:var(--mu);line-height:1.7;margin-bottom:.6rem">
+        שמירה בענן (למעלה) מסנכרנת בין מבקרים באתר מיידית. הכפתור כאן הולך צעד נוסף:
+        הוא כותב <b>commit אמיתי</b> לריפוזיטורי ב-GitHub (לקובץ site-data.js), כך שהשינויים
+        (סניפים, תמונות ספרים, מוצרים) יהפכו לחלק קבוע מקוד האתר ויישארו גם אם הענן יתאפס.
+        <br>דורש הגדרה חד-פעמית של GITHUB_TOKEN ו-ADMIN_API_KEY במשתני הסביבה של Netlify.
+      </div>
+      <div class="fg2"><label>מפתח ניהול (ADMIN_API_KEY)</label><input type="password" id="ghKey" placeholder="••••••••" value="${localStorage.getItem('ghAdminKey')||''}"></div>
+      <button class="asv" onclick="saveToGitHub()">🐙 שמור נתונים לצמיתות ב-GitHub</button>
+      <div id="ghSaveMsg" style="font-size:11.5px;margin-top:.6rem;line-height:1.7"></div>
+    </div>`;
 
   if(nm==='members') return `
     <div class="aps">
@@ -2457,6 +2539,30 @@ function exportDesign(){
 
 // שמירת עיצוב בענן — יופיע לכל המבקרים
 // ═══ אבחון הענן ═══
+// ═══════════════════════════════════════════
+// שמירה קבועה ל-GitHub דרך Netlify Function מאובטחת
+// (ראו netlify/functions/save-content.js)
+// ═══════════════════════════════════════════
+async function saveToGitHub(){
+  const key=(Q('ghKey')?.value||'').trim();
+  const msgEl=Q('ghSaveMsg');
+  if(!key){ if(msgEl) msgEl.innerHTML='<span style="color:#c0392b">❌ נא להזין מפתח ניהול (ADMIN_API_KEY)</span>'; return; }
+  localStorage.setItem('ghAdminKey', key);
+  if(msgEl) msgEl.innerHTML='⏳ שומר ל-GitHub...';
+  const siteData = { branches: BRANCHES, bookImages: BOOK_IMAGES, products: PRODS, extraBooks: EXTRA_BOOKS, updatedAt: new Date().toISOString() };
+  const content = '// קובץ זה נוצר אוטומטית ע"י פאנל הניהול — אין לערוך ידנית\nwindow.SITE_DATA = ' + JSON.stringify(siteData, null, 2) + ';\n';
+  try{
+    const res = await fetch('/api/save-content', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-admin-key':key},
+      body: JSON.stringify({ path:'site-data.js', content, message:'עדכון נתוני אתר מפאנל הניהול' })
+    });
+    const data = await res.json().catch(()=>({}));
+    if(res.ok && data.ok){ if(msgEl) msgEl.innerHTML='<span style="color:#15803d">✅ נשמר ונדחף ל-GitHub! Netlify יפרוס אוטומטית תוך דקה-שתיים.</span>'; }
+    else { if(msgEl) msgEl.innerHTML='<span style="color:#c0392b">❌ '+(data.error||'שגיאה לא ידועה')+'</span>'; }
+  }catch(e){ if(msgEl) msgEl.innerHTML='<span style="color:#c0392b">❌ שגיאת רשת: '+e.message+'</span>'; }
+}
+
 function runCloudDiag(){
   const el=Q('cloudStatus'); if(!el) return;
   let out=[];
@@ -2539,6 +2645,8 @@ function cmRender(){
       const brOpts=BRANCHES.map(x=>`<option${x.name===b.b?' selected':''}>${x.name}</option>`).join('');
       return `<tr style="background:#fef9ec">
         <td style="font-size:10.5px;color:var(--mu)">${b.i||''}</td>
+        <td>${b.img?`<img src="${b.img}" alt="" style="width:40px;height:52px;object-fit:cover;border-radius:4px;border:1px solid var(--bd)">`:'—'}
+          <input id="cmE_img" value="${(b.img||'').replace(/"/g,'&quot;')}" placeholder="קישור לתמונה (URL)" style="width:100%;border:1px solid var(--bd);border-radius:5px;padding:.2rem .35rem;font-size:9.5px;margin-top:3px"></td>
         <td><input id="cmE_n" value="${(b.n||'').replace(/"/g,'&quot;')}" style="width:100%;border:1px solid var(--gl);border-radius:5px;padding:.3rem .5rem;font-size:12px" placeholder="שם הספר">
           <input id="cmE_d" value="${(b.d||'').replace(/"/g,'&quot;')}" style="width:100%;border:1px solid var(--bd);border-radius:5px;padding:.25rem .5rem;font-size:11px;margin-top:3px" placeholder="תיאור / נושא"></td>
         <td><input id="cmE_a" value="${(b.a||'').replace(/"/g,'&quot;')}" style="width:100%;border:1px solid var(--gl);border-radius:5px;padding:.3rem .5rem;font-size:12px"></td>
@@ -2554,6 +2662,7 @@ function cmRender(){
     }
     return `<tr>
       <td style="font-size:10.5px;color:var(--mu)">${b.i||''}</td>
+      <td>${b.img?`<img src="${b.img}" alt="" style="width:36px;height:48px;object-fit:cover;border-radius:4px;border:1px solid var(--bd)">`:'<span style="color:var(--bd)">—</span>'}</td>
       <td><strong style="font-family:'Frank Ruhl Libre',serif;color:var(--n)">${b.n||''}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px">${b.d}</div>`:''}</td>
       <td style="font-size:11.5px">${b.a||'—'}</td>
       <td style="font-size:11px">${b.s||''}</td>
@@ -2564,7 +2673,7 @@ function cmRender(){
         <button class="dl2" onclick="cmDel(${gi})">🗑️</button>
       </div></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--mu)">לא נמצאו ספרים</td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--mu)">לא נמצאו ספרים</td></tr>';
 
   // דפדוף
   const pg=Q('cmPager'); if(!pg) return;
@@ -2584,16 +2693,21 @@ function cmGo(p){ cmPage=p; cmRender(); Q('cmTable')?.scrollIntoView({behavior:'
 function cmEdit(gi){ cmEditIdx=gi; cmRender(); }
 function cmCancel(){ cmEditIdx=-1; cmRender(); }
 
+let BOOK_IMAGES = {}; // מפת bookId → כתובת תמונה, נשמרת בענן (הקטלוג המקורי נשאר ללא שינוי)
 function cmSave(gi){
   const b=CATALOG[gi]; if(!b) return;
   const n=Q('cmE_n')?.value?.trim();
   if(!n){ T('❌ שם הספר חובה'); return; }
   b.n=n; b.a=Q('cmE_a')?.value?.trim()||''; b.d=Q('cmE_d')?.value?.trim()||''; b.s=Q('cmE_s')?.value||'כללי';
   b.b=Q('cmE_b')?.value||BRANCHES[0].name; b.v=parseInt(Q('cmE_v')?.value||'1');
+  const imgUrl=Q('cmE_img')?.value?.trim()||'';
+  b.img=imgUrl;
+  if(imgUrl) BOOK_IMAGES[b.i]=imgUrl; else delete BOOK_IMAGES[b.i];
   b._k=nrm((b.n||'')+' '+(b.a||'')+' '+(b.d||'')+' '+(b.s||''));
   cmEditIdx=-1;
   fCat=[...CATALOG];
   cmFilter(); if(typeof fC==='function') fC(); if(typeof rHB==='function') rHB();
+  sbSave('book_images', BOOK_IMAGES);
   T('✅ הספר עודכן');
 }
 
@@ -2804,11 +2918,15 @@ function apRabbi(inp){
 
 function addBk(){
   const n=Q('nbN')?.value?.trim(); if(!n){T(lang==='he'?'❌ חסר שם הספר':'❌ Name required'); return;}
-  const bk={i:CATALOG.length+1,n,a:Q('nbA')?.value?.trim()||'',d:'',s:Q('nbS')?.value||'כללי',v:parseInt(Q('nbV')?.value||'1'),b:Q('nbBr')?.value||'סניף מרכזי'};
-  CATALOG.unshift(bk); fCat=[...CATALOG]; addedBks.unshift(bk);
+  const img=Q('nbImg')?.value?.trim()||'';
+  const bk={i:'x'+Date.now(),n,a:Q('nbA')?.value?.trim()||'',d:'',s:Q('nbS')?.value||'כללי',v:parseInt(Q('nbV')?.value||'1'),b:Q('nbBr')?.value||'סניף מרכזי',img};
+  bk._k=nrm((bk.n||'')+' '+(bk.a||'')+' '+(bk.d||'')+' '+(bk.s||''));
+  CATALOG.unshift(bk); fCat=[...CATALOG]; addedBks.unshift(bk); EXTRA_BOOKS.unshift(bk);
+  if(img) BOOK_IMAGES[bk.i]=img;
   fC(); rHB(); rAT();
   Q('sB').textContent=CATALOG.length.toLocaleString();
   Q('aC1').textContent=CATALOG.length.toLocaleString();
+  sbSave('extra_books', EXTRA_BOOKS);
   T(lang==='he'?`✅ "${n}" נוסף לקטלוג!`:`✅ "${n}" added!`);
   openP('books');
 }
@@ -2936,7 +3054,7 @@ function cvRows(rows){
     const desc = val(row,iDesc).replace(/\*\*/g,'').trim();
     const num  = iNum>=0 ? (val(row,iNum)||(i+1)) : (i+1);
     const _n=nm.slice(0,78), _a=auth.slice(0,42), _d=desc.slice(0,72);
-    pend.push({i:num,n:_n,a:_a,d:_d,s:gSub(_n+' '+_d),v:(_n+_d).includes('מושאל')?0:1,b:BRN[i%3],
+    pend.push({i:num,n:_n,a:_a,d:_d,s:gSub(_n+' '+_d),v:(_n+_d).includes('מושאל')?0:1,b:BRN[i%BRN.length],
                _k:nrm(_n+' '+_a+' '+_d)});
   });
   dnPg();
@@ -3022,7 +3140,7 @@ window.addEventListener('load',function(){
   setTimeout(function(){
     aC('sB', CATALOG.length);
     aC('sR', 8412);
-    aC('sBr', 3);
+    aC('sBr', BRANCHES.length);
     aC('sY', 28);
     if(Q('aC1')) Q('aC1').textContent=CATALOG.length.toLocaleString();
     if(Q('aSLC')) Q('aSLC').textContent=PRODS.length;
