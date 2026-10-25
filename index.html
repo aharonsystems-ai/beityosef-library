@@ -40,7 +40,7 @@
   "telephone": "+972-54-844-9826",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "רחוב הרב שך 12",
+    "streetAddress": "שדי חמד 28",
     "addressLocality": "מודיעין עילית",
     "addressCountry": "IL"
   },
@@ -787,11 +787,10 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <div>
       <div class="ci">
         <h4 data-i="coInfo">פרטי הספריה</h4>
-        <div class="crw"><span class="cic">📍</span><span id="cAddr">רחוב הרב שך 12, מודיעין עילית 7176900</span></div>
+        <div class="crw"><span class="cic">📍</span><span id="cAddr">שדי חמד 28, מודיעין עילית</span></div>
         <div class="crw"><span class="cic">📞</span><span id="cTel">054-844-9826</span></div>
         <div class="crw"><span class="cic">📧</span><span id="cEml">sifriatbethyosef@gmail.com</span></div>
         <div class="crw"><span class="cic">🕐</span><span>א-ה: 08:00–22:00 | ו: 08:00–13:00</span></div>
-        <div class="crw"><span class="cic">📱</span><span>WhatsApp: 050-000-0000</span></div>
         <div class="mb" onclick="T('🗺️ פתיחת ניווט...')">🗺️ לחץ לניווט לסניף המרכזי</div>
       </div>
       <div class="ci" style="margin-top:.95rem">
@@ -873,7 +872,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <strong>שם:</strong> <span id="a11yName">יצחק לוין</span><br>
         <strong>טלפון:</strong> <span id="a11yPhone">054-844-9826</span><br>
         <strong>דוא"ל:</strong> <span id="a11yMail">sifriatbethyosef@gmail.com</span><br>
-        <strong>כתובת:</strong> <span id="a11yAddr">רחוב הרב שך 12, מודיעין עילית</span>
+        <strong>כתובת:</strong> <span id="a11yAddr">שדי חמד 28, מודיעין עילית</span>
       </div>
       <p style="font-size:12px;color:var(--mu);line-height:1.8;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--bd)">
         נתקלתם בבעיית נגישות? נשמח לשמוע. פנייתכם תטופל בהקדם האפשרי.
@@ -1258,13 +1257,13 @@ let addedBks=[], PRODS=[
 ];
 let BRANCHES = [
   {name:'סניף מרכזי', badge:'⭐ סניף מרכזי', desc:'הסניף הגדול – מרכז הספריה', headClass:'m',
-   street:'רחוב הרב שך 12, מודיעין עילית', phone:'054-844-9826', email:'sifriatbethyosef@gmail.com',
+   street:'שדי חמד 28, מודיעין עילית', phone:'054-844-9826', email:'sifriatbethyosef@gmail.com',
    info:'40,000+ ספרים · 80 שולחנות', h1:'08:00–22:00', h2:'08:00–13:00', extra:'מוצ"ש 21:00–23:00'},
   {name:'סניף הר פולין', badge:'', desc:'שכונת הר פולין', headClass:'b2',
-   street:'רחוב רבי עקיבא 8, הר פולין', phone:'08-976-5678', email:'',
+   street:'רחוב רבי עקיבא 8, הר פולין', phone:'', email:'',
    info:'12,000 ספרים · 30 שולחנות', h1:'09:00–21:00', h2:'09:00–12:30', extra:''},
   {name:'סניף מייסדים', badge:'חדש!', desc:'שכונת מייסדים', headClass:'b3',
-   street:'שדרות המייסדים 3, מייסדים', phone:'08-976-9012', email:'',
+   street:'שדרות המייסדים 3, מייסדים', phone:'', email:'',
    info:'7,000 ספרים · 20 שולחנות', h1:'10:00–20:00', h2:'09:00–12:00', extra:''},
 ];
 const BG=[['#1a2744','#2d3f6a'],['#2d1a44','#453066'],['#1a3a2a','#2a5040'],['#3a1a1a','#602a2a'],['#1a2744','#253860'],['#2a3a1a','#3d5526']];
@@ -1675,7 +1674,7 @@ function rBr(){
       </div>
       <div class="brb">
         <div class="brr"><span class="bri">📍</span><span>${b.street||''}</span></div>
-        <div class="brr"><span class="bri">📞</span><span>${b.phone||''}</span></div>
+        ${b.phone?`<div class="brr"><span class="bri">📞</span><span>${b.phone}</span></div>`:''}
         ${b.email?`<div class="brr"><span class="bri">📧</span><span>${b.email}</span></div>`:''}
         <div class="brr"><span class="bri">📚</span><span>${b.info||''}</span></div>
         <div class="brr"><span class="bri">🕐</span><div class="hrs"><span class="hd">א-ה</span><span class="ht">${b.h1||''}</span><span class="hd">ו'</span><span class="ht">${b.h2||''}</span>${b.extra?`<span class="hd">מוצ"ש</span><span class="ht">${b.extra.replace('מוצ"ש ','')}</span>`:''}</div></div>
