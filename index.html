@@ -543,7 +543,6 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <a onclick="G('db')" data-i="nDb">מאגרים</a>
     <a onclick="G('archive')" data-i="nArc">ארכיון</a>
     <a onclick="G('contact')" data-i="nCon">צור קשר</a>
-    <a onclick="eA()" style="color:rgba(184,150,62,.75)" data-i="nAdm">🔐 מנהל</a>
   </nav>
   <div class="hrt">
     <div class="hsr"><span style="color:#607080;font-size:12px">🔍</span><input id="hS" data-ip="phSearch" placeholder="חיפוש ספרים..." onkeydown="if(event.key=='Enter')dS(this.value)"></div>
@@ -776,7 +775,6 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <div class="dbc"><div class="dbic">🔬</div><h4 data-i="db3h">מאגר תשובות</h4><p>אינדקס שו"ת ממאות הפוסקים.</p><span class="dbb dbm">👤 חברים</span><button class="dbl" onclick="oAuth()">כניסה / הרשמה</button></div>
     <div class="dbc"><div class="dbic">💻</div><h4 data-i="db4h">מערכת הספרייה</h4><p>זמינות ספרים בזמן אמת.</p><span class="dbb dbm">👤 חברים</span><button class="dbl" onclick="oAuth()">כניסה</button></div>
     <div class="dbc"><div class="dbic">🎓</div><h4 data-i="db5h">חומרי לימוד</h4><p>קבצים וסיכומים שהועלו ע"י חברים.</p><span class="dbb dbf">✅ גישה חופשית</span><button class="dbl" onclick="T('פתיחת חומרי לימוד...')">גלישה</button></div>
-    <div class="dbc"><div class="dbic">🔒</div><h4 data-i="db6h">מאגר מנהלים</h4><p>מערכות ניהול פנימיות.</p><span class="dbb dba">🔐 מנהלים בלבד</span><button class="dbl" onclick="eA()">כניסה לאדמין</button></div>
   </div>
 </div>
 
@@ -858,7 +856,6 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <div class="stt" onclick="sT(this,'.stt');rSale('used')" data-i="slUsed">יד שנייה</div>
     <div class="stt" onclick="sT(this,'.stt');rSale('kodesh')" data-i="slKod">ספרי קודש</div>
     <div class="stt" onclick="sT(this,'.stt');rSale('sale')" data-i="slDeal">מבצעים</div>
-    <div class="stt" style="background:rgba(184,150,62,.12);border-color:var(--g);color:var(--gd)" onclick="eA();setTimeout(()=>openP('sale_mgr'),100)">⚙️ ניהול מוצרים</div>
   </div>
   <div class="pm"><span>🔥 מבצע: 20% הנחה על כל ספרי מוסר!</span>
     <button onclick="sT(document.querySelector('.stt:nth-child(5)'),'.stt');rSale('sale')" style="background:var(--nd);color:var(--g);border:none;padding:.3rem .75rem;border-radius:5px;font-size:11.5px;font-weight:700;cursor:pointer">לרכישה</button>
@@ -1074,7 +1071,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
 <footer>
   <div class="fg3">
     <div class="fb">
-      <img src="/logo-mark.png" alt="ספריית בית יוסף" id="fLogo">
+      <img src="/logo-mark.png" alt="ספריית בית יוסף" id="fLogo" onclick="secretAdmin()" style="cursor:default">
       <h4>ספריית בית יוסף</h4>
       <p>בית לתורה, ללימוד ולחכמה.<br>פותחים שערים לעולם הספר היהודי.<br>משרתת את ציבור מודיעין עילית מתש"ן.</p>
     </div>
@@ -2059,6 +2056,18 @@ function T(msg){const el=Q('toastEl'); el.textContent=msg; el.classList.add('on'
 // ═══════════════════════════════════════════
 // ADMIN GATE
 // ═══════════════════════════════════════════
+// כניסה חסויה למנהל: 5 לחיצות על הלוגו בתחתית הדף תוך 3 שניות
+let _aTaps=0,_aTapT=0;
+function secretAdmin(){
+  const now=Date.now();
+  if(now-_aTapT>3000) _aTaps=0;
+  _aTapT=now; _aTaps++;
+  if(_aTaps>=5){ _aTaps=0; eA(); }
+}
+// גיבוי: כתובת סודית bethyoseflibrary.com/#admin
+window.addEventListener('DOMContentLoaded',function(){
+  if(location.hash==='#admin') setTimeout(function(){ if(typeof eA==='function') eA(); },400);
+});
 function eA(){
   closeNav();
   if(aUnlk){G('admin'); return;}
