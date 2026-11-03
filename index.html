@@ -587,7 +587,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   <div class="prg" style="grid-template-columns:repeat(auto-fill,minmax(245px,1fr))">
     <div class="prc"><div class="pi">🌟</div><h4 data-i="ac1h">חזון ומטרות</h4><p data-i="ac1p">חזוננו הוא להנגיש את ספרות התורה לכל מבקש.</p></div>
     <div class="prc"><div class="pi">🤝</div><h4 data-i="ac2h">תרומה לקהילה</h4><p data-i="ac2p">מדי שנה מעניקה הספריה שירות ל-8,400 קוראים רשומים.</p></div>
-    <div class="prc"><div class="pi">📊</div><h4 data-i="ac3h">נתוני הספריה</h4><p data-i="ac3p">59,321 ספרים · 6 סניפים · 8,400 קוראים · 28 שנות פעילות.</p></div>
+    <div class="prc"><div class="pi">📊</div><h4 data-i="ac3h">נתוני הספריה</h4><p data-i="ac3p">100,000+ ספרים · 6 סניפים · 8,400 קוראים · 28 שנות פעילות.</p></div>
     <div class="prc"><div class="pi">📚</div><h4 data-i="ac4h">אוספים מיוחדים</h4><p data-i="ac4p">אוסף ייחודי של ספרים נדירים ועתיקים.</p></div>
     <div class="prc"><div class="pi">🏆</div><h4 data-i="ac5h">הישגים</h4><p data-i="ac5p">הכרה מגדולי ישראל ומכתבי הוקרה מגדולי הדור.</p></div>
   </div>
@@ -1498,7 +1498,7 @@ const TR = {
   qCat:{he:'קטלוג ספרים',en:'Catalog'}, qDon:{he:'תרומות',en:'Donate'}, qBr:{he:'סניפים',en:'Branches'},
   qCon:{he:'צור קשר',en:'Contact'}, qSales:{he:'מכירות',en:'Bookstore'}, qProj:{he:'פרויקטים',en:'Projects'},
   qDb:{he:'מאגרים',en:'Databases'}, qArc:{he:'ארכיון',en:'Archive'},
-  sBooks:{he:'ספרים בקטלוג',en:'Books in Catalog'}, sRead:{he:'קוראים רשומים',en:'Members'},
+  sBooks:{he:'ספרים בספרייה',en:'Books in Library'}, sRead:{he:'קוראים רשומים',en:'Members'},
   sBranch:{he:'סניפים',en:'Branches'}, sYears:{he:'שנות פעילות',en:'Years Active'},
   secNewSub:{he:'חדש בספריה',en:'New Arrivals'}, secNewH:{he:'ספרים חדשים',en:'New Books'},
   secNewsSub:{he:'עדכונים',en:'Updates'}, secNewsH:{he:'חדשות ועדכונים',en:'News & Updates'},
@@ -1541,7 +1541,7 @@ const TR = {
   dirLbl:{he:'📜 דבר המייסד',en:'📜 Founder\u2019s Message'}, dirH:{he:'דבר הספריה',en:'From the Library'},
   ac1h:{he:'חזון ומטרות',en:'Vision & Goals'}, ac1p:{he:'חזוננו הוא להנגיש את ספרות התורה לכל מבקש.',en:'Our vision is to make Torah literature accessible to every seeker.'},
   ac2h:{he:'תרומה לקהילה',en:'Community Impact'}, ac2p:{he:'מדי שנה מעניקה הספריה שירות ל-8,400 קוראים רשומים.',en:'Each year the library serves 8,400 registered readers.'},
-  ac3h:{he:'נתוני הספריה',en:'By the Numbers'}, ac3p:{he:'59,321 ספרים · 6 סניפים · 8,400 קוראים · 28 שנות פעילות.',en:'59,321 books · 3 branches · 8,400 readers · 28 years.'},
+  ac3h:{he:'נתוני הספריה',en:'By the Numbers'}, ac3p:{he:'100,000+ ספרים · 6 סניפים · 8,400 קוראים · 28 שנות פעילות.',en:'100,000+ books · 6 branches · 8,400 readers · 28 years.'},
   ac4h:{he:'אוספים מיוחדים',en:'Special Collections'}, ac4p:{he:'אוסף ייחודי של ספרים נדירים ועתיקים.',en:'A unique collection of rare and antique books.'},
   ac5h:{he:'הישגים',en:'Achievements'}, ac5p:{he:'הכרה מגדולי ישראל ומכתבי הוקרה מגדולי הדור.',en:'Recognition and letters of appreciation from leading Torah authorities.'},
   srtRel:{he:'מיין: רלוונטיות',en:'Sort: Relevance'}, srtAZ:{he:'א-ת',en:'A → Z'}, srtZA:{he:'ת-א',en:'Z → A'}, srtAu:{he:'לפי מחבר',en:'By Author'},
@@ -1739,10 +1739,10 @@ function dBk(i){
 // ═══════════════════════════════════════════
 // COUNTER ANIMATION
 // ═══════════════════════════════════════════
-function aC(id,tg){
+function aC(id,tg,suf){
   const el=Q(id); if(!el) return;
   let cur=0; const step=tg/60;
-  const ti=setInterval(()=>{cur=Math.min(cur+step,tg); el.textContent=Math.round(cur).toLocaleString(); if(cur>=tg) clearInterval(ti);},22);
+  const ti=setInterval(()=>{cur=Math.min(cur+step,tg); el.textContent=Math.round(cur).toLocaleString()+(suf||''); if(cur>=tg) clearInterval(ti);},22);
 }
 
 // ═══════════════════════════════════════════
@@ -1884,7 +1884,7 @@ function pHTML(nm){
     <div class="aps"><div class="apst">📊 סטטיסטיקות דף הבית</div>
       ${fld('cB','ספרים',Q('sB')?.textContent||'')}
       ${fld('cR','קוראים',Q('sR')?.textContent||'8,412')}
-      ${fld('cBr','סניפים',Q('sBr')?.textContent||'3')}
+      ${fld('cBr','סניפים',Q('sBr')?.textContent||'6')}
       ${fld('cY','שנות פעילות',Q('sY')?.textContent||'28')}
     </div>
     <div class="aps"><div class="apst">🎨 צבעי האתר</div>
@@ -2824,9 +2824,9 @@ window.addEventListener('load',function(){
   rBr();
   // Animate counters after catalog is loaded
   setTimeout(function(){
-    aC('sB', CATALOG.length);
+    aC('sB', 100000, '+');
     aC('sR', 8400);
-    aC('sBr', 3);
+    aC('sBr', 6);
     aC('sY', 28);
     if(Q('aC1')) Q('aC1').textContent=CATALOG.length.toLocaleString();
     if(Q('aSLC')) Q('aSLC').textContent=PRODS.length;
