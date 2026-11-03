@@ -733,6 +733,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
 <div class="pg" id="pg-db">
   <div class="ph" style="background:linear-gradient(135deg,#0d1525,var(--n))"><div class="phov"></div><div class="phc"><h2 data-i="dbH">מאגרי מחשב</h2><p data-i="dbP">מאגרים תורניים, קבצי לימוד וקישורים למערכות</p></div></div>
   <div class="stit"><div class="ss">גישה מבוקרת</div><h3 class="fr sh">מאגרים ומערכות</h3><div class="gb"></div></div>
+  <div id="dbDesc" style="max-width:820px;margin:0 auto 1.4rem;padding:0 1rem;color:var(--mu);font-size:15px;line-height:1.9;text-align:center;white-space:pre-line">בספרייה פועלים מאגרי מחשב תורניים מתקדמים — אוצר החכמה, HebrewBooks, פרויקט השו"ת ועוד — לצד עמדות מחשב, מדפסות ומכונות צילום, לשירות הלומדים.</div>
   <div class="dbg">
     <div class="dbc"><div class="dbic">📖</div><h4>אוצר החכמה</h4><p>מאגר תורני מקיף עם מיליוני ספרים.</p><span class="dbb dbf">✅ גישה חופשית</span><button class="dbl" onclick="T('פתיחת אוצר החכמה...')">כניסה</button></div>
     <div class="dbc"><div class="dbic">📜</div><h4>HebrewBooks</h4><p>ספרי קודש ישנים ונדירים בפורמט PDF.</p><span class="dbb dbf">✅ גישה חופשית</span><button class="dbl" onclick="T('פתיחת HebrewBooks...')">כניסה</button></div>
@@ -901,6 +902,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       <a onclick="openP('books')"><span>📚</span><span>ניהול ספרים</span></a>
       <a onclick="openP('news')"><span>📰</span><span>חדשות</span></a>
       <a onclick="openP('branches')"><span>🏛️</span><span>סניפים</span></a>
+      <a onclick="openP('databases')"><span>💾</span><span>מאגרי מחשב</span></a>
       <a onclick="openP('images')"><span>🖼️</span><span>תמונות</span></a>
       <a onclick="openP('donate_mgr')"><span>💛</span><span>תרומות</span></a>
       <a onclick="openP('sale_mgr')"><span>🛒</span><span>מכירות</span></a>
@@ -1249,6 +1251,9 @@ async function sbLoadAll(){
   // 6. תרומות (מד התקדמות)
   const dn = await sbLoad('donate');
   if(dn && typeof applyDonation==='function') applyDonation(dn.raised, dn.goal);
+  // 7. טקסט מאגרי מחשב
+  const dbt = await sbLoad('databases');
+  if(dbt && dbt.text){ const e=Q('dbDesc'); if(e) e.innerText=dbt.text; }
 }
 
 let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false;
@@ -1941,6 +1946,12 @@ function pHTML(nm){
     </div>
     <button class="asv" onclick="svNews()">💾 עדכן חדשות בדף הבית</button>`;
 
+  if(nm==='databases') return `
+    <div class="aps"><div class="apst">💾 מאגרי מחשב — טקסט לעמוד "מאגרים"</div>
+      <div class="apf"><label>כתוב כאן על כל מאגרי המחשב, העמדות והשירותים הקיימים</label><textarea id="dbDescInp" rows="8">${(Q('dbDesc')?.innerText||'').trim().replace(/<\/textarea/gi,'')}</textarea></div>
+    </div>
+    <button class="asv" onclick="svDb()" style="width:100%">💾 שמור ופרסם לכולם</button>`;
+
   if(nm==='images') return `
     <div class="aps"><div class="apst">🏠 תמונת באנר ראשי (דף הבית)</div>
       <input type="file" id="hIn" accept="image/*" style="display:none" onchange="apImg(this,'heroBg')">
@@ -2539,6 +2550,16 @@ function delBranch(i){
   rBr();
   openP('branches');
   T(lang==='he'?'🗑️ הסניף נמחק':'🗑️ Branch deleted');
+}
+
+function svDb(){
+  const inp=Q('dbDescInp'), el=Q('dbDesc');
+  if(inp&&el) el.innerText=inp.value;
+  sbSave('databases',{text: el?el.innerText:''}).then(ok=>{
+    T(ok ? (lang==='he'?'☁️ המאגרים נשמרו בענן — כולם רואים!':'☁️ Saved to cloud!')
+         : (lang==='he'?'⚠️ נשמר מקומית בלבד':'⚠️ Saved locally only'));
+  });
+  closeP();
 }
 
 function svNews(){
