@@ -156,6 +156,24 @@ html[dir=ltr] .bt2 th,.bt2 td{text-align:right}html[dir=ltr] .bt2 td{text-align:
 .bt2 tr:last-child td{border-bottom:none}.bt2 tr:hover td{background:#fdfaf5}
 .av{display:inline-block;padding:.12rem .42rem;border-radius:4px;font-size:9.5px;font-weight:700}
 .avy{background:rgba(22,163,74,.1);color:#15803d}.avn{background:rgba(220,38,38,.1);color:#b91c1c}
+.reqb{border:1px solid var(--g);background:#fff;color:var(--n);padding:.2rem .5rem;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s}
+.reqb:hover{background:var(--g);color:#fff}
+.rqov{display:none;position:fixed;inset:0;background:rgba(10,16,30,.55);z-index:9999;align-items:center;justify-content:center;padding:1rem}
+.rqov.op{display:flex}
+.rqmd{background:#fff;border-radius:14px;max-width:440px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.rqh{background:var(--n);color:#fff;padding:1rem 1.2rem;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center}
+.rqh h3{font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;margin:0;color:var(--g)}
+.rqx{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1}
+.rqb{padding:1.1rem 1.2rem}
+.rqbk{background:var(--cr);border:1px solid var(--bd);border-radius:8px;padding:.6rem .8rem;margin-bottom:.9rem;font-size:12.5px}
+.rqbk b{font-family:'Frank Ruhl Libre',serif;color:var(--n)}
+.rqf{margin-bottom:.7rem}
+.rqf label{display:block;font-size:11.5px;color:var(--mu);margin-bottom:.25rem;font-weight:700}
+.rqf input,.rqf select,.rqf textarea{width:100%;border:1px solid var(--bd);border-radius:7px;padding:.5rem .65rem;font-size:13px;font-family:inherit;background:#fff}
+.rqf textarea{min-height:68px;resize:vertical}
+.rqsub{width:100%;background:var(--g);color:#fff;border:none;border-radius:8px;padding:.7rem;font-size:14px;font-weight:800;cursor:pointer;margin-top:.3rem}
+.rqsub:hover{background:var(--n)}
+.rqsub:disabled{opacity:.6;cursor:default}
 .pgc{display:flex;align-items:center;justify-content:center;gap:.32rem;padding:.8rem;background:#fff;border-top:1px solid var(--bd)}
 .pgb{border:1px solid var(--bd);background:#fff;padding:.3rem .62rem;border-radius:5px;font-size:11px;cursor:pointer}
 .pgb:hover{border-color:var(--g);color:var(--g)}.pgb.cur{background:var(--n);color:var(--g);border-color:var(--n)}
@@ -636,7 +654,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="ctb2" onclick="sCT(this,'ספרי ילדים')" data-i="tabKid">ספרי ילדים</div>
         <div class="ctb2" onclick="sCT(this,'קבלה')" data-i="tabKab">קבלה</div>
       </div>
-      <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th></tr></thead>
+      <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th><th data-i="thAct">בקשה</th></tr></thead>
       <tbody id="cTb"></tbody></table>
       <div class="pgc" id="pC"></div>
     </div>
@@ -907,6 +925,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       <a onclick="openP('donate_mgr')"><span>💛</span><span>תרומות</span></a>
       <a onclick="openP('sale_mgr')"><span>🛒</span><span>מכירות</span></a>
       <a onclick="openP('members')"><span>👥</span><span>חברים רשומים</span></a>
+      <a onclick="openP('requests')"><span>📩</span><span>פניות מבקרים</span></a>
       <a onclick="openP('cloud')"><span>☁️</span><span>מצב הענן</span></a>
       <div class="ans">עיצוב</div>
       <a onclick="openP('design')"><span>🎨</span><span>עיצוב ומראה</span></a>
@@ -1079,6 +1098,33 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <button class="agcn" onclick="document.getElementById('ag').classList.remove('op')">ביטול</button>
   </div>
 </div>
+
+<!-- BOOK REQUEST MODAL -->
+<div class="rqov" id="rqOv" onclick="if(event.target===this)closeReq()">
+  <div class="rqmd">
+    <div class="rqh"><h3 data-i="rqTitle">בקשת תמונה / מידע על ספר</h3><button class="rqx" onclick="closeReq()">×</button></div>
+    <div class="rqb">
+      <div class="rqbk"><span data-i="rqBookLbl">הספר:</span> <b id="rqBookName">—</b></div>
+      <div class="rqf"><label data-i="rqType">סוג הבקשה</label>
+        <select id="rqTypeSel">
+          <option data-i="rqT1">תמונה של הספר</option>
+          <option data-i="rqT2">מידע נוסף על הספר</option>
+          <option data-i="rqT3">בירור זמינות</option>
+          <option data-i="rqT4">אחר</option>
+        </select></div>
+      <div class="rqf"><label data-i="rqName">שם מלא *</label><input id="rqName" type="text"></div>
+      <div class="rqf"><label data-i="rqPhone">טלפון *</label><input id="rqPhone" type="tel" inputmode="tel"></div>
+      <div class="rqf"><label data-i="rqEmail">מייל (לא חובה)</label><input id="rqEmail" type="email"></div>
+      <div class="rqf"><label data-i="rqMsg">הודעה</label><textarea id="rqMsg" data-i-ph="rqMsgPh" placeholder="פרטים נוספים על הבקשה..."></textarea></div>
+      <button class="rqsub" id="rqSubBtn" onclick="submitReq()" data-i="rqSend">שליחת בקשה</button>
+    </div>
+  </div>
+</div>
+<!-- Netlify Forms detection (hidden) -->
+<form name="book-request" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="name"><input type="text" name="phone"><input type="email" name="email">
+  <input type="text" name="book"><input type="text" name="type"><textarea name="message"></textarea>
+</form>
 
 <!-- SIDE PANEL -->
 <div class="apo" id="pOv" onclick="closeP()"></div>
@@ -1510,7 +1556,12 @@ const TR = {
   cYes:{he:'זמין',en:'Available'}, cNo:{he:'מושאל',en:'On Loan'},
   phAuthor:{he:'שם מחבר...',en:'Author name...'}, phCatSearch:{he:'חיפוש בקטלוג...',en:'Search catalog...'},
   thTitle:{he:'שם הספר',en:'Book Title'}, thAuth:{he:'מחבר',en:'Author'}, thSubj:{he:'נושא',en:'Subject'},
-  thBr:{he:'סניף',en:'Branch'}, thStat:{he:'זמינות',en:'Status'},
+  thBr:{he:'סניף',en:'Branch'}, thStat:{he:'זמינות',en:'Status'}, thAct:{he:'בקשה',en:'Request'},
+  rqTitle:{he:'בקשת תמונה / מידע על ספר',en:'Request a photo / info'}, rqBookLbl:{he:'הספר:',en:'Book:'},
+  rqType:{he:'סוג הבקשה',en:'Request type'}, rqT1:{he:'תמונה של הספר',en:'Photo of the book'},
+  rqT2:{he:'מידע נוסף על הספר',en:'More info'}, rqT3:{he:'בירור זמינות',en:'Check availability'}, rqT4:{he:'אחר',en:'Other'},
+  rqName:{he:'שם מלא *',en:'Full name *'}, rqPhone:{he:'טלפון *',en:'Phone *'}, rqEmail:{he:'מייל (לא חובה)',en:'Email (optional)'},
+  rqMsg:{he:'הודעה',en:'Message'}, rqSend:{he:'שליחת בקשה',en:'Send request'},
   btnDl:{he:'📥 הורד קטלוג',en:'📥 Download Catalog'}, tabAll:{he:'כל הספרים',en:'All Books'},
   brH:{he:'סניפי הספריה',en:'Library Branches'},
   brP:{he:'6 סניפים המשרתים את כל רחבי מודיעין עילית',en:"Six branches serving all of Modi'in Illit"},
@@ -1648,6 +1699,7 @@ function rC(){
     <td style="font-size:10.5px">${b.s}</td>
     <td style="font-size:10.5px">${b.b}</td>
     <td><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'מושאל':'On Loan')}</span></td>
+    <td><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשה':'📷 Request'}</button></td>
   </tr>`).join('');
   const ctrl=Q('pC'); if(!ctrl) return;
   if(pgs<=1){ctrl.innerHTML='';return;}
@@ -1661,6 +1713,89 @@ function rC(){
 }
 
 function gP(p){cPg=p; rC(); window.scrollTo(0,56);}
+
+// ═══ בקשת תמונה / מידע על ספר ═══
+let reqBk=null;
+function reqBook(id){
+  const b=CATALOG.find(x=>x.i===id); if(!b) return;
+  reqBk=b;
+  Q('rqBookName').textContent = b.n + (b.a?(' · '+b.a):'');
+  ['rqName','rqPhone','rqEmail','rqMsg'].forEach(k=>{const e=Q(k); if(e) e.value='';});
+  Q('rqOv').classList.add('op');
+  setTimeout(()=>Q('rqName')?.focus(),80);
+}
+function closeReq(){ Q('rqOv').classList.remove('op'); }
+async function submitReq(){
+  const name=Q('rqName').value.trim(), phone=Q('rqPhone').value.trim();
+  if(!name){ T(lang==='he'?'❌ נא למלא שם':'❌ Name required'); Q('rqName').focus(); return; }
+  if(!phone){ T(lang==='he'?'❌ נא למלא טלפון':'❌ Phone required'); Q('rqPhone').focus(); return; }
+  const btn=Q('rqSubBtn'); btn.disabled=true; btn.textContent=lang==='he'?'שולח…':'Sending…';
+  const rec={
+    book: reqBk? (reqBk.n+(reqBk.a?(' · '+reqBk.a):'')) : '',
+    bookId: reqBk? reqBk.i : '',
+    branch: reqBk? reqBk.b : '',
+    type: Q('rqTypeSel').value,
+    name, phone,
+    email: Q('rqEmail').value.trim(),
+    msg: Q('rqMsg').value.trim(),
+    date: new Date().toISOString(),
+    handled: false
+  };
+  // 1) שמירה בענן — יופיע באזור הניהול
+  let saved=false;
+  try{
+    if(sbReady || initSB()){
+      const cur = await sbLoad('requests');
+      const arr = Array.isArray(cur)? cur : [];
+      arr.unshift(rec);
+      saved = await sbSave('requests', arr);
+    }
+  }catch(e){ console.warn('req save',e); }
+  // 2) שליחת מייל דרך Netlify Forms
+  try{
+    const body=new URLSearchParams({
+      'form-name':'book-request', name, phone, email:rec.email,
+      book:rec.book, type:rec.type, message:rec.msg
+    }).toString();
+    await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+  }catch(e){ console.warn('netlify form',e); }
+  btn.disabled=false; btn.textContent=lang==='he'?'שליחת בקשה':'Send request';
+  closeReq();
+  T(saved ? (lang==='he'?'✅ הבקשה נשלחה! ניצור קשר בהקדם':'✅ Request sent!')
+          : (lang==='he'?'✅ הבקשה נשלחה':'✅ Request sent'));
+}
+
+// ═══ ניהול פניות (אזור מנהל) ═══
+async function rReq(){
+  const el=Q('reqList'); if(!el) return;
+  el.innerHTML='⏳ טוען פניות…';
+  if(!sbReady && !initSB()){ el.innerHTML='❌ אין חיבור לענן'; return; }
+  const arr = await sbLoad('requests');
+  const list = Array.isArray(arr)? arr : [];
+  if(!list.length){ el.innerHTML='<div style="padding:1rem;color:var(--mu);text-align:center">אין פניות עדיין.</div>'; return; }
+  el.innerHTML = list.map((r,i)=>`
+    <div class="aps" style="${r.handled?'opacity:.55':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+        <div style="font-weight:800;color:var(--n)">${esc(r.type||'בקשה')}${r.handled?' ✔️':''}</div>
+        <div style="font-size:10px;color:var(--mu);white-space:nowrap">${fmtDate(r.date)}</div>
+      </div>
+      <div style="font-size:12.5px;margin:.35rem 0;color:var(--n)">📖 ${esc(r.book||'—')}</div>
+      <div style="font-size:12px;color:var(--mu)">👤 ${esc(r.name||'')} · 📞 <a href="tel:${esc(r.phone||'')}">${esc(r.phone||'')}</a>${r.email?(' · ✉️ '+esc(r.email)):''}</div>
+      ${r.msg?`<div style="font-size:12px;margin-top:.4rem;background:var(--cr);padding:.45rem .6rem;border-radius:6px">${esc(r.msg)}</div>`:''}
+      <div style="display:flex;gap:.4rem;margin-top:.55rem">
+        <button class="adb" onclick="reqDone(${i})">${r.handled?'↩️ החזר לפתוח':'✔️ סמן כטופל'}</button>
+        <button class="adb" style="color:#dc2626" onclick="reqDel(${i})">🗑️ מחק</button>
+      </div>
+    </div>`).join('');
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmtDate(iso){ try{ const d=new Date(iso); return d.toLocaleDateString('he-IL')+' '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+async function reqMutate(i,fn){
+  const arr = await sbLoad('requests'); if(!Array.isArray(arr)) return;
+  fn(arr); await sbSave('requests', arr); rReq();
+}
+function reqDone(i){ reqMutate(i,a=>{ if(a[i]) a[i].handled=!a[i].handled; }); }
+function reqDel(i){ if(!confirm('למחוק פנייה זו?')) return; reqMutate(i,a=>a.splice(i,1)); }
 
 function dS(q){
   if(!q?.trim()) return;
@@ -1867,11 +2002,13 @@ function openP(name){
   Q('pOv').style.display='block'; Q('sP').classList.add('op');
   const titles={books:'📚 ניהול ספרים',news:'📰 עריכת חדשות',branches:'🏛️ עריכת סניפים',
     images:'🖼️ ניהול תמונות',donate_mgr:'💛 ניהול תרומות',settings:'⚙️ הגדרות',sale_mgr:'🛒 ניהול מכירות',
-    design:'🎨 עיצוב ומראה',fonts:'🔤 גופנים וטקסט',cloud:'☁️ מצב הענן ואבחון',members:'👥 חברים רשומים'};
+    design:'🎨 עיצוב ומראה',fonts:'🔤 גופנים וטקסט',cloud:'☁️ מצב הענן ואבחון',members:'👥 חברים רשומים',
+    requests:'📩 פניות מבקרים'};
   Q('pTit').textContent=titles[name]||name;
   Q('pBd').innerHTML=pHTML(name);
   if(name==='cloud') setTimeout(runCloudDiag,50);
   if(name==='members') setTimeout(rMembers,50);
+  if(name==='requests') setTimeout(rReq,50);
 }
 function closeP(){Q('sP').classList.remove('op'); Q('pOv').style.display='none';}
 
@@ -1880,6 +2017,14 @@ function fld(id,lbl,val,type='text'){
 }
 
 function pHTML(nm){
+  if(nm==='requests') return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem">
+      <div class="apst" style="margin:0">פניות שהתקבלו מהאתר</div>
+      <button class="adb" onclick="rReq()">🔄 רענן</button>
+    </div>
+    <div class="tip" style="margin-bottom:.8rem">💡 כל בקשת תמונה/מידע שמבקר שולח מהקטלוג מופיעה כאן, ובמקביל נשלחת למייל של הספרייה.</div>
+    <div id="reqList">⏳ טוען…</div>`;
+
   if(nm==='settings') return `
     <div class="aps"><div class="apst">📊 סטטיסטיקות דף הבית</div>
       ${fld('cB','ספרים',Q('sB')?.textContent||'')}
