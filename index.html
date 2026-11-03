@@ -590,16 +590,16 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   <div style="padding:0 1rem 1.1rem;max-width:1100px;margin:0 auto">
     <div style="display:flex;gap:1.3rem;align-items:flex-start;border:1px solid rgba(184,150,62,.32);background:linear-gradient(135deg,#fdfaf5,#f5edd8);border-radius:12px;padding:1.3rem">
       <div style="flex-shrink:0;text-align:center;min-width:105px">
-        <img id="rabbiImg" data-img="IMG_RABBI" style="width:105px;height:105px;border-radius:50%;object-fit:cover;object-position:center;border:4px solid rgba(184,150,62,.38);display:block;margin:0 auto .48rem" alt="">
-        <div style="font-size:12px;font-weight:700;color:var(--n);font-family:'Frank Ruhl Libre',serif" data-i="dirName">הרב יצחק לווין</div>
-        <div style="font-size:10.5px;color:var(--gd);font-weight:700;margin-top:.1rem" data-i="dirRole">מייסד ומנכ"ל</div>
+        <img id="rabbiImg" src="/logo-mark.png" style="width:105px;height:105px;border-radius:50%;object-fit:cover;object-position:center;border:4px solid rgba(184,150,62,.38);display:block;margin:0 auto .48rem;background:var(--cr)" alt="מנכ&quot;ל ספריית בית יוסף">
+        <div style="font-size:12px;font-weight:700;color:var(--n);font-family:'Frank Ruhl Libre',serif" data-i="dirName">מנכ"ל הספרייה</div>
+        <div style="font-size:10.5px;color:var(--gd);font-weight:700;margin-top:.1rem" data-i="dirRole">ספריית בית יוסף</div>
       </div>
       <div style="flex:1">
-        <div style="font-size:10px;color:var(--g);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.32rem" data-i="dirLbl">📜 דבר המייסד</div>
-        <h4 class="fr" style="font-size:1.05rem;color:var(--n);margin-bottom:.6rem;font-weight:900" data-i="dirH">דבר הספריה</h4>
-        <p style="font-size:12px;color:var(--mu);line-height:1.88">ספריית בית יוסף נוסדה מתוך חזון עמוק של אהבת התורה ואהבת הלומד. ראיתי לנגד עיניי מוסד שיהיה בית אמיתי לכל אחד.</p>
-        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem">לאורך 28 שנות פעילות, גדלנו מספריה קטנה לאחת הגדולות בעולם החרדי – עם יותר מ-100,000 ספרים, 6 סניפים, ואלפי קוראים.</p>
-        <div style="margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--bd);font-size:11px;color:var(--n);font-family:'Frank Ruhl Libre',serif;font-weight:700">✍️ הרב יצחק לווין | מייסד ומנכ"ל ספריית בית יוסף</div>
+        <div style="font-size:10px;color:var(--g);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.32rem" data-i="dirLbl">📜 דבר הספרייה</div>
+        <h4 class="fr" style="font-size:1.05rem;color:var(--n);margin-bottom:.6rem;font-weight:900" data-i="dirH">דבר הספרייה</h4>
+        <p style="font-size:12px;color:var(--mu);line-height:1.88" data-i="dirP1">ספריית בית יוסף הוקמה בנדבת לבו של איש החסד הרב יוסף אליקום קורלנסקי זצ"ל, מתוך חזון עמוק של אהבת התורה ואהבת הלומד — מקום שיהיה בית אמיתי לכל מי שבא ללמוד.</p>
+        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem" data-i="dirP2">לאורך השנים גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.</p>
+        <div style="margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--bd);font-size:11px;color:var(--n);font-family:'Frank Ruhl Libre',serif;font-weight:700" data-i="dirSig">✍️ מנכ"ל ספריית בית יוסף · על שם הרב יוסף אליקום קורלנסקי זצ"ל</div>
       </div>
     </div>
   </div>
@@ -1301,6 +1301,9 @@ async function sbLoadAll(){
   // 7. טקסט מאגרי מחשב
   const dbt = await sbLoad('databases');
   if(dbt && dbt.text){ const e=Q('dbDesc'); if(e) e.innerText=dbt.text; }
+  // 8. תמונת המנכ"ל (דף אודות)
+  const rb = await sbLoad('rabbi');
+  if(rb && rb.img){ const e=Q('rabbiImg'); if(e){ e.src=rb.img; e.style.objectFit='cover'; e.style.background='#fff'; } }
 }
 
 let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false;
@@ -1589,8 +1592,11 @@ const TR = {
   n3t:{he:'רשת של 6 סניפים ברחבי מודיעין עילית',en:'Third Branch Opens – Meyasdim'},
   n3x:{he:'בשל הביקוש הגובר נפתח סניף שלישי.',en:'Due to growing demand, a third branch has opened.'},
   abSub:{he:'מי אנחנו',en:'Who We Are'}, abH2:{he:'על הספריה',en:'About the Library'},
-  dirName:{he:'הרב יצחק לווין',en:'Rabbi Yitzchak Levin'}, dirRole:{he:'מייסד ומנכ"ל',en:'Founder & Director'},
-  dirLbl:{he:'📜 דבר המייסד',en:'📜 Founder\u2019s Message'}, dirH:{he:'דבר הספריה',en:'From the Library'},
+  dirName:{he:'מנכ"ל הספרייה',en:'Library Director'}, dirRole:{he:'ספריית בית יוסף',en:'Beit Yosef Library'},
+  dirP1:{he:'ספריית בית יוסף הוקמה בנדבת לבו של איש החסד הרב יוסף אליקום קורלנסקי זצ"ל, מתוך חזון עמוק של אהבת התורה ואהבת הלומד — מקום שיהיה בית אמיתי לכל מי שבא ללמוד.',en:'Beit Yosef Library was established through the generosity of the late Rabbi Yosef Elyakum Korlansky zt"l, out of a deep love of Torah and of every learner.'},
+  dirP2:{he:'לאורך השנים גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.',en:'Over the years it has grown into one of the largest Torah libraries — over 100,000 books, 6 branches and thousands of learners.'},
+  dirSig:{he:'✍️ מנכ"ל ספריית בית יוסף · על שם הרב יוסף אליקום קורלנסקי זצ"ל',en:'✍️ Director, Beit Yosef Library · in memory of Rabbi Yosef Elyakum Korlansky zt"l'},
+  dirLbl:{he:'📜 דבר הספרייה',en:'📜 Founder\u2019s Message'}, dirH:{he:'דבר הספרייה',en:'From the Library'},
   ac1h:{he:'חזון ומטרות',en:'Vision & Goals'}, ac1p:{he:'חזוננו הוא להנגיש את ספרות התורה לכל מבקש.',en:'Our vision is to make Torah literature accessible to every seeker.'},
   ac2h:{he:'תרומה לקהילה',en:'Community Impact'}, ac2p:{he:'מדי שנה מעניקה הספריה שירות ל-8,400 קוראים רשומים.',en:'Each year the library serves 8,400 registered readers.'},
   ac3h:{he:'נתוני הספריה',en:'By the Numbers'}, ac3p:{he:'100,000+ ספרים · 6 סניפים · 8,400 קוראים · 28 שנות פעילות.',en:'100,000+ books · 6 branches · 8,400 readers · 28 years.'},
@@ -2112,11 +2118,12 @@ function pHTML(nm){
       <input type="file" id="lIn" accept="image/*" style="display:none" onchange="apLogo(this)">
       <button class="asv" onclick="Q('lIn').click()">📷 החלף לוגו</button>
     </div>
-    <div class="aps"><div class="apst">👤 תמונת המנהל</div>
+    <div class="aps"><div class="apst">👤 תמונת מנכ"ל הספרייה (דף אודות)</div>
       <input type="file" id="rIn" accept="image/*" style="display:none" onchange="apRabbi(this)">
-      <button class="asv" onclick="Q('rIn').click()">📷 החלף תמונת מנהל</button>
+      <button class="asv" onclick="Q('rIn').click()">📷 העלה / החלף תמונה</button>
+      <div class="tip" style="margin-top:.5rem">💡 התמונה נשמרת בענן ומופיעה לכל המבקרים בדף "אודות".</div>
     </div>
-    <div class="tip">💡 שינויים נשמרים בדפדפן. לשינוי קבוע — ערוך קובץ HTML ב-Netlify.</div>`;
+    <div class="tip">💡 הלוגו נשמר בדפדפן בלבד. לשינוי קבוע של הלוגו — ערוך קובץ HTML ב-Netlify.</div>`;
 
   if(nm==='books') return `
     <div class="aps"><div class="apst">הוסף ספר ידנית</div>
@@ -2733,7 +2740,24 @@ function apLogo(inp){
 }
 function apRabbi(inp){
   if(!inp.files[0]) return;
-  const r=new FileReader(); r.onload=e=>{Q('rabbiImg').src=e.target.result; T(lang==='he'?'✅ תמונת המנהל הוחלפה!':'✅ Updated!');};
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      // כיווץ ל-420px כדי שהתמונה לא תכביד על הענן
+      const max=420, sc=Math.min(1, max/Math.max(img.width,img.height));
+      const w=Math.round(img.width*sc), h=Math.round(img.height*sc);
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      const data=cv.toDataURL('image/jpeg',0.85);
+      const el=Q('rabbiImg'); if(el){ el.src=data; el.style.objectFit='cover'; el.style.background='#fff'; }
+      sbSave('rabbi',{img:data}).then(ok=>{
+        T(ok ? (lang==='he'?'☁️ התמונה נשמרה בענן — כולם רואים!':'☁️ Saved to cloud!')
+             : (lang==='he'?'⚠️ נשמר מקומית בלבד (אין חיבור לענן)':'⚠️ Saved locally only'));
+      });
+    };
+    img.src=e.target.result;
+  };
   r.readAsDataURL(inp.files[0]);
 }
 
