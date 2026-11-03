@@ -154,6 +154,19 @@ html[dir=ltr] .cs{border-left:none;border-right:1px solid var(--bd)}
 html[dir=ltr] .bt2 th,.bt2 td{text-align:right}html[dir=ltr] .bt2 td{text-align:left}
 .bt2 td{padding:.5rem .75rem;border-bottom:1px solid var(--bd);vertical-align:middle}
 .bt2 tr:last-child td{border-bottom:none}.bt2 tr:hover td{background:#fdfaf5}
+@media(max-width:640px){
+  .bt2{border:none;font-size:12.5px}
+  .bt2 thead{display:none}
+  .bt2 tbody,.bt2 tr,.bt2 td{display:block;width:100%}
+  .bt2 tr{border:1px solid var(--bd);border-radius:11px;margin-bottom:.6rem;padding:.65rem .8rem;background:#fff!important}
+  .bt2 tr:hover td{background:transparent}
+  .bt2 td{border:none!important;padding:.2rem 0;display:flex;justify-content:space-between;gap:.7rem;align-items:center}
+  .bt2 td[data-label]::before{content:attr(data-label);color:var(--mu);font-weight:700;font-size:10.5px;flex-shrink:0}
+  .bt2 td.tnum{display:none}
+  .bt2 td.ttitle{display:block;padding-bottom:.4rem;margin-bottom:.35rem;border-bottom:1px solid var(--bd)!important}
+  .bt2 td.tact{margin-top:.5rem}
+  .bt2 td.tact .reqb{width:100%;padding:.5rem;font-size:12px}
+}
 .av{display:inline-block;padding:.12rem .42rem;border-radius:4px;font-size:9.5px;font-weight:700}
 .avy{background:rgba(22,163,74,.1);color:#15803d}.avn{background:rgba(220,38,38,.1);color:#b91c1c}
 .reqb{border:1px solid var(--g);background:#fff;color:var(--n);padding:.2rem .5rem;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s}
@@ -575,11 +588,14 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   </div>
   <div class="stit"><div class="ss" data-i="secNewSub">חדש בספריה</div><h3 class="fr sh" data-i="secNewH">ספרים חדשים</h3><div class="gb"></div></div>
   <div class="bg" id="hBks"></div>
+  <!-- קטע חדשות מוסתר כרגע (אין חדשות אמיתיות). להצגה מחדש: הסר display:none -->
+  <div id="newsSec" style="display:none">
   <div class="stit"><div class="ss" data-i="secNewsSub">עדכונים</div><h3 class="fr sh" data-i="secNewsH">חדשות ועדכונים</h3><div class="gb"></div></div>
   <div class="ng">
     <div class="nc"><div class="ni" style="background:linear-gradient(135deg,#f0e8d5,#d4c9b5)">🎉</div><div class="nb"><div class="nd2" id="n1d" data-i="n1d">כ"ה תמוז תשפ"ד</div><div class="nt" id="n1t" data-i="n1t">חנוכת אגף ספרי ילדים חדש</div><div class="nx" id="n1x" data-i="n1x">הספריה שמחה להודיע על פתיחת אגף ילדים מורחב עם אלפי כותרים חדשים.</div></div></div>
     <div class="nc"><div class="ni" style="background:linear-gradient(135deg,#dde8f0,#b5ccd4)">📚</div><div class="nb"><div class="nd2" id="n2d" data-i="n2d">ט"ו תמוז תשפ"ד</div><div class="nt" id="n2t" data-i="n2t">קטלוג מקוון מלא – 59,321 ספרים</div><div class="nx" id="n2x" data-i="n2x">לראשונה, כל קטלוג הספריה זמין לחיפוש אונליין.</div></div></div>
     <div class="nc"><div class="ni" style="background:linear-gradient(135deg,#e8f0dd,#c5d4a5)">🏛️</div><div class="nb"><div class="nd2" id="n3d" data-i="n3d">ב' תמוז תשפ"ד</div><div class="nt" id="n3t" data-i="n3t">רשת של 6 סניפים ברחבי מודיעין עילית</div><div class="nx" id="n3x" data-i="n3x">בשל הביקוש הגובר נפתח סניף שלישי.</div></div></div>
+  </div>
   </div>
 </div>
 
@@ -817,16 +833,16 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="crw"><span class="cic">📍</span><span id="cAddr">שדי חמד 11, מודיעין עילית</span></div>
         <div class="crw"><span class="cic">📞</span><span id="cTel">054-844-9826</span></div>
         <div class="crw"><span class="cic">📧</span><span id="cEml">sifriatbethyosef@gmail.com</span></div>
-        <div class="crw"><span class="cic">🕐</span><span>א-ה: 08:00–22:00 | ו: 08:00–13:00</span></div>
+        <div class="crw"><span class="cic">🕐</span><span>א–ה: <bdi dir="ltr">08:00–22:00</bdi> | ו׳: <bdi dir="ltr">08:00–13:00</bdi></span></div>
         <div class="mb" onclick="T('🗺️ פתיחת ניווט...')">🗺️ לחץ לניווט לסניף המרכזי</div>
       </div>
       <div class="ci" style="margin-top:.95rem">
         <h4 data-i="coHours">שעות פתיחה</h4>
         <div class="hrs" style="font-size:12.5px;gap:.32rem .75rem">
-          <span class="hd">א-ה</span><span class="ht">08:00–22:00</span>
-          <span class="hd">ו'</span><span class="ht">08:00–13:00</span>
+          <span class="hd">א–ה</span><span class="ht"><bdi dir="ltr">08:00–22:00</bdi></span>
+          <span class="hd">ו׳</span><span class="ht"><bdi dir="ltr">08:00–13:00</bdi></span>
           <span class="hd">ש'</span><span class="ht">סגור</span>
-          <span class="hd">מוצ"ש</span><span class="ht">21:00–23:00</span>
+          <span class="hd">מוצ"ש</span><span class="ht"><bdi dir="ltr">21:00–23:00</bdi></span>
         </div>
       </div>
     </div>
@@ -1197,6 +1213,7 @@ function buildCatalog(){
   CATALOG = CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]]}));
   catReady=true;
   const a1=Q('aC1'); if(a1) a1.textContent=CATALOG.length.toLocaleString();
+  const cn=Q('cNt'); if(cn) cn.textContent='📚 כל '+CATALOG.length.toLocaleString()+' הספרים טעונים';
 }
 function loadCatalog(cb){
   if(catReady){ if(cb)cb(); return; }
@@ -1735,13 +1752,13 @@ function rC(){
   const tot=fCat.length, pgs=Math.ceil(tot/PER), st=(cPg-1)*PER, pg=fCat.slice(st,st+PER);
   cnt.textContent=tot.toLocaleString()+(lang==='he'?' ספרים':' books');
   tb.innerHTML=pg.map((b,i)=>`<tr>
-    <td style="color:var(--mu);font-size:10.5px">${st+i+1}</td>
-    <td><strong style="color:var(--n);font-family:'Frank Ruhl Libre',serif;font-size:11.5px">${b.n}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4">${b.d}</div>`:''}</td>
-    <td style="font-size:11px">${b.a||'—'}</td>
-    <td style="font-size:10.5px">${b.s}</td>
-    <td style="font-size:10.5px">${b.b}</td>
-    <td><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'בשימוש':'In use')}</span></td>
-    <td><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשה':'📷 Request'}</button></td>
+    <td class="tnum" style="color:var(--mu);font-size:10.5px">${st+i+1}</td>
+    <td class="ttitle"><strong style="color:var(--n);font-family:'Frank Ruhl Libre',serif;font-size:11.5px">${b.n}</strong>${b.d?`<div style="font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4">${b.d}</div>`:''}</td>
+    <td data-label="מחבר" style="font-size:11px">${b.a||'—'}</td>
+    <td data-label="נושא" style="font-size:10.5px">${b.s}</td>
+    <td data-label="סניף" style="font-size:10.5px">${b.b}</td>
+    <td data-label="זמינות"><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'בשימוש':'In use')}</span></td>
+    <td class="tact"><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשת תמונה / מידע':'📷 Request'}</button></td>
   </tr>`).join('');
   const ctrl=Q('pC'); if(!ctrl) return;
   if(pgs<=1){ctrl.innerHTML='';return;}
