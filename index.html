@@ -832,7 +832,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="crw"><span class="cic">📞</span><span id="cTel">054-844-9826</span></div>
         <div class="crw"><span class="cic">📧</span><span id="cEml">sifriatbethyosef@gmail.com</span></div>
         <div class="crw"><span class="cic">🕐</span><span>א–ה: <bdi dir="ltr">08:00–22:00</bdi> | ו׳: <bdi dir="ltr">08:00–13:00</bdi></span></div>
-        <div class="mb" onclick="T('🗺️ פתיחת ניווט...')">🗺️ לחץ לניווט לסניף המרכזי</div>
+        <div class="mb" onclick="navWaze('שדי חמד 11, מודיעין עילית')">🗺️ לחץ לניווט לסניף המרכזי</div>
       </div>
       <div class="ci" style="margin-top:.95rem">
         <h4 data-i="coHours">שעות פתיחה</h4>
@@ -1913,6 +1913,13 @@ function rHB(){
   }).join('');
 }
 
+// ניווט ב-Waze לכתובת
+function navWaze(addr){
+  if(!addr) return;
+  window.open('https://waze.com/ul?q='+encodeURIComponent(addr)+'&navigate=yes','_blank');
+}
+function navWazeBranch(i){ const b=BRANCHES[i]; if(b) navWaze(b.street||b.name); }
+
 // ═══ BRANCHES RENDER ═══
 function rBr(){
   const g=Q('brGrid'); if(!g) return;
@@ -1932,7 +1939,7 @@ function rBr(){
         ${b.lending?`<div class="brr"><span class="bri">ℹ️</span><span>${b.lending}</span></div>`:''}
         ${b.phone?`<div class="brr"><span class="bri">📞</span><span>${b.phone}</span></div>`:''}
         ${b.dedicate?`<div class="brr" style="color:var(--g);font-weight:700"><span class="bri">✨</span><span>ניתן להקדיש שם — פנה להנהלה</span></div>`:''}
-        <div class="brm" onclick="T('🗺️ פתיחת ניווט...')">🗺️ ניווט בוויז</div>
+        <div class="brm" onclick="navWazeBranch(${i})">🗺️ ניווט בוויז</div>
       </div>
     </div>`;
   }).join('');
