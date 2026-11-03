@@ -180,6 +180,7 @@ html[dir=ltr] .bt2 th,.bt2 td{text-align:right}html[dir=ltr] .bt2 td{text-align:
 /* BRANCHES */
 .brg{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem;padding:1.4rem 1rem 2.4rem;max-width:1100px;margin:0 auto}
 .brc{background:#fff;border:1px solid var(--bd);border-radius:12px;overflow:hidden;transition:all .2s}
+.brc.main{border-top:3px solid var(--g)}
 .brc:hover{box-shadow:0 8px 26px rgba(26,39,68,.13);transform:translateY(-2px)}
 .brh{padding:.95rem 1.05rem;color:#fff}
 .brh.m{background:linear-gradient(135deg,var(--nd),var(--nl))}.brh.b2{background:linear-gradient(135deg,#1a3a2a,#234d38)}.brh.b3{background:linear-gradient(135deg,#2d1a44,#3d2560)}
@@ -408,7 +409,7 @@ html[dir=ltr] .ap{right:auto;left:0;transform:translateX(-110%)}
 /* FOOTER */
 footer{background:var(--nd);color:#fff;padding:2.2rem 1rem 1.1rem;border-top:1px solid rgba(184,150,62,.15)}
 .fg3{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1.7rem;margin-bottom:1.7rem}
-.fb img{height:36px;width:auto;filter:brightness(0) invert(1);opacity:.55;margin-bottom:.58rem;display:block}
+.fb img{height:52px;width:52px;border-radius:50%;object-fit:contain;background:var(--cr);border:2px solid var(--g);padding:3px;margin-bottom:.62rem;display:block}
 .fb h4{font-family:"Frank Ruhl Libre",serif;font-size:1.1rem;color:var(--g);margin-bottom:.45rem;font-weight:700}
 .fb p{font-size:11px;color:#607080;line-height:1.8}
 .fc h5{font-size:9.5px;font-weight:800;color:#607080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem;padding-bottom:.38rem;border-bottom:1px solid rgba(255,255,255,.05)}
@@ -1055,7 +1056,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
 <footer>
   <div class="fg3">
     <div class="fb">
-      <img data-img="IMG_LOGO" alt="logo" id="fLogo">
+      <img src="/logo-mark.png" alt="ספריית בית יוסף" id="fLogo">
       <h4>ספריית בית יוסף</h4>
       <p>בית לתורה, ללימוד ולחכמה.<br>פותחים שערים לעולם הספר היהודי.<br>משרתת את ציבור מודיעין עילית מתש"ן.</p>
     </div>
@@ -1830,9 +1831,9 @@ function rHB(){
 function rBr(){
   const g=Q('brGrid'); if(!g) return;
   g.innerHTML=BRANCHES.map((b,i)=>{
-    const hc=b.headClass||['m','b2','b3'][i%3];
-    return `<div class="brc">
-      <div class="brh ${hc}">
+    const isMain=(b.badge&&b.badge.includes('מרכזי'))||i===0;
+    return `<div class="brc${isMain?' main':''}">
+      <div class="brh m">
         ${b.badge?`<div class="brbg">${b.badge}</div>`:''}
         <h4>${b.name}</h4>${b.desc?`<p>${b.desc}</p>`:''}
       </div>
@@ -1840,7 +1841,7 @@ function rBr(){
         <div class="brr"><span class="bri">📍</span><span>${b.street||''}</span></div>
         ${b.books?`<div class="brr"><span class="bri">📚</span><span>${b.books} ספרים</span></div>`:''}
         ${b.subject?`<div class="brr"><span class="bri">📖</span><span>${b.subject}</span></div>`:''}
-        ${b.hours?`<div class="brr"><span class="bri">🕐</span><span>${b.hours}</span></div>`:''}
+        ${b.hours?`<div class="brr"><span class="bri">🕐</span><span dir="ltr" style="unicode-bidi:isolate">${b.hours}</span></div>`:''}
         ${b.extras?`<div class="brr"><span class="bri">🖥️</span><span>${b.extras}</span></div>`:''}
         ${b.lending?`<div class="brr"><span class="bri">ℹ️</span><span>${b.lending}</span></div>`:''}
         ${b.phone?`<div class="brr"><span class="bri">📞</span><span>${b.phone}</span></div>`:''}
