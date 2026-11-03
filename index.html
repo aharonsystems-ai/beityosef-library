@@ -598,7 +598,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div style="font-size:10px;color:var(--g);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.32rem" data-i="dirLbl">📜 דבר הספרייה</div>
         <h4 class="fr" style="font-size:1.05rem;color:var(--n);margin-bottom:.6rem;font-weight:900" data-i="dirH">דבר הספרייה</h4>
         <p style="font-size:12px;color:var(--mu);line-height:1.88" data-i="dirP1">ספריית בית יוסף הוקמה בנדבת לבו של איש החסד הרב יוסף אליקום קורלנסקי זצ"ל, מתוך חזון עמוק של אהבת התורה ואהבת הלומד — מקום שיהיה בית אמיתי לכל מי שבא ללמוד.</p>
-        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem" data-i="dirP2">לאורך השנים גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.</p>
+        <p style="font-size:12px;color:var(--mu);line-height:1.88;margin-top:.48rem" data-i="dirP2">לאורך 28 שנות פעילות גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.</p>
         <div style="margin-top:.75rem;padding-top:.65rem;border-top:1px solid var(--bd);font-size:11px;color:var(--n);font-family:'Frank Ruhl Libre',serif;font-weight:700" data-i="dirSig">✍️ מנכ"ל ספריית בית יוסף · על שם הרב יוסף אליקום קורלנסקי זצ"ל</div>
       </div>
     </div>
@@ -631,7 +631,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         </select></div>
       <div class="fg"><span class="fl" data-i="cAvail">זמינות</span>
         <label class="fk"><input type="checkbox" id="fAv" checked onchange="fC()"><span data-i="cYes">זמין</span></label>
-        <label class="fk"><input type="checkbox" id="fLo" checked onchange="fC()"><span data-i="cNo">מושאל</span></label></div>
+        <label class="fk"><input type="checkbox" id="fLo" checked onchange="fC()"><span data-i="cNo">בשימוש</span></label></div>
       <div class="fg"><span class="fl" data-i="cAuthor">מחבר</span>
         <input class="fs" id="fAu" data-ip="phAuthor" placeholder="שם מחבר..." oninput="fCd()" style="height:32px"></div>
     </div>
@@ -655,6 +655,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="ctb2" onclick="sCT(this,'ספרי ילדים')" data-i="tabKid">ספרי ילדים</div>
         <div class="ctb2" onclick="sCT(this,'קבלה')" data-i="tabKab">קבלה</div>
       </div>
+      <div style="font-size:11px;color:var(--mu);background:var(--cr);border:1px solid var(--bd);border-radius:7px;padding:.45rem .7rem;margin-bottom:.6rem" data-i="catNote">ℹ️ כל הספרים לעיון במקום בלבד — אין השאלה. "זמין" = נמצא על המדף · "בשימוש" = בעיון כעת.</div>
       <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th><th data-i="thAct">בקשה</th></tr></thead>
       <tbody id="cTb"></tbody></table>
       <div class="pgc" id="pC"></div>
@@ -946,7 +947,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       <div class="adc">
         <div class="adcd"><div class="adcn" id="aC1">0</div><div class="adcl">ספרים בקטלוג</div><div class="adct tu" id="aC1t">נתון אמיתי</div></div>
         <div class="adcd"><div class="adcn" id="aMem">—</div><div class="adcl">חברים רשומים</div><div class="adct" style="color:var(--mu)">ב-Netlify</div></div>
-        <div class="adcd"><div class="adcn" id="aLoan">0</div><div class="adcl">ספרים מושאלים</div><div class="adct" style="color:var(--mu)">לפי הקטלוג</div></div>
+        <div class="adcd"><div class="adcn" id="aLoan">0</div><div class="adcl">ספרים בשימוש</div><div class="adct" style="color:var(--mu)">לפי הקטלוג</div></div>
         <div class="adcd"><div class="adcn" id="aDon">₪0</div><div class="adcl">סה"כ תרומות</div><div class="adct" style="color:var(--mu)">ממד ההתקדמות</div></div>
         <div class="adcd"><div class="adcn" id="aSLC">0</div><div class="adcl">פריטי מכירה</div><div class="adct tu">נתון אמיתי</div></div>
       </div>
@@ -1557,10 +1558,11 @@ const TR = {
   cFilter:{he:'🔍 סינון וחיפוש',en:'🔍 Filter & Search'}, cSubj:{he:'נושא',en:'Subject'},
   cBranch:{he:'סניף',en:'Branch'}, cAvail:{he:'זמינות',en:'Availability'}, cAuthor:{he:'מחבר',en:'Author'},
   cAllSubj:{he:'כל הנושאים',en:'All Subjects'}, cAllBr:{he:'כל הסניפים',en:'All Branches'},
-  cYes:{he:'זמין',en:'Available'}, cNo:{he:'מושאל',en:'On Loan'},
+  cYes:{he:'זמין',en:'Available'}, cNo:{he:'בשימוש',en:'In use'},
   phAuthor:{he:'שם מחבר...',en:'Author name...'}, phCatSearch:{he:'חיפוש בקטלוג...',en:'Search catalog...'},
   thTitle:{he:'שם הספר',en:'Book Title'}, thAuth:{he:'מחבר',en:'Author'}, thSubj:{he:'נושא',en:'Subject'},
   thBr:{he:'סניף',en:'Branch'}, thStat:{he:'זמינות',en:'Status'}, thAct:{he:'בקשה',en:'Request'},
+  catNote:{he:'ℹ️ כל הספרים לעיון במקום בלבד — אין השאלה. "זמין" = נמצא על המדף · "בשימוש" = בעיון כעת.',en:'ℹ️ All books are for on-site study only — no lending. "Available" = on the shelf · "In use" = currently being studied.'},
   rqTitle:{he:'בקשת תמונה / מידע על ספר',en:'Request a photo / info'}, rqBookLbl:{he:'הספר:',en:'Book:'},
   rqType:{he:'סוג הבקשה',en:'Request type'}, rqT1:{he:'תמונה של הספר',en:'Photo of the book'},
   rqT2:{he:'מידע נוסף על הספר',en:'More info'}, rqT3:{he:'בירור זמינות',en:'Check availability'}, rqT4:{he:'אחר',en:'Other'},
@@ -1594,7 +1596,7 @@ const TR = {
   abSub:{he:'מי אנחנו',en:'Who We Are'}, abH2:{he:'על הספריה',en:'About the Library'},
   dirName:{he:'מנכ"ל הספרייה',en:'Library Director'}, dirRole:{he:'ספריית בית יוסף',en:'Beit Yosef Library'},
   dirP1:{he:'ספריית בית יוסף הוקמה בנדבת לבו של איש החסד הרב יוסף אליקום קורלנסקי זצ"ל, מתוך חזון עמוק של אהבת התורה ואהבת הלומד — מקום שיהיה בית אמיתי לכל מי שבא ללמוד.',en:'Beit Yosef Library was established through the generosity of the late Rabbi Yosef Elyakum Korlansky zt"l, out of a deep love of Torah and of every learner.'},
-  dirP2:{he:'לאורך השנים גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.',en:'Over the years it has grown into one of the largest Torah libraries — over 100,000 books, 6 branches and thousands of learners.'},
+  dirP2:{he:'לאורך 28 שנות פעילות גדלה הספרייה לאחת הגדולות בעולם התורה — עם יותר מ-100,000 ספרים, 6 סניפים ואלפי לומדים, וממשיכה לפעול ולהתרחב למען הרבים.',en:'Over 28 years it has grown into one of the largest Torah libraries — over 100,000 books, 6 branches and thousands of learners.'},
   dirSig:{he:'✍️ מנכ"ל ספריית בית יוסף · על שם הרב יוסף אליקום קורלנסקי זצ"ל',en:'✍️ Director, Beit Yosef Library · in memory of Rabbi Yosef Elyakum Korlansky zt"l'},
   dirLbl:{he:'📜 דבר הספרייה',en:'📜 Founder\u2019s Message'}, dirH:{he:'דבר הספרייה',en:'From the Library'},
   ac1h:{he:'חזון ומטרות',en:'Vision & Goals'}, ac1p:{he:'חזוננו הוא להנגיש את ספרות התורה לכל מבקש.',en:'Our vision is to make Torah literature accessible to every seeker.'},
@@ -1705,7 +1707,7 @@ function rC(){
     <td style="font-size:11px">${b.a||'—'}</td>
     <td style="font-size:10.5px">${b.s}</td>
     <td style="font-size:10.5px">${b.b}</td>
-    <td><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'מושאל':'On Loan')}</span></td>
+    <td><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'בשימוש':'In use')}</span></td>
     <td><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשה':'📷 Request'}</button></td>
   </tr>`).join('');
   const ctrl=Q('pC'); if(!ctrl) return;
@@ -1812,7 +1814,7 @@ function dS(q){
 
 function dCSV(){
   let csv='\uFEFF#,שם ספר,מחבר,נושא,זמינות,סניף\n';
-  CATALOG.forEach(b=>{ csv+=`"${b.i}","${b.n}","${b.a}","${b.s}","${b.v?'זמין':'מושאל'}","${b.b}"\n`; });
+  CATALOG.forEach(b=>{ csv+=`"${b.i}","${b.n}","${b.a}","${b.s}","${b.v?'זמין':'בשימוש'}","${b.b}"\n`; });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='קטלוג_ספריית_בית_יוסף.csv';
@@ -1829,7 +1831,7 @@ function rHB(){
     const[c1,c2]=BG[i%BG.length];
     return `<div class="bc"><div class="bcv" style="background:linear-gradient(135deg,${c1},${c2})"><div class="bct">${b.n.slice(0,30)}</div></div>
     <div class="bi"><div class="bt">${b.n}</div><div class="ba">${b.a||'—'}</div>
-    <span class="bbg ${b.v?'ay':'an'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'מושאל':'On Loan')}</span></div></div>`;
+    <span class="bbg ${b.v?'ay':'an'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'בשימוש':'In use')}</span></div></div>`;
   }).join('');
 }
 
@@ -2137,7 +2139,7 @@ function pHTML(nm){
         <option>האולם המרכזי – ספריית בית יוסף</option><option>סניף 1</option><option>סניף 2</option><option>סניף 3</option><option>סניף 4</option><option>סניף 5</option>
       </select></div>
       <div class="apf"><label>זמינות</label><select id="nbV" style="width:100%;border:1px solid var(--bd);border-radius:6px;padding:.44rem .6rem;font-size:12px;background:var(--cr)">
-        <option value="1">זמין</option><option value="0">מושאל</option>
+        <option value="1">זמין</option><option value="0">בשימוש</option>
       </select></div>
       <button class="asv" onclick="addBk()">+ הוסף לקטלוג</button>
     </div>
@@ -2476,7 +2478,7 @@ function cmRender(){
         <td><select id="cmE_s" style="width:100%;border:1px solid var(--gl);border-radius:5px;padding:.3rem;font-size:11.5px">${subjOpts}</select></td>
         <td><select id="cmE_b" style="width:100%;border:1px solid var(--gl);border-radius:5px;padding:.3rem;font-size:11.5px">${brOpts}</select></td>
         <td><select id="cmE_v" style="width:100%;border:1px solid var(--gl);border-radius:5px;padding:.3rem;font-size:11.5px">
-          <option value="1"${b.v?' selected':''}>זמין</option><option value="0"${!b.v?' selected':''}>מושאל</option></select></td>
+          <option value="1"${b.v?' selected':''}>זמין</option><option value="0"${!b.v?' selected':''}>בשימוש</option></select></td>
         <td><div class="ab2">
           <button class="eb" style="background:rgba(22,163,74,.12);color:#15803d" onclick="cmSave(${gi})">💾</button>
           <button class="dl2" onclick="cmCancel()">✕</button>
@@ -2489,7 +2491,7 @@ function cmRender(){
       <td style="font-size:11.5px">${b.a||'—'}</td>
       <td style="font-size:11px">${b.s||''}</td>
       <td style="font-size:11px">${b.b||''}</td>
-      <td><span class="av ${b.v?'avy':'avn'}">${b.v?'זמין':'מושאל'}</span></td>
+      <td><span class="av ${b.v?'avy':'avn'}">${b.v?'זמין':'בשימוש'}</span></td>
       <td><div class="ab2">
         <button class="eb" onclick="cmEdit(${gi})">✏️</button>
         <button class="dl2" onclick="cmDel(${gi})">🗑️</button>
@@ -2554,7 +2556,7 @@ function cmNewRow(){
 function cmExport(){
   let csv='\uFEFF#,שם ספר,מחבר,נושא,סניף,זמינות\n';
   (cmList.length?cmList:CATALOG).forEach(b=>{
-    csv+=`"${b.i||''}","${b.n||''}","${b.a||''}","${b.s||''}","${b.b||''}","${b.v?'זמין':'מושאל'}"\n`; });
+    csv+=`"${b.i||''}","${b.n||''}","${b.a||''}","${b.s||''}","${b.b||''}","${b.v?'זמין':'בשימוש'}"\n`; });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='קטלוג_מסונן.csv';
@@ -2925,7 +2927,7 @@ function shPr(){
   const pv=Q('uPv'); pv.style.display='block';
   const cols=['#','שם','מחבר','תיאור','נושא','סניף'];
   Q('pH').innerHTML=cols.map(c=>`<th style="padding:.35rem .58rem;font-size:10px;font-weight:700;color:var(--mu);border-bottom:1px solid var(--bd)">${c}</th>`).join('');
-  Q('pB').innerHTML=pend.slice(0,10).map((b,i)=>`<tr style="${i%2?'':'background:var(--cr)'}"><td style="padding:.32rem .58rem;font-size:10.5px;color:var(--mu)">${b.i}</td><td style="padding:.32rem .58rem;font-size:11px;font-weight:600;color:var(--n)">${b.n}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.a||'—'}</td><td style="padding:.32rem .58rem;font-size:10px;color:var(--mu)">${(b.d||'').slice(0,40)}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.s}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.b}</td><td style="padding:.32rem .58rem"><span style="background:${b.v?'rgba(22,163,74,.1)':'rgba(220,38,38,.1)'};color:${b.v?'#15803d':'#b91c1c'};font-size:9.5px;font-weight:700;padding:.1rem .38rem;border-radius:4px">${b.v?'זמין':'מושאל'}</span></td></tr>`).join('');
+  Q('pB').innerHTML=pend.slice(0,10).map((b,i)=>`<tr style="${i%2?'':'background:var(--cr)'}"><td style="padding:.32rem .58rem;font-size:10.5px;color:var(--mu)">${b.i}</td><td style="padding:.32rem .58rem;font-size:11px;font-weight:600;color:var(--n)">${b.n}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.a||'—'}</td><td style="padding:.32rem .58rem;font-size:10px;color:var(--mu)">${(b.d||'').slice(0,40)}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.s}</td><td style="padding:.32rem .58rem;font-size:10.5px">${b.b}</td><td style="padding:.32rem .58rem"><span style="background:${b.v?'rgba(22,163,74,.1)':'rgba(220,38,38,.1)'};color:${b.v?'#15803d':'#b91c1c'};font-size:9.5px;font-weight:700;padding:.1rem .38rem;border-radius:4px">${b.v?'זמין':'בשימוש'}</span></td></tr>`).join('');
   pv.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function rU(){Q('xlsIn').value=''; Q('uI').textContent='📂'; Q('uT').textContent='גרור קובץ Excel / CSV לכאן או לחץ לבחירה'; ['uPg','uRs','uPv'].forEach(id=>Q(id).style.display='none'); pend=[];}
