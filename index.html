@@ -49,7 +49,9 @@
   "sameAs": []
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&family=Rubik:wght@400;500;700&family=Assistant:wght@400;600;700&family=David+Libre:wght@400;700&family=Secular+One&family=Alef:wght@400;700&family=Varela+Round&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--g:#b8963e;--gl:#d4af6a;--gd:#8a6f2b;--n:#1a2744;--nl:#253358;--nd:#0f1a35;--cr:#faf8f3;--cd:#f0ebe0;--tx:#2c1f0e;--mu:#6b5744;--bd:#e8dcc8}
@@ -2460,12 +2462,24 @@ function applyFont(type, val){
   }
 }
 
+// טעינת גופן לפי דרישה (למחליף הגופנים בניהול) — כדי לא לטעון מראש גופנים שלא בשימוש
+function ensureFont(fam){
+  if(!fam) return;
+  const name = String(fam).replace(/['"]/g,'').split(',')[0].trim();
+  if(!name || ['Heebo','Frank Ruhl Libre','sans-serif','serif','inherit'].includes(name)) return;
+  const id='gf-'+name.replace(/\s+/g,'-');
+  if(document.getElementById(id)) return;
+  const l=document.createElement('link'); l.id=id; l.rel='stylesheet';
+  l.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(name)+':wght@400;700&display=swap';
+  document.head.appendChild(l);
+}
 function rebuildFontStyle(){
   let st = document.getElementById('customFontStyle');
   if(!st){ st=document.createElement('style'); st.id='customFontStyle'; document.head.appendChild(st); }
   const fh = localStorage.getItem('fontHead');
   const fb = localStorage.getItem('fontBody');
   const fs = localStorage.getItem('fontSize');
+  ensureFont(fh); ensureFont(fb);
   let css='';
   if(fh) css += `.fr,h1,h2,h3,h4,h5{font-family:${fh} !important}`;
   if(fb) css += `body,input,select,textarea,button,nav a,p,span,div{font-family:${fb}}`;
