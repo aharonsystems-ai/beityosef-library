@@ -727,11 +727,11 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="fg2"><label>אימייל</label><input type="email" placeholder="email@example.com"></div>
         <div class="fg2"><label data-i="cfTel">טלפון</label><input type="tel" placeholder="050-0000000"></div>
         <div class="fg2"><label>הנצחה / לכבוד</label><input placeholder="לזכר נשמת..."></div>
-        <button class="db" onclick="sDT(2)" data-i="dGo">💛 המשך לתשלום מאובטח</button>
+        <button class="db" onclick="openNedarim()" data-i="dGo">💛 המשך לתרומה מאובטחת (נדרים פלוס)</button>
         <div style="text-align:center;font-size:10.5px;color:var(--mu);margin-top:.38rem" data-i="dSec">🔒 תשלום מאובטח · קבלה תישלח למייל</div>
       </div>
       <div id="dN" style="display:none" class="nwr">
-        <iframe src="https://www.matara.pro/nedarimplus/online/?mosad=7004700" title="תרומה – נדרים פלוס" allow="payment" loading="lazy"></iframe>
+        <iframe id="nedFrame" src="https://www.matara.pro/nedarimplus/online/?mosad=7004700" title="תרומה – נדרים פלוס" allow="payment" loading="lazy"></iframe>
       </div>
     </div>
     <div class="dsd">
@@ -936,6 +936,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       <a class="na" onclick="closeP()"><span>📊</span><span>לוח בקרה</span></a>
       <a onclick="openP('books')"><span>📚</span><span>ניהול ספרים</span></a>
       <a onclick="openP('newbooks')"><span>🆕</span><span>ספרים חדשים (בית)</span></a>
+      <a onclick="openP('pages')"><span>📄</span><span>עמודים באתר</span></a>
       <a onclick="openP('news')"><span>📰</span><span>חדשות</span></a>
       <a onclick="openP('branches')"><span>🏛️</span><span>סניפים</span></a>
       <a onclick="openP('databases')"><span>💾</span><span>מאגרי מחשב</span></a>
@@ -1350,6 +1351,13 @@ async function sbLoadAll(){
   // 9. ספרים חדשים (מסך הבית)
   const nbk = await sbLoad('newbooks');
   if(nbk && Array.isArray(nbk) && nbk.length){ NEWBOOKS=nbk; if(typeof rHB==='function') rHB(); }
+  // 10. עמודים להצגה
+  const pv = await sbLoad('pagevis');
+  if(pv && typeof pv==='object'){ Object.assign(PAGEVIS, pv); }
+  if(typeof applyPageVis==='function') applyPageVis();
+  // 11. נדרים פלוס — מספר מוסד
+  const ned = await sbLoad('nedarim');
+  if(ned && ned.mosad){ NEDARIM_MOSAD=String(ned.mosad); if(typeof applyNedarim==='function') applyNedarim(); }
 }
 
 // ספירת כניסות לאתר (פעם אחת לכל ביקור)
@@ -1869,6 +1877,22 @@ function reqDone(i){ reqMutate(i,a=>{ if(a[i]) a[i].handled=!a[i].handled; }); }
 function reqDel(i){ if(!confirm('למחוק פנייה זו?')) return; reqMutate(i,a=>a.splice(i,1)); }
 
 // ═══ ניהול "ספרים חדשים" במסך הבית ═══
+function svNedarim(){
+  const v=(Q('nedM')?.value||'').trim();
+  if(!v){ T(lang==='he'?'❌ חסר מספר מוסד':'❌ Missing'); return; }
+  NEDARIM_MOSAD=v; applyNedarim();
+  sbSave('nedarim',{mosad:v}).then(ok=>{
+    T(ok ? (lang==='he'?'☁️ נשמר בענן!':'☁️ Saved!') : (lang==='he'?'⚠️ נשמר מקומית בלבד':'⚠️ Local only'));
+  });
+}
+function svPages(){
+  Object.keys(PAGE_LABELS).forEach(pg=>{ const c=Q('pv_'+pg); if(c) PAGEVIS[pg]=c.checked; });
+  applyPageVis();
+  sbSave('pagevis', PAGEVIS).then(ok=>{
+    T(ok ? (lang==='he'?'☁️ נשמר בענן — מוחל על כולם!':'☁️ Saved to cloud!')
+         : (lang==='he'?'⚠️ נשמר מקומית בלבד':'⚠️ Saved locally only'));
+  });
+}
 function addNewBook(){ NEWBOOKS.push({n:'ספר חדש',a:'',v:1}); Q('pBd').innerHTML=pHTML('newbooks'); }
 function delNewBook(i){ NEWBOOKS.splice(i,1); Q('pBd').innerHTML=pHTML('newbooks'); }
 function svNewBooks(){
@@ -1921,6 +1945,28 @@ function navWaze(addr){
   window.open('https://waze.com/ul?q='+encodeURIComponent(addr)+'&navigate=yes','_blank');
 }
 function navWazeBranch(i){ const b=BRANCHES[i]; if(b) navWaze(b.street||b.name); }
+
+// ═══ נדרים פלוס — תרומות ═══
+let NEDARIM_MOSAD='7004700';
+function nedarimUrl(){ return 'https://www.matara.pro/nedarimplus/online/?mosad='+encodeURIComponent(NEDARIM_MOSAD); }
+function openNedarim(){ window.open(nedarimUrl(),'_blank'); }
+function applyNedarim(){ const f=Q('nedFrame'); if(f && f.getAttribute('src')!==nedarimUrl()) f.src=nedarimUrl(); }
+
+// ═══ ניהול עמודים להצגה ═══
+const PAGE_LABELS={about:'אודותינו',catalog:'קטלוג',sales:'מכירות',branches:'סניפים',donate:'תרומות',projects:'פרויקטים',db:'מאגרים',archive:'ארכיון',contact:'צור קשר'};
+let PAGEVIS={about:true,catalog:true,sales:false,branches:true,donate:true,projects:true,db:true,archive:true,contact:true};
+function applyPageVis(){
+  Object.keys(PAGE_LABELS).forEach(pg=>{
+    const show = PAGEVIS[pg]!==false;
+    document.querySelectorAll('[onclick]').forEach(el=>{
+      const oc=el.getAttribute('onclick')||'';
+      if(oc.includes("G('"+pg+"')")) el.style.display = show?'':'none';
+    });
+  });
+  // אם המבקר נמצא בעמוד שהוסתר — חזרה לבית
+  const act=document.querySelector('.pg.act');
+  if(act){ const id=act.id.replace('pg-',''); if(PAGEVIS[id]===false) G('home'); }
+}
 
 // ═══ BRANCHES RENDER ═══
 function rBr(){
@@ -2111,7 +2157,7 @@ function openP(name){
   const titles={books:'📚 ניהול ספרים',news:'📰 עריכת חדשות',branches:'🏛️ עריכת סניפים',
     images:'🖼️ ניהול תמונות',donate_mgr:'💛 ניהול תרומות',settings:'⚙️ הגדרות',sale_mgr:'🛒 ניהול מכירות',
     design:'🎨 עיצוב ומראה',fonts:'🔤 גופנים וטקסט',cloud:'☁️ מצב הענן ואבחון',members:'👥 חברים רשומים',
-    requests:'📩 פניות מבקרים',newbooks:'🆕 ספרים חדשים (מסך הבית)'};
+    requests:'📩 פניות מבקרים',newbooks:'🆕 ספרים חדשים (מסך הבית)',pages:'📄 עמודים להצגה'};
   Q('pTit').textContent=titles[name]||name;
   Q('pBd').innerHTML=pHTML(name);
   if(name==='cloud') setTimeout(runCloudDiag,50);
@@ -2132,6 +2178,14 @@ function pHTML(nm){
     </div>
     <div class="tip" style="margin-bottom:.8rem">💡 כל בקשת תמונה/מידע שמבקר שולח מהקטלוג מופיעה כאן, ובמקביל נשלחת למייל של הספרייה.</div>
     <div id="reqList">⏳ טוען…</div>`;
+
+  if(nm==='pages') return `
+    <div class="tip" style="margin-bottom:.8rem">💡 בחר אילו עמודים יופיעו בתפריט ובאתר. שינוי נשמר בענן ומוחל על כל המבקרים. (עמוד הבית תמיד מוצג.)</div>
+    ${Object.keys(PAGE_LABELS).map(pg=>`
+      <div class="apf"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:13.5px">
+        <input type="checkbox" id="pv_${pg}" ${PAGEVIS[pg]!==false?'checked':''} style="width:auto"> ${PAGE_LABELS[pg]}
+      </label></div>`).join('')}
+    <button class="asv" onclick="svPages()" style="width:100%;margin-top:.5rem">💾 שמור עמודים להצגה</button>`;
 
   if(nm==='newbooks') return `
     <div class="tip" style="margin-bottom:.8rem">💡 הספרים שיוצגו ב"ספרים חדשים" במסך הבית. נשמר בענן ומופיע לכולם.</div>
@@ -2269,12 +2323,10 @@ function pHTML(nm){
       ${fld('dGV','יעד גיוס (₪)','17000000','number')}
       <button class="asv" onclick="upDon()">💾 עדכן מד התקדמות</button>
     </div>
-    <div class="aps"><div class="apst">קישור נדרים פלוס</div>
-      <div style="font-size:12.5px;color:var(--mu);line-height:1.75">
-        לצפייה בתרומות שהתקבלו:<br>
-        <a href="https://www.matara.pro" target="_blank" style="color:var(--g);font-weight:700">www.matara.pro</a><br>
-        מוסד: <strong>7004700</strong>
-      </div>
+    <div class="aps"><div class="apst">נדרים פלוס — מספר מוסד</div>
+      ${fld('nedM','מספר מוסד (מ-נדרים פלוס)',NEDARIM_MOSAD)}
+      <button class="asv" onclick="svNedarim()" style="width:100%">💾 שמור מספר מוסד</button>
+      <div class="tip" style="margin-top:.5rem">⚠️ כפתור התרומה באתר פותח ישירות את עמוד נדרים פלוס של המוסד הזה. ודא שהמספר נכון — התרומות מגיעות לחשבון הזה!</div>
     </div>`;
 
   if(nm==='sale_mgr') return `
@@ -3098,6 +3150,7 @@ window.addEventListener('load',function(){
   hydrateImages();
   a11yLoad();
   a11yKeyboard();
+  if(typeof applyPageVis==='function') applyPageVis();
   // ── זיהוי שפה אוטומטי ──
   // אם המבקר כבר בחר שפה בעבר — כבד את הבחירה שלו.
   // אחרת: ישראל/דובר עברית → עברית. כל השאר → אנגלית.
