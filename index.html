@@ -507,7 +507,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets.js"></script>
-<script src="catalog.js"></script>
+<!-- catalog.js נטען בעצלתיים רק כשנכנסים לקטלוג/חיפוש (קובץ גדול) -->
 </head>
 <body>
 <form name="registration" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
@@ -920,6 +920,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       <div class="ans">ניהול</div>
       <a class="na" onclick="closeP()"><span>📊</span><span>לוח בקרה</span></a>
       <a onclick="openP('books')"><span>📚</span><span>ניהול ספרים</span></a>
+      <a onclick="openP('newbooks')"><span>🆕</span><span>ספרים חדשים (בית)</span></a>
       <a onclick="openP('news')"><span>📰</span><span>חדשות</span></a>
       <a onclick="openP('branches')"><span>🏛️</span><span>סניפים</span></a>
       <a onclick="openP('databases')"><span>💾</span><span>מאגרי מחשב</span></a>
@@ -1187,16 +1188,40 @@ function hydrateImages(){
     var k=el.getAttribute('data-bg'); if(map[k]) el.style.backgroundImage="url('"+map[k]+"')";
   });
 }
-// ── בדיקה שקבצי הנתונים נטענו ──
-if(typeof CAT_RAW==='undefined'){
-  var CAT_RAW=[];
-  document.addEventListener('DOMContentLoaded',function(){
-    document.body.insertAdjacentHTML('afterbegin',
-      '<div style="position:fixed;inset:0;background:#0f1a35;color:#d4af6a;z-index:9999;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;font-family:sans-serif;font-size:15px;line-height:1.9">'+
-      '⚠️ קובץ הקטלוג (catalog.js) לא נטען.<br>ודא ששלושת הקבצים הועלו יחד:<br><b>index.html · catalog.js · assets.js</b></div>');
-  });
+// ── טעינה עצלה של הקטלוג (קובץ גדול) ──
+const _BRN=["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"];
+let CATALOG = (typeof CAT_RAW!=='undefined') ? CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]]})) : [];
+let catReady = (typeof CAT_RAW!=='undefined'), catLoading=false;
+function buildCatalog(){
+  if(typeof CAT_RAW==='undefined') return;
+  CATALOG = CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]]}));
+  catReady=true;
+  const a1=Q('aC1'); if(a1) a1.textContent=CATALOG.length.toLocaleString();
 }
-const CATALOG=CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"][r[6]]}));
+function loadCatalog(cb){
+  if(catReady){ if(cb)cb(); return; }
+  if(catLoading){ const t=setInterval(()=>{ if(catReady){ clearInterval(t); if(cb)cb(); } },120); return; }
+  catLoading=true;
+  const s=document.createElement('script'); s.src='catalog.js';
+  s.onload=()=>{ try{ buildCatalog(); }catch(e){ console.error('catalog build',e); } catLoading=false; if(cb)cb(); };
+  s.onerror=()=>{ catLoading=false; const tb=Q('cTb'); if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:2rem;text-align:center;color:#b91c1c">⚠️ טעינת הקטלוג נכשלה. נסו לרענן.</td></tr>'; T(lang==='he'?'⚠️ טעינת הקטלוג נכשלה':'⚠️ Catalog load failed'); };
+  document.head.appendChild(s);
+}
+// ספרים חדשים למסך הבית — ניתן לעריכה מהניהול (נשמר בענן). עצמאי מהקטלוג הגדול.
+let NEWBOOKS=[
+  {n:'אדרת אליהו',a:'רבי יוסף חיים',v:1},
+  {n:'אור שמח',a:'רבי מאיר שמחה',v:1},
+  {n:'אהלי שם',a:'רבי מנחם אליעזר',v:1},
+  {n:'אוהל תורה',a:'רבי אברהם הלל סיבוני',v:1},
+  {n:'ביכורי משה',a:'רבי משה צבי גולדברג',v:1},
+  {n:'בית אהרן',a:'רבי אברהם אהרן פרידמן',v:1},
+  {n:'בית שלמה',a:'רבי שלמה אבן חסון',v:1},
+  {n:'ברכת ישראל',a:'רבי ישראל משה פריד',v:1},
+  {n:'גנזי המלך',a:'רבי ידידיה טיאה ווייל',v:1},
+  {n:'דברי שמואל',a:'רבי רפאל שמואל ארדיטי',v:1},
+  {n:'הגדה של פסח',a:'רבי אריה ליב צינץ',v:1},
+  {n:'אבות דרבי נתן',a:'התנא רבי נתן',v:1}
+];
 // ── נרמול טקסט לחיפוש: מאחד גרשיים, מסיר סימני פיסוק ──
 function nrm(s){
   return (s||'').toLowerCase()
@@ -1305,6 +1330,9 @@ async function sbLoadAll(){
   // 8. תמונת המנכ"ל (דף אודות)
   const rb = await sbLoad('rabbi');
   if(rb && rb.img){ const e=Q('rabbiImg'); if(e){ e.src=rb.img; e.style.objectFit='cover'; e.style.background='#fff'; } }
+  // 9. ספרים חדשים (מסך הבית)
+  const nbk = await sbLoad('newbooks');
+  if(nbk && Array.isArray(nbk) && nbk.length){ NEWBOOKS=nbk; if(typeof rHB==='function') rHB(); }
 }
 
 let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false;
@@ -1514,18 +1542,23 @@ function G(pg){
   const ls=document.querySelectorAll('#mNav a');
   if(idx>=0&&ls[idx]) ls[idx].classList.add('act');
   window.scrollTo(0,0);
-  if(pg==='catalog') fC();
+  if(pg==='catalog'){
+    if(!catReady){ const tb=Q('cTb'); if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:2.4rem;text-align:center;color:var(--mu)">⏳ טוען את הקטלוג… (פעם ראשונה בלבד)</td></tr>'; }
+    loadCatalog(()=>fC());
+  }
   if(pg==='home') rHB();
   if(pg==='sales') rSale('');
   if(pg==='branches') rBr();
   if(pg==='admin'){
-    Q('aC1').textContent=CATALOG.length.toLocaleString();
     Q('aSLC').textContent=PRODS.length;
-    if(typeof rAT==='function') rAT();
-    if(typeof cmFillBranches==='function') cmFillBranches();
-    if(typeof cmFilter==='function') cmFilter();
-    const lo=Q('aLoan'); if(lo) lo.textContent=CATALOG.filter(b=>b.v===0).length.toLocaleString();
     updateMemberStats();
+    loadCatalog(()=>{
+      Q('aC1').textContent=CATALOG.length.toLocaleString();
+      if(typeof rAT==='function') rAT();
+      if(typeof cmFillBranches==='function') cmFillBranches();
+      if(typeof cmFilter==='function') cmFilter();
+      const lo=Q('aLoan'); if(lo) lo.textContent=CATALOG.filter(b=>b.v===0).length.toLocaleString();
+    });
   }
 }
 
@@ -1806,13 +1839,31 @@ async function reqMutate(i,fn){
 function reqDone(i){ reqMutate(i,a=>{ if(a[i]) a[i].handled=!a[i].handled; }); }
 function reqDel(i){ if(!confirm('למחוק פנייה זו?')) return; reqMutate(i,a=>a.splice(i,1)); }
 
+// ═══ ניהול "ספרים חדשים" במסך הבית ═══
+function addNewBook(){ NEWBOOKS.push({n:'ספר חדש',a:'',v:1}); Q('pBd').innerHTML=pHTML('newbooks'); }
+function delNewBook(i){ NEWBOOKS.splice(i,1); Q('pBd').innerHTML=pHTML('newbooks'); }
+function svNewBooks(){
+  const arr=[];
+  for(let i=0;i<NEWBOOKS.length;i++){
+    const n=Q('nbk_n_'+i); if(!n) continue;
+    const nm=n.value.trim(); if(!nm) continue;
+    arr.push({n:nm, a:(Q('nbk_a_'+i)?.value||'').trim(), v:Q('nbk_v_'+i)?.checked?1:0});
+  }
+  NEWBOOKS=arr; rHB();
+  sbSave('newbooks',NEWBOOKS).then(ok=>{
+    T(ok ? (lang==='he'?'☁️ נשמר בענן — כולם רואים!':'☁️ Saved to cloud!')
+         : (lang==='he'?'⚠️ נשמר מקומית בלבד':'⚠️ Saved locally only'));
+  });
+}
+
 function dS(q){
   if(!q?.trim()) return;
   G('catalog');
-  setTimeout(()=>{const i=Q('cS'); if(i){i.value=q; fC();}},80);
+  loadCatalog(()=>{ const i=Q('cS'); if(i){ i.value=q; fC(); } });
 }
 
 function dCSV(){
+  if(!catReady){ loadCatalog(()=>dCSV()); return; }
   let csv='\uFEFF#,שם ספר,מחבר,נושא,זמינות,סניף\n';
   CATALOG.forEach(b=>{ csv+=`"${b.i}","${b.n}","${b.a}","${b.s}","${b.v?'זמין':'בשימוש'}","${b.b}"\n`; });
   const a=document.createElement('a');
@@ -1827,7 +1878,7 @@ function dCSV(){
 // ═══════════════════════════════════════════
 function rHB(){
   const g=Q('hBks'); if(!g) return;
-  g.innerHTML=CATALOG.slice(0,12).map((b,i)=>{
+  g.innerHTML=(NEWBOOKS||[]).slice(0,12).map((b,i)=>{
     const[c1,c2]=BG[i%BG.length];
     return `<div class="bc"><div class="bcv" style="background:linear-gradient(135deg,${c1},${c2})"><div class="bct">${b.n.slice(0,30)}</div></div>
     <div class="bi"><div class="bt">${b.n}</div><div class="ba">${b.a||'—'}</div>
@@ -2012,7 +2063,7 @@ function openP(name){
   const titles={books:'📚 ניהול ספרים',news:'📰 עריכת חדשות',branches:'🏛️ עריכת סניפים',
     images:'🖼️ ניהול תמונות',donate_mgr:'💛 ניהול תרומות',settings:'⚙️ הגדרות',sale_mgr:'🛒 ניהול מכירות',
     design:'🎨 עיצוב ומראה',fonts:'🔤 גופנים וטקסט',cloud:'☁️ מצב הענן ואבחון',members:'👥 חברים רשומים',
-    requests:'📩 פניות מבקרים'};
+    requests:'📩 פניות מבקרים',newbooks:'🆕 ספרים חדשים (מסך הבית)'};
   Q('pTit').textContent=titles[name]||name;
   Q('pBd').innerHTML=pHTML(name);
   if(name==='cloud') setTimeout(runCloudDiag,50);
@@ -2033,6 +2084,21 @@ function pHTML(nm){
     </div>
     <div class="tip" style="margin-bottom:.8rem">💡 כל בקשת תמונה/מידע שמבקר שולח מהקטלוג מופיעה כאן, ובמקביל נשלחת למייל של הספרייה.</div>
     <div id="reqList">⏳ טוען…</div>`;
+
+  if(nm==='newbooks') return `
+    <div class="tip" style="margin-bottom:.8rem">💡 הספרים שיוצגו ב"ספרים חדשים" במסך הבית. נשמר בענן ומופיע לכולם.</div>
+    <div style="margin-bottom:.8rem"><button class="asv" onclick="addNewBook()" style="width:100%">➕ הוסף ספר</button></div>
+    ${(NEWBOOKS||[]).map((b,i)=>`
+      <div class="aps">
+        <div class="apst" style="display:flex;justify-content:space-between;align-items:center">
+          <span>ספר ${i+1}</span>
+          <button onclick="delNewBook(${i})" style="background:rgba(220,38,38,.1);color:#dc2626;border:none;padding:.2rem .55rem;border-radius:5px;font-size:11px;cursor:pointer;font-weight:700">🗑️ מחק</button>
+        </div>
+        <div class="apf"><label>שם הספר</label><input id="nbk_n_${i}" value="${(b.n||'').replace(/"/g,'&quot;')}"></div>
+        <div class="apf"><label>מחבר</label><input id="nbk_a_${i}" value="${(b.a||'').replace(/"/g,'&quot;')}"></div>
+        <div class="apf"><label style="display:flex;align-items:center;gap:.4rem;cursor:pointer"><input type="checkbox" id="nbk_v_${i}" ${b.v?'checked':''} style="width:auto"> זמין (לא בשימוש)</label></div>
+      </div>`).join('')}
+    <button class="asv" onclick="svNewBooks()" style="width:100%">💾 שמור ספרים חדשים</button>`;
 
   if(nm==='settings') return `
     <div class="aps"><div class="apst">📊 סטטיסטיקות דף הבית</div>
