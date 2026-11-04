@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ניהול ספריית בית יוסף</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@700;800&display=swap">
+<style>
+:root{
+  --navy:#1b2a4a; --navy-2:#24345a; --gold:#b08d3f; --gold-l:#cca954;
+  --bg:#f6f4ef; --surface:#ffffff; --surface-2:#f0ece2;
+  --ink:#1c2230; --mu:#5f6678; --faint:#9298a6;
+  --line:#e4ddce; --ok:#2f6b4f; --ok-bg:#e4efe7; --no:#9a3b2f; --no-bg:#f6e5e2;
+  --f-head:"Frank Ruhl Libre",Georgia,serif; --f:"Heebo","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+
+/* top bar */
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:30;
+  box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.hw{max-width:1200px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:34px;height:34px;border-radius:8px;background:var(--gold);color:var(--navy);
+  display:grid;place-items:center;font-family:var(--f-head);font-weight:800;font-size:19px}
+.brand h1{font-family:var(--f-head);font-size:19px;margin:0;font-weight:800}
+.brand small{display:block;font-size:11px;color:#b9c2d6;font-weight:400;font-family:var(--f)}
+.spacer{flex:1}
+.hbtn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:8px 13px;font-size:13px;font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.hbtn:hover{background:rgba(255,255,255,.18)}
+.hbtn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:700}
+.hbtn.gold:hover{background:var(--gold-l)}
+.badge{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--ok-bg);color:var(--ok);font-weight:700}
+.badge.mgr{background:var(--gold);color:var(--navy)}
+
+/* controls */
+.wrap{max-width:1200px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.search{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.search .sbox{flex:1;min-width:220px;position:relative}
+.search .sbox input{width:100%;height:46px;border:2px solid var(--line);border-radius:11px;
+  padding:0 44px 0 14px;font-size:16px;background:var(--surface);color:var(--ink)}
+.search .sbox input:focus{outline:none;border-color:var(--gold)}
+.search .sbox .ic{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:17px}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.filters select{height:40px;border:1px solid var(--line);border-radius:9px;padding:0 10px;
+  font-size:13px;background:var(--surface);color:var(--ink)}
+.filters .fx{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mu);
+  background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:0 11px;height:40px}
+
+.statbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin-bottom:10px;font-size:13px;color:var(--mu)}
+.statbar b{color:var(--ink)}
+
+/* table */
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ttop{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:720px}
+thead th{background:var(--surface-2);text-align:right;font-size:12.5px;color:var(--navy);
+  font-weight:700;padding:11px 14px;white-space:nowrap;border-bottom:1px solid var(--line)}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+.bk-title{font-weight:600;color:var(--ink)}
+.bk-id{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums}
+.pill{font-size:11.5px;padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.pill.y{background:var(--ok-bg);color:var(--ok)} .pill.n{background:var(--no-bg);color:var(--no)}
+.subj{font-size:12px;color:var(--mu);background:var(--surface-2);border-radius:6px;padding:2px 8px}
+.rowact{display:flex;gap:5px}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:5px 9px;font-size:12px;color:var(--ink)}
+.ib:hover{border-color:var(--gold);color:var(--gold)}
+.ib.del:hover{border-color:var(--no);color:var(--no)}
+
+.pager{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;padding:14px}
+.pager button{border:1px solid var(--line);background:var(--surface);border-radius:7px;min-width:34px;
+  height:34px;padding:0 9px;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+.pager button.act{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
+.pager button:disabled{opacity:.4;cursor:default}
+
+.empty{padding:50px 20px;text-align:center;color:var(--faint)}
+.spin{display:inline-block;width:18px;height:18px;border:2.5px solid var(--line);
+  border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(18,22,34,.55);display:none;align-items:center;
+  justify-content:center;z-index:50;padding:16px}
+.ov.on{display:flex}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:520px;max-height:90vh;
+  overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mh{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.mh h3{font-family:var(--f-head);color:var(--navy);margin:0;font-size:19px}
+.mx{border:none;background:none;font-size:22px;color:var(--faint);line-height:1}
+.mb{padding:18px 20px;display:flex;flex-direction:column;gap:13px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:12.5px;font-weight:600;color:var(--mu)}
+.fld input,.fld select,.fld textarea{border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+  font-size:14px;background:var(--surface);color:var(--ink);width:100%}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--gold)}
+.fld textarea{resize:vertical;min-height:58px}
+.frow{display:flex;gap:11px}.frow>*{flex:1}
+.mf{padding:16px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-start}
+.btn{border:none;border-radius:9px;padding:10px 20px;font-size:14px;font-weight:700}
+.btn.p{background:var(--gold);color:var(--navy)} .btn.p:hover{background:var(--gold-l)}
+.btn.s{background:var(--surface-2);color:var(--ink)}
+.btn.d{background:var(--no);color:#fff}
+.pwnote{font-size:12px;color:var(--faint);text-align:center;margin-top:2px}
+
+/* toast */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:14px;z-index:70;
+  opacity:0;transition:.25s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== KIOSK ===== */
+body.kiosk header, body.kiosk .adminonly{display:none}
+body.kiosk .wrap{max-width:1100px;padding-top:26px}
+.khead{display:none}
+body.kiosk .khead{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:20px;
+  padding-top:14px;text-align:center;flex-direction:column}
+.khead .klogo{width:58px;height:58px;border-radius:14px;background:var(--navy);color:var(--gold);
+  display:grid;place-items:center;font-family:var(--f-head);font-weight:800;font-size:30px}
+.khead h2{font-family:var(--f-head);color:var(--navy);margin:0;font-size:27px}
+.khead p{margin:3px 0 0;color:var(--mu);font-size:14px}
+body.kiosk .search .sbox input{height:58px;font-size:20px}
+body.kiosk thead th{font-size:15px;padding:14px 16px}
+body.kiosk tbody td{font-size:17px;padding:14px 16px}
+body.kiosk .bk-title{font-size:18px}
+.kexit{display:none}
+body.kiosk .kexit{display:block;position:fixed;bottom:12px;left:12px;z-index:40;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 12px;
+  font-size:12px;color:var(--faint)}
+body.kiosk .kexit:hover{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hw">
+    <div class="brand">
+      <div class="logo">ב</div>
+      <div><h1>ניהול הספרייה</h1><small>ספריית בית יוסף · מודיעין עילית</small></div>
+    </div>
+    <div class="spacer"></div>
+    <span id="modeBadge" class="badge">צפייה</span>
+    <button class="hbtn" id="kioskBtn">🖥️ מצב קיוסק</button>
+    <button class="hbtn gold" id="loginBtn">🔑 כניסת מנהל</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="khead">
+    <div class="klogo">ב</div>
+    <h2>קטלוג ספריית בית יוסף</h2>
+    <p>חיפוש ספר — הקלידו שם ספר, מחבר או נושא</p>
+  </div>
+
+  <div class="search">
+    <div class="sbox">
+      <span class="ic">🔍</span>
+      <input id="q" placeholder="חיפוש לפי שם ספר, מחבר או תיאור..." autocomplete="off">
+    </div>
+    <button class="hbtn gold adminonly" id="addBtn" style="height:46px;display:none">➕ הוסף ספר</button>
+  </div>
+
+  <div class="filters">
+    <select id="fSubj"><option value="">כל הנושאים</option></select>
+    <select id="fBr"><option value="">כל הסניפים</option></select>
+    <select id="fAv">
+      <option value="">זמינות: הכל</option>
+      <option value="true">זמין</option>
+      <option value="false">בשימוש</option>
+    </select>
+    <select id="fSort">
+      <option value="title.asc">מיון: א-ת</option>
+      <option value="title.desc">מיון: ת-א</option>
+      <option value="author.asc">לפי מחבר</option>
+      <option value="id.asc">לפי מספר</option>
+    </select>
+  </div>
+
+  <div class="statbar">
+    <div id="stat">טוען...</div>
+  </div>
+
+  <div class="tcard">
+    <div class="ttop">
+      <table>
+        <thead><tr>
+          <th style="width:70px">מספר</th><th>שם הספר</th><th>מחבר</th>
+          <th style="width:130px">נושא</th><th style="width:150px">סניף</th>
+          <th style="width:90px">זמינות</th><th class="adminonly" style="width:120px;display:none">פעולות</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </div>
+</div>
+
+<button class="kexit" id="kexitBtn">יציאה ממצב קיוסק (מנהל)</button>
+
+<!-- login modal -->
+<div class="ov" id="loginOv">
+  <div class="modal" style="max-width:380px">
+    <div class="mh"><h3>כניסת מנהל</h3><button class="mx" data-close>×</button></div>
+    <div class="mb">
+      <div class="fld"><label>סיסמה</label><input type="password" id="pw" autocomplete="off"></div>
+      <div class="pwnote">הכניסה פותחת עריכה: הוספה, שינוי ומחיקה של ספרים.</div>
+    </div>
+    <div class="mf"><button class="btn p" id="pwOk">כניסה</button><button class="btn s" data-close>ביטול</button></div>
+  </div>
+</div>
+
+<!-- edit/add modal -->
+<div class="ov" id="editOv">
+  <div class="modal">
+    <div class="mh"><h3 id="editTitle">עריכת ספר</h3><button class="mx" data-close>×</button></div>
+    <div class="mb">
+      <div class="fld"><label>שם הספר *</label><input id="e_title"></div>
+      <div class="frow">
+        <div class="fld"><label>מחבר</label><input id="e_author"></div>
+        <div class="fld"><label>נושא</label><select id="e_subject"></select></div>
+      </div>
+      <div class="fld"><label>תיאור / פרטים</label><textarea id="e_desc"></textarea></div>
+      <div class="frow">
+        <div class="fld"><label>סניף</label><select id="e_branch"></select></div>
+        <div class="fld"><label>זמינות</label><select id="e_avail"><option value="true">זמין</option><option value="false">בשימוש</option></select></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn p" id="saveBtn">💾 שמירה</button>
+      <button class="btn s" data-close>ביטול</button>
+      <button class="btn d" id="delBtn" style="margin-right:auto;display:none">🗑️ מחיקה</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL='https://ugixnimesxjpjaqddtys.supabase.co';
+const SB_KEY='sb_publishable_v3ATiJW2kIJhenMMZdZKmA_ct6FcyxR';
+const MGR_PW='sifria2026';   // סיסמת מנהל
+const BRANCHES=["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"];
+const SUBJECTS=['גמרא','הלכה','הלכה - שבת','הלכה - פסח','תפילה','פרשת שבוע','מוסר ומחשבה','קבלה','חסידות','תנ"ך','ספרי ילדים','כללי'];
+const PER=25;
+let page=0, total=0, isMgr=false, editingId=null;
+
+const $=s=>document.querySelector(s);
+const rowsEl=$('#rows'), statEl=$('#stat'), pagerEl=$('#pager');
+
+// fill selects
+function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
+SUBJECTS.forEach(s=>{$('#fSubj').appendChild(opt(s,s));$('#e_subject').appendChild(opt(s,s));});
+BRANCHES.forEach((b,i)=>{$('#fBr').appendChild(opt(i,b));$('#e_branch').appendChild(opt(i,b));});
+
+async function sb(path,opts={}){
+  return fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:{
+    apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',...(opts.headers||{})}});
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600);}
+function esc(s){return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+
+function buildPath(forCount){
+  const p=[];
+  const q=$('#q').value.trim().replace(/[%(),*]/g,' ').trim();
+  if(q){const e=encodeURIComponent('*'+q+'*');p.push(`or=(title.ilike.${e},author.ilike.${e},description.ilike.${e})`);}
+  if($('#fSubj').value)p.push('subject=eq.'+encodeURIComponent($('#fSubj').value));
+  if($('#fBr').value!=='')p.push('branch=eq.'+$('#fBr').value);
+  if($('#fAv').value!=='')p.push('available=eq.'+$('#fAv').value);
+  p.push('order='+$('#fSort').value);
+  p.push('select=id,title,author,description,subject,available,branch');
+  if(!forCount){p.push('limit='+PER);p.push('offset='+(page*PER));}
+  return 'books?'+p.join('&');
+}
+
+let _t;
+function debounce(fn){clearTimeout(_t);_t=setTimeout(fn,300);}
+
+async function load(){
+  rowsEl.innerHTML='<tr><td colspan="7" class="empty"><span class="spin"></span> טוען...</td></tr>';
+  pagerEl.innerHTML='';
+  try{
+    const res=await sb(buildPath(false),{headers:{Prefer:'count=exact'}});
+    const data=await res.json();
+    const cr=res.headers.get('content-range')||'';
+    total=parseInt((cr.split('/')[1]||'0'),10)||0;
+    render(data);
+    renderPager();
+    const from=total?page*PER+1:0, to=Math.min((page+1)*PER,total);
+    statEl.innerHTML=`מציג <b>${from}–${to}</b> מתוך <b>${total.toLocaleString()}</b> ספרים`;
+  }catch(e){
+    rowsEl.innerHTML='<tr><td colspan="7" class="empty">❌ שגיאת חיבור למאגר</td></tr>';
+    statEl.textContent='';
+  }
+}
+
+function render(data){
+  if(!data.length){rowsEl.innerHTML='<tr><td colspan="7" class="empty">לא נמצאו ספרים</td></tr>';return;}
+  rowsEl.innerHTML=data.map(b=>`
+    <tr>
+      <td class="bk-id">${b.id}</td>
+      <td><div class="bk-title">${esc(b.title)}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
+      <td>${esc(b.author)||'—'}</td>
+      <td>${b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—'}</td>
+      <td style="font-size:13px">${esc(BRANCHES[b.branch]||'—')}</td>
+      <td><span class="pill ${b.available?'y':'n'}">${b.available?'זמין':'בשימוש'}</span></td>
+      <td class="adminonly" style="${isMgr?'':'display:none'}">
+        <div class="rowact">
+          <button class="ib" onclick='openEdit(${JSON.stringify(b).replace(/'/g,"&#39;")})'>ערוך</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderPager(){
+  const pages=Math.ceil(total/PER);if(pages<=1){pagerEl.innerHTML='';return;}
+  let h=`<button ${page===0?'disabled':''} onclick="go(${page-1})">‹</button>`;
+  const win=2;let s=Math.max(0,page-win),e=Math.min(pages-1,page+win);
+  if(s>0){h+=`<button onclick="go(0)">1</button>`+(s>1?'<span style="color:var(--faint)">…</span>':'');}
+  for(let i=s;i<=e;i++)h+=`<button class="${i===page?'act':''}" onclick="go(${i})">${i+1}</button>`;
+  if(e<pages-1){h+=(e<pages-2?'<span style="color:var(--faint)">…</span>':'')+`<button onclick="go(${pages-1})">${pages}</button>`;}
+  h+=`<button ${page>=pages-1?'disabled':''} onclick="go(${page+1})">›</button>`;
+  pagerEl.innerHTML=h;
+}
+window.go=p=>{page=p;load();window.scrollTo({top:0,behavior:'smooth'});};
+
+// filters
+['#q','#fSubj','#fBr','#fAv','#fSort'].forEach(s=>{
+  const el=$(s);const ev=s==='#q'?'input':'change';
+  el.addEventListener(ev,()=>{page=0;s==='#q'?debounce(load):load();});
+});
+
+// ===== manager =====
+function setMgr(on){
+  isMgr=on;
+  document.querySelectorAll('.adminonly').forEach(el=>el.style.display=on?'':'none');
+  $('#modeBadge').textContent=on?'מנהל':'צפייה';
+  $('#modeBadge').className='badge'+(on?' mgr':'');
+  $('#loginBtn').textContent=on?'🔓 מנהל מחובר':'🔑 כניסת מנהל';
+  load();
+}
+$('#loginBtn').onclick=()=>{ if(isMgr){setMgr(false);toast('יצאת ממצב מנהל');} else $('#loginOv').classList.add('on'); };
+$('#pwOk').onclick=()=>{
+  if($('#pw').value===MGR_PW){$('#loginOv').classList.remove('on');$('#pw').value='';setMgr(true);toast('✅ ברוך הבא, מנהל');}
+  else toast('❌ סיסמה שגויה');
+};
+$('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pwOk').click();});
+
+// ===== add/edit =====
+window.openEdit=function(b){
+  editingId=b.id;
+  $('#editTitle').textContent='עריכת ספר';
+  $('#e_title').value=b.title||'';$('#e_author').value=b.author||'';
+  $('#e_desc').value=b.description||'';$('#e_subject').value=b.subject||'כללי';
+  $('#e_branch').value=b.branch||0;$('#e_avail').value=String(!!b.available);
+  $('#delBtn').style.display='inline-block';
+  $('#editOv').classList.add('on');
+};
+$('#addBtn').onclick=()=>{
+  editingId=null;$('#editTitle').textContent='הוספת ספר חדש';
+  $('#e_title').value='';$('#e_author').value='';$('#e_desc').value='';
+  $('#e_subject').value='כללי';$('#e_branch').value=0;$('#e_avail').value='true';
+  $('#delBtn').style.display='none';$('#editOv').classList.add('on');
+};
+$('#saveBtn').onclick=async()=>{
+  const title=$('#e_title').value.trim();
+  if(!title){toast('❌ שם הספר חובה');return;}
+  const body={title,author:$('#e_author').value.trim(),description:$('#e_desc').value.trim(),
+    subject:$('#e_subject').value,branch:parseInt($('#e_branch').value),available:$('#e_avail').value==='true'};
+  $('#saveBtn').disabled=true;
+  try{
+    if(editingId==null){
+      const mx=await (await sb('books?select=id&order=id.desc&limit=1')).json();
+      body.id=(mx[0]?.id||0)+1;
+      const r=await sb('books',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)});
+      if(!r.ok)throw 0; toast('✅ הספר נוסף');
+    }else{
+      const r=await sb('books?id=eq.'+editingId,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)});
+      if(!r.ok)throw 0; toast('✅ הספר עודכן');
+    }
+    $('#editOv').classList.remove('on');load();
+  }catch(e){toast('❌ שמירה נכשלה');}
+  $('#saveBtn').disabled=false;
+};
+$('#delBtn').onclick=async()=>{
+  if(editingId==null)return;
+  if(!confirm('למחוק את הספר לצמיתות?'))return;
+  try{
+    const r=await sb('books?id=eq.'+editingId,{method:'DELETE',headers:{Prefer:'return=minimal'}});
+    if(!r.ok)throw 0;$('#editOv').classList.remove('on');toast('🗑️ הספר נמחק');load();
+  }catch(e){toast('❌ מחיקה נכשלה');}
+};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.ov').classList.remove('on'));
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+
+// ===== kiosk =====
+function enterKiosk(){
+  document.body.classList.add('kiosk');location.hash='kiosk';
+  if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+}
+function exitKiosk(){
+  document.body.classList.remove('kiosk');history.replaceState(null,'',location.pathname);
+  if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+}
+$('#kioskBtn').onclick=enterKiosk;
+$('#kexitBtn').onclick=()=>{
+  const p=prompt('סיסמת מנהל ליציאה:');
+  if(p===MGR_PW)exitKiosk(); else if(p!==null)toast('❌ סיסמה שגויה');
+};
+// block exit attempts in kiosk
+document.addEventListener('keydown',e=>{
+  if(document.body.classList.contains('kiosk')){
+    if(e.key==='Escape'||e.key==='F11'||(e.altKey&&['ArrowLeft','ArrowRight'].includes(e.key))||(e.ctrlKey&&e.key==='w')){e.preventDefault();}
+  }
+});
+document.addEventListener('contextmenu',e=>{if(document.body.classList.contains('kiosk'))e.preventDefault();});
+if(location.hash==='#kiosk')enterKiosk();
+
+load();
+</script>
+</body>
+</html>
