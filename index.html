@@ -636,9 +636,9 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   <div class="cw">
     <div class="cs">
       <div class="fh" data-i="cFilter">🔍 סינון וחיפוש</div>
-      <div class="fg"><span class="fl">מסכת / נושא</span>
-        <select class="fs" id="fTopic" onchange="onTopic()"><option value="">כל הנושאים</option></select>
-        <select class="fs" id="fPerek" onchange="fC()" style="display:none;margin-top:6px"><option value="">כל הפרקים</option></select></div>
+      <div class="fg"><span class="fl">קטגוריות <span style="font-weight:400;font-size:10px;color:var(--mu)">(עץ — אפשר לבחור כמה)</span></span>
+        <div id="catTree" style="max-height:360px;overflow:auto;border:1px solid var(--bd);border-radius:7px;padding:6px 8px;background:var(--cr)"></div>
+        <button onclick="clearSpecs()" id="clrTree" style="display:none;margin-top:5px;font-size:11px;background:none;border:1px solid var(--bd);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--mu)">✕ נקה בחירה</button></div>
       <div class="fg"><span class="fl">סוג הספר</span>
         <select class="fs" id="fType" onchange="fC()"><option value="">הכל</option><option value="0">ספר רגיל</option><option value="1">תת-ספר</option><option value="2">כריכה (כמה ספרים)</option></select></div>
       <div class="fg"><span class="fl" data-i="cBranch">סניף</span>
@@ -663,8 +663,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="cntl" id="cNt">📚 כל 59,321 הספרים טעונים</div>
         <button class="dlb" onclick="dCSV()" data-i="btnDl">📥 הורד קטלוג</button>
       </div>
-      <div style="font-size:11.5px;color:var(--mu);margin-bottom:.35rem;font-weight:600">קטגוריה <span style="font-weight:400">(אפשר לבחור כמה):</span></div>
-      <div class="ct" id="ctRow"></div>
+      <div id="selStrip" style="margin-bottom:.5rem;display:flex;flex-wrap:wrap;gap:5px"></div>
       <div style="font-size:11px;color:var(--mu);background:var(--cr);border:1px solid var(--bd);border-radius:7px;padding:.45rem .7rem;margin-bottom:.6rem" data-i="catNote">ℹ️ כל הספרים לעיון במקום בלבד — אין השאלה. "זמין" = נמצא על המדף · "בשימוש" = בעיון כעת.</div>
       <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th><th data-i="thAct">בקשה</th></tr></thead>
       <tbody id="cTb"></tbody></table>
@@ -1263,37 +1262,66 @@ function bookTags(b){ if(b._tg) return b._tg; let tg;
   if(Array.isArray(b.tg)&&b.tg.length){ tg=b.tg.map(t=>({cat:canonL1(t.cat||t.c||''),topic:t.topic||t.t||'',perek:t.perek||t.p||''})); }
   else { const p=catPath(b.s); tg=p.length?[{cat:canonL1(p[0]),topic:p[1]||'',perek:p[2]||''}]:[]; }
   return b._tg=tg; }
-let CNT_CAT={}, CNT_CT={};
-function buildCounts(){ CNT_CAT={}; CNT_CT={};
-  CATALOG.forEach(b=>{ const seen=new Set(); bookTags(b).forEach(t=>{
-    if(t.cat&&!seen.has(t.cat)){ CNT_CAT[t.cat]=(CNT_CAT[t.cat]||0)+1; seen.add(t.cat); }
-    if(t.cat&&t.topic){ const k=t.cat+'\u0001'+t.topic; CNT_CT[k]=(CNT_CT[k]||0)+1; } }); }); }
-function _opt(v,l){ const o=document.createElement('option'); o.value=v; o.textContent=l; return o; }
-function nodeByName(arr,name){ return (arr||[]).find(x=>x.n===name); }
-let selCats=new Set();
-function topicsFor(cats){ const names=cats&&cats.length?cats:TAX.map(n=>n.n); const out=[];
-  names.forEach(cn=>{ const node=nodeByName(TAX,cn); (node&&node.s||[]).forEach(s2=>{ if(out.indexOf(s2.n)<0) out.push(s2.n); }); }); return out; }
-function perakimFor(cats,topic){ const names=cats&&cats.length?cats:TAX.map(n=>n.n);
-  for(const cn of names){ const node=nodeByName(TAX,cn); const t=node&&nodeByName(node.s,topic);
-    if(t){ if(t.c) return Array.from({length:t.c},(_,i)=>'פרק '+heb(i+1)); if(t.s) return t.s.map(x=>x.n); } } return []; }
-function renderCatChips(){ const row=Q('ctRow'); if(!row) return; row.innerHTML='';
-  const all=document.createElement('div'); all.className='ctb2'+(selCats.size?'':' act'); all.textContent=(lang==='he'?'הכל':'All'); all.onclick=function(){ selCats.clear(); afterCatChange(); }; row.appendChild(all);
-  TAX.forEach(n=>{ const c=CNT_CAT[n.n]||0; const d=document.createElement('div'); d.className='ctb2'+(selCats.has(n.n)?' act':'');
-    d.textContent=n.n+(c?' ('+c.toLocaleString()+')':''); d.onclick=function(){ if(selCats.has(n.n))selCats.delete(n.n); else selCats.add(n.n); afterCatChange(); }; row.appendChild(d); }); }
-function fillTopicSel(){ const sel=Q('fTopic'); if(!sel) return; const keep=sel.value;
-  const cats=Array.from(selCats); const topics=topicsFor(cats); const scope=cats.length?cats:TAX.map(n=>n.n);
-  sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'כל הנושאים':'All topics'));
-  topics.forEach(tp=>{ let c=0; scope.forEach(cn=>{ c+=CNT_CT[cn+'\u0001'+tp]||0; }); sel.appendChild(_opt(tp, tp+(c?' ('+c.toLocaleString()+')':''))); });
-  if(keep && topics.indexOf(keep)>=0) sel.value=keep; else sel.value='';
-  onTopic(true); }
-function onTopic(keep){ const sel=Q('fPerek'); if(!sel) return;
-  const peraks=perakimFor(Array.from(selCats), Q('fTopic').value);
-  if(Q('fTopic').value && peraks.length){ const kv=keep?sel.value:''; sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'כל הפרקים':'All chapters'));
-    peraks.forEach(p=>sel.appendChild(_opt(p,p))); if(kv&&peraks.indexOf(kv)>=0)sel.value=kv; sel.style.display=''; }
-  else { sel.style.display='none'; sel.value=''; }
-  if(!keep) fC(); }
-function afterCatChange(){ renderCatChips(); fillTopicSel(); fC(); }
-function populateCatUI(){ buildCounts(); renderCatChips(); fillTopicSel(); }
+// ── מוני ספרים: לפי cat, cat|topic, cat|topic|third ──
+let CNT_CAT={}, CNT_CT={}, CNT_CTT={};
+function buildCounts(){ CNT_CAT={}; CNT_CT={}; CNT_CTT={};
+  CATALOG.forEach(b=>{ const sC=new Set(), sCT=new Set(); bookTags(b).forEach(t=>{
+    if(t.cat&&!sC.has(t.cat)){ CNT_CAT[t.cat]=(CNT_CAT[t.cat]||0)+1; sC.add(t.cat); }
+    if(t.cat&&t.topic){ const k=t.cat+'\u0001'+t.topic; if(!sCT.has(k)){ CNT_CT[k]=(CNT_CT[k]||0)+1; sCT.add(k); } }
+    if(t.cat&&t.topic&&t.perek){ CNT_CTT[t.cat+'\u0001'+t.topic+'\u0001'+t.perek]=(CNT_CTT[t.cat+'\u0001'+t.topic+'\u0001'+t.perek]||0)+1; } }); }); }
+function cnt(s){ if(s.third) return CNT_CTT[(s.cat||'')+'\u0001'+s.topic+'\u0001'+s.third]||0;
+  if(s.topic) return CNT_CT[(s.cat||'')+'\u0001'+s.topic]||0; return CNT_CAT[s.cat]||0; }
+// ── עץ סינון נפתח ──
+const RISHONIM=['רש"י','תוספות','רמב"ן','רשב"א','ריטב"א','ר"ן','רא"ש','מאירי','רד"ק','אבן עזרא','ראב"ד','רלב"ג','רבינו בחיי','ספורנו'];
+const MIDRASHIM=['מדרש רבה','תנחומא','מכילתא','ספרא','ספרי','ילקוט שמעוני','פרקי דרבי אליעזר'];
+let selSpecs=[]; let expanded=new Set();
+function specKey(s){ return (s.cat||'')+'\u0001'+(s.topic||'')+'\u0001'+(s.third||''); }
+function hasSpec(s){ const k=specKey(s); return selSpecs.some(x=>specKey(x)===k); }
+function toggleSpec(s){ const k=specKey(s); const i=selSpecs.findIndex(x=>specKey(x)===k); if(i>=0)selSpecs.splice(i,1); else selSpecs.push(s); renderTree(); renderStrip(); fC(); }
+function clearSpecs(){ selSpecs=[]; renderTree(); renderStrip(); fC(); }
+function nodeChildren(item){
+  if(!item) return TAX.map(n=>({label:n.n, kind:'cat', spec:{cat:n.n}, cat:n.n, node:n, expandable:!!(n.s&&n.s.length)}));
+  if(item.kind==='cat') return (item.node.s||[]).map(s2=>{ const sp={cat:item.cat,topic:s2.n};
+    if(s2.c) return {label:s2.n, kind:'mas', spec:sp, cat:item.cat, topic:s2.n, c:s2.c, expandable:true};
+    if(s2.s) return {label:s2.n, kind:'topic', spec:sp, cat:item.cat, topic:s2.n, node:s2, expandable:true};
+    return {label:s2.n, kind:'leaf', spec:sp, expandable:false}; });
+  if(item.kind==='mas') return [
+    {label:'פרקים', kind:'grp', grp:'perek', cat:item.cat, topic:item.topic, c:item.c, expandable:true},
+    {label:'ראשונים', kind:'grp', grp:'rishon', topic:item.topic, expandable:true},
+    {label:'מדרשים', kind:'grp', grp:'midrash', topic:item.topic, expandable:true},
+    {label:'נושאים (כללי)', kind:'leaf', spec:{cat:item.cat,topic:item.topic}, expandable:false} ];
+  if(item.kind==='topic') return (item.node.s||[]).map(s3=>({label:s3.n, kind:'leaf', spec:{cat:item.cat,topic:item.topic,third:s3.n}, expandable:false}));
+  if(item.kind==='grp'){
+    if(item.grp==='perek') return Array.from({length:item.c},(_,i)=>{ const p='פרק '+heb(i+1); return {label:p, kind:'leaf', spec:{cat:item.cat,topic:item.topic,third:p}, expandable:false}; });
+    if(item.grp==='rishon') return RISHONIM.map(r=>({label:r, kind:'leaf', spec:{cat:'ראשונים',topic:item.topic,third:r}, expandable:false}));
+    if(item.grp==='midrash') return MIDRASHIM.map(m=>({label:m, kind:'leaf', spec:{cat:'מדרשים',topic:item.topic,third:m}, expandable:false}));
+  }
+  return []; }
+function renderTree(){ const root=Q('catTree'); if(!root) return; root.innerHTML=''; renderLevel(root, nodeChildren(null), 0, '');
+  const clr=Q('clrTree'); if(clr) clr.style.display=selSpecs.length?'inline-block':'none'; }
+function renderLevel(parent, items, depth, pid){
+  items.forEach(it=>{ const id=pid+'/'+it.label;
+    const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:4px;padding:2px 0;font-size:12px;padding-right:'+(depth*13)+'px';
+    if(it.expandable){ const tg=document.createElement('span'); tg.textContent=expanded.has(id)?'▾':'▸'; tg.style.cssText='cursor:pointer;width:12px;color:var(--g,#b08d3f);user-select:none';
+      tg.onclick=()=>{ if(expanded.has(id))expanded.delete(id); else expanded.add(id); renderTree(); }; row.appendChild(tg); }
+    else { const sp=document.createElement('span'); sp.style.cssText='display:inline-block;width:12px'; row.appendChild(sp); }
+    if(it.spec){ const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=hasSpec(it.spec); cb.style.cssText='width:13px;height:13px;cursor:pointer;flex:none';
+      cb.onchange=()=>toggleSpec(it.spec); row.appendChild(cb); }
+    const lb=document.createElement('span'); lb.textContent=it.label; lb.style.cssText=it.expandable?'cursor:pointer':'';
+    if(it.expandable) lb.onclick=()=>{ if(expanded.has(id))expanded.delete(id); else expanded.add(id); renderTree(); };
+    row.appendChild(lb);
+    if(it.spec){ const c=cnt(it.spec); if(c){ const cn=document.createElement('span'); cn.textContent='('+c.toLocaleString()+')'; cn.style.cssText='color:var(--mu);font-size:10px'; row.appendChild(cn); } }
+    parent.appendChild(row);
+    if(it.expandable && expanded.has(id)) renderLevel(parent, nodeChildren(it), depth+1, id);
+  }); }
+function renderStrip(){ const strip=Q('selStrip'); if(!strip) return; strip.innerHTML='';
+  selSpecs.forEach(s=>{ const lbl=[s.cat,s.topic,s.third].filter(Boolean).join(' · ');
+    const chip=document.createElement('span'); chip.style.cssText='background:var(--g,#b08d3f);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;display:inline-flex;align-items:center;gap:5px';
+    chip.innerHTML=esc(lbl)+' <span style="cursor:pointer;font-weight:700">✕</span>';
+    chip.querySelector('span').onclick=()=>toggleSpec(s); strip.appendChild(chip); }); }
+function bookMatchesSpecs(b){ if(!selSpecs.length) return true; const tags=bookTags(b);
+  return selSpecs.some(S=> tags.some(t=> (!S.cat||t.cat===S.cat) && (!S.topic||t.topic===S.topic) && (!S.third||t.perek===S.third))); }
+function populateCatUI(){ buildCounts(); renderTree(); renderStrip(); }
 // ═══════════════════════════════════════════
 // STATE & DATA
 // ═══════════════════════════════════════════
@@ -1785,12 +1813,8 @@ function fC(){
   fCat=CATALOG.filter(b=>{
     if(q && !matchQ(b._k||nrm((b.n||'')+' '+(b.a||'')+' '+(b.sx||'')), q)) return false;
     if(au && !nrm(b.a||'').includes(nrm(au))) return false;
-    const topic=Q('fTopic')?.value||'', perek=Q('fPerek')?.value||'', typ=Q('fType')?.value||'';
-    if(selCats.size||topic||perek){
-      const ok=bookTags(b).some(t=>
-        (selCats.size===0||selCats.has(t.cat)) && (!topic||t.topic===topic) && (!perek||t.perek===perek));
-      if(!ok) return false;
-    }
+    if(!bookMatchesSpecs(b)) return false;
+    const typ=Q('fType')?.value||'';
     if(typ!=='' && b.ct!==undefined && String(b.ct)!==typ) return false;
     if(br&&b.b!==br) return false;
     if(!av&&b.v===1) return false;
