@@ -521,6 +521,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   .a11y-panel{bottom:4.2rem;right:.9rem}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="taxonomy.js"></script>
 <script src="assets.js"></script>
 <!-- catalog.js נטען בעצלתיים רק כשנכנסים לקטלוג/חיפוש (קובץ גדול) -->
 </head>
@@ -1251,49 +1252,54 @@ function matchQ(key, words){
   for(let i=0;i<words.length;i++){ if(key.indexOf(words[i])===-1) return false; }
   return true;
 }
-// ═══ קטגוריות דינמיות (עד 3 רמות) — נבנות לבד מהנתונים, בלי רשימה קבועה ═══
-// מבנה: קטגוריה ראשית › קטגוריה › תת-תת. מפרידים נתמכים:  >  ·  |  /  או  " - "
+// ═══ קטגוריות — עץ קבוע מ-taxonomy.js (3 רמות: ראשי→קטגוריה→תת-תת), עם מוני ספרים מהנתונים ═══
 const CAT_SEP=/\s*[>·|\/]\s*|\s+-\s+/;
 function catPath(s){ if(!s) return []; return s.split(CAT_SEP).map(x=>x.trim()).filter(Boolean).slice(0,3); }
-let CTREE={};
-function buildCatTree(){
-  CTREE={};
-  CATALOG.forEach(b=>{
-    const p=b._cp||(b._cp=catPath(b.s)); if(!p.length) return;
-    const n1=CTREE[p[0]]||(CTREE[p[0]]={_n:0,subs:{}}); n1._n++;
-    if(p[1]){ const n2=n1.subs[p[1]]||(n1.subs[p[1]]={_n:0,subs:{}}); n2._n++;
-      if(p[2]) n2.subs[p[2]]=(n2.subs[p[2]]||0)+1; }
-  });
-}
+const TAX=(typeof TAXONOMY!=='undefined')?TAXONOMY:[];
+const CAT_ALIAS={}; TAX.forEach(n=>{ (n.a||[]).forEach(a=>CAT_ALIAS[a]=n.n); CAT_ALIAS[n.n]=n.n; });
+function canonL1(v){ return CAT_ALIAS[v]||v; }
+function heb(n){ if(n<=0||n>499) return ''+n; const H=['','ק','ר','ש','ת'],T=['','י','כ','ל','מ','נ','ס','ע','פ','צ'],O=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+  let s=H[Math.floor(n/100)]+T[Math.floor((n%100)/10)]+O[n%10]; s=s.replace('יה','טו').replace('יו','טז'); return s; }
+let CNT={};
+function buildCounts(){ CNT={}; CATALOG.forEach(b=>{ const p=b._cp||(b._cp=catPath(b.s)); if(!p.length) return;
+  const l1=canonL1(p[0]); CNT[l1]=(CNT[l1]||0)+1;
+  if(p[1]){ const k2=l1+'\u0001'+p[1]; CNT[k2]=(CNT[k2]||0)+1;
+    if(p[2]){ const k3=k2+'\u0001'+p[2]; CNT[k3]=(CNT[k3]||0)+1; } } }); }
 function _opt(v,l){ const o=document.createElement('option'); o.value=v; o.textContent=l; return o; }
-function _cnt(x){ return (typeof x==='object'?x._n:x).toLocaleString(); }
-function _fillSub(sel,obj){
-  const keep=sel.value; sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'— הכל —':'— All —'));
-  Object.keys(obj).sort((a,b)=>(obj[b]._n||obj[b])-(obj[a]._n||obj[a])).forEach(k=>sel.appendChild(_opt(k,k+' ('+_cnt(obj[k])+')')));
-  if(keep && obj[keep]) sel.value=keep;
-}
+function nodeByName(arr,name){ return (arr||[]).find(x=>x.n===name); }
+function childNames(node){ if(!node) return []; if(node.s) return node.s.map(x=>x.n);
+  if(node.c) return Array.from({length:node.c},(_,i)=>'פרק '+heb(i+1)); return []; }
+function dataChildren(l1,l2){ const cl1=canonL1(l1); const pre=l2?(cl1+'\u0001'+l2+'\u0001'):(cl1+'\u0001'); const out=[];
+  Object.keys(CNT).forEach(k=>{ if(k.indexOf(pre)===0){ const rest=k.slice(pre.length); if(rest && rest.indexOf('\u0001')<0 && out.indexOf(rest)<0) out.push(rest); } }); return out; }
+function _fillLevel(sel,l1,l2,names){ const keep=sel.value; const cl1=canonL1(l1);
+  sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'— הכל —':'— All —'));
+  names.forEach(nm=>{ const key=l2?(cl1+'\u0001'+l2+'\u0001'+nm):(cl1+'\u0001'+nm); const c=CNT[key]||0;
+    sel.appendChild(_opt(nm, nm+(c?' ('+c.toLocaleString()+')':''))); });
+  if(keep && names.indexOf(keep)>=0) sel.value=keep; }
 function populateCatUI(){
-  buildCatTree();
-  const s1=Q('fSub'); if(!s1) return;
-  const keep=s1.value;
-  const l1s=Object.keys(CTREE).sort((a,b)=>CTREE[b]._n-CTREE[a]._n);
+  buildCounts();
+  const s1=Q('fSub'); if(!s1) return; const keep=s1.value;
+  const taxNames=TAX.map(n=>n.n);
+  const extra=Object.keys(CNT).filter(k=>k.indexOf('\u0001')<0 && taxNames.indexOf(k)<0).sort();
+  const l1all=taxNames.concat(extra);
   s1.innerHTML=''; s1.appendChild(_opt('', lang==='he'?'כל הקטגוריות':'All categories'));
-  l1s.forEach(k=>s1.appendChild(_opt(k,k+' ('+CTREE[k]._n.toLocaleString()+')')));
-  if(keep && CTREE[keep]) s1.value=keep;
+  l1all.forEach(nm=>{ const c=CNT[nm]||0; s1.appendChild(_opt(nm, nm+(c?' ('+c.toLocaleString()+')':''))); });
+  if(keep) s1.value=keep;
   const row=Q('ctRow');
   if(row){ row.innerHTML='';
     const all=document.createElement('div'); all.className='ctb2'+(s1.value?'':' act'); all.textContent=(lang==='he'?'כל הספרים':'All books'); all.onclick=function(){sCT(this,'');}; row.appendChild(all);
-    l1s.slice(0,6).forEach(k=>{ const d=document.createElement('div'); d.className='ctb2'+(s1.value===k?' act':''); d.textContent=k; d.onclick=function(){sCT(this,k);}; row.appendChild(d); });
-  }
+    taxNames.slice(0,7).forEach(nm=>{ const d=document.createElement('div'); d.className='ctb2'+(s1.value===nm?' act':''); d.textContent=nm; d.onclick=function(){sCT(this,nm);}; row.appendChild(d); }); }
   onCat(1,true);
 }
 function onCat(level,keep){
   const s1=Q('fSub'),s2=Q('fSub2'),s3=Q('fSub3'); if(!s1) return;
-  if(level<=1){ const n=CTREE[s1.value];
-    if(s1.value && n && Object.keys(n.subs).length){ if(!keep)s2.value=''; _fillSub(s2,n.subs); s2.style.display=''; }
+  if(level<=1){ const node=nodeByName(TAX,s1.value);
+    let list=childNames(node); dataChildren(s1.value,null).forEach(x=>{ if(list.indexOf(x)<0) list.push(x); });
+    if(s1.value && list.length){ if(!keep)s2.value=''; _fillLevel(s2,s1.value,null,list); s2.style.display=''; }
     else { s2.style.display='none'; s2.value=''; } }
-  if(level<=2){ const n1=CTREE[s1.value], n2=n1&&n1.subs[s2.value];
-    if(s2.value && n2 && Object.keys(n2.subs).length){ if(!keep)s3.value=''; _fillSub(s3,n2.subs); s3.style.display=''; }
+  if(level<=2){ const node=nodeByName(TAX,s1.value); const n2=node&&nodeByName(node.s,s2.value);
+    let list=childNames(n2); dataChildren(s1.value,s2.value).forEach(x=>{ if(list.indexOf(x)<0) list.push(x); });
+    if(s2.value && list.length){ if(!keep)s3.value=''; _fillLevel(s3,s1.value,s2.value,list); s3.style.display=''; }
     else { s3.style.display='none'; s3.value=''; } }
   if(!keep) fC();
 }
@@ -1791,7 +1797,7 @@ function fC(){
     const p1=Q('fSub')?.value||'', p2=Q('fSub2')?.value||'', p3=Q('fSub3')?.value||'';
     if(p1||p2||p3){
       const bp=b._cp||(b._cp=catPath(b.s));
-      if(p1 && (bp[0]||'')!==p1) return false;
+      if(p1 && canonL1(bp[0]||'')!==p1) return false;
       if(p2 && (bp[1]||'')!==p2) return false;
       if(p3 && (bp[2]||'')!==p3) return false;
     }

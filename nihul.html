@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="taxonomy.js"></script>
 <style>
 :root{
   --navy:#1b2a4a; --navy-2:#24345a; --gold:#b08d3f; --gold-l:#cca954;
@@ -416,6 +417,9 @@ function opt(v,t){const o=document.createElement('option');o.value=v;o.textConte
 // קטגוריות דינמיות — נאספות מהנתונים עצמם (בלי רשימה קבועה). זרע התחלתי בלבד:
 const CAT_SEED=['ש"ס','ירושלמי','רמב"ם','הלכה','תנ"ך','פרשת שבוע','מדרש','מוסר ומחשבה','קבלה','חסידות','תפילה','ספרי ילדים','כללי'];
 const CATSET={main:new Set(CAT_SEED),sub:new Set(),sub2:new Set()};
+// זריעת רשימות ההשלמה מעץ הקטגוריות המלא (taxonomy.js)
+if(typeof TAXONOMY!=='undefined') TAXONOMY.forEach(n=>{ CATSET.main.add(n.n);
+  (n.s||[]).forEach(s2=>{ CATSET.sub.add(s2.n); (s2.s||[]).forEach(s3=>CATSET.sub2.add(s3.n)); }); });
 function _dl(id,set){ const d=$('#'+id); if(!d)return; d.innerHTML=''; Array.from(set).sort((a,b)=>a.localeCompare(b,'he')).forEach(v=>d.appendChild(opt(v,v))); }
 function rebuildCatLists(){ _dl('catMainList',CATSET.main); _dl('catSubList',CATSET.sub); _dl('catSub2List',CATSET.sub2); }
 function harvestCats(rows){ let ch=false;
