@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bethyoseflibrary.com/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://bethyoseflibrary.com/sitemap-main.xml</loc></sitemap>
+  <sitemap><loc>https://bethyoseflibrary.com/sitemap-books-1.xml</loc></sitemap>
+  <sitemap><loc>https://bethyoseflibrary.com/sitemap-books-2.xml</loc></sitemap>
+  <sitemap><loc>https://bethyoseflibrary.com/sitemap-books-3.xml</loc></sitemap>
+</sitemapindex>

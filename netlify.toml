@@ -6,3 +6,10 @@
   from = "/api/save-content"
   to = "/.netlify/functions/save-content"
   status = 200
+
+# דפי ספרים — פרוקסי ל-Cloudflare Worker תחת הדומיין של הספרייה
+[[redirects]]
+  from = "/book/*"
+  to = "https://beityosef-books.aharonsystems.workers.dev/book/:splat"
+  status = 200
+  force = true

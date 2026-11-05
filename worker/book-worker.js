@@ -44,7 +44,7 @@ function renderBook(b, origin) {
   const branch = BRANCHES[b.branch] || BRANCHES[0];
   const avail = b.available;
   const desc = (b.description || '').replace(/\s*הספר נמצא[^.]*/g, '').replace(/\s*שם כריכה.*/, '').trim();
-  const url = `${origin}/book/${b.id}-${slugify(title)}`;
+  const url = `${MAIN_SITE}/book/${b.id}-${slugify(title)}`;
 
   const catLine = cls ? (cls.main + (cls.sub ? ' · ' + cls.sub : '')) : subject;
   const pageTitle = `${title}${author ? ' — ' + author : ''} | ${SITE}`;
