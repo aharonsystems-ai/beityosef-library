@@ -2,11 +2,6 @@
   publish = "."
   functions = "netlify/functions"
 
-# ביטול עיבוד/מזעור HTML של Netlify — מגיש את הקבצים כפי שהם
-# (העיבוד הסיר את הקישור לתוכנת הניהול מה-HTML המוגש)
-[build.processing]
-  skip_processing = true
-
 [[redirects]]
   from = "/api/save-content"
   to = "/.netlify/functions/save-content"
