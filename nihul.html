@@ -6,6 +6,7 @@
 <title>ניהול ספריית בית יוסף</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=Frank+Ruhl+Libre:wght@700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
 <style>
 :root{
   --navy:#1b2a4a; --navy-2:#24345a; --gold:#b08d3f; --gold-l:#cca954;
@@ -145,6 +146,28 @@ body.kiosk .kexit{display:block;position:fixed;bottom:12px;left:12px;z-index:40;
   background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 12px;
   font-size:12px;color:var(--faint)}
 body.kiosk .kexit:hover{color:var(--navy)}
+
+/* ===== הדפסה ומדבקות ברקוד ===== */
+#printArea{display:none}
+.labels{display:flex;flex-wrap:wrap;gap:4mm}
+.label{width:62mm;border:1px solid #bbb;border-radius:6px;padding:4mm 3mm;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;text-align:center;page-break-inside:avoid;break-inside:avoid}
+.label .lt{font-family:var(--f-head);font-weight:800;font-size:13px;line-height:1.2;margin-bottom:2px;max-height:34px;overflow:hidden}
+.label .la{font-size:10px;color:#444;margin-bottom:3px}
+.label svg{max-width:100%}
+.label .ln{font-size:10px;color:#666;margin-top:2px}
+.ptbl{width:100%;border-collapse:collapse;font-size:12px}
+.ptbl th,.ptbl td{border:1px solid #ccc;padding:5px 7px;text-align:right}
+.ptbl th{background:#1e2d4f;color:#fff;font-weight:700}
+.ptbl tr:nth-child(even){background:#f3f1ea}
+.phead{text-align:center;margin-bottom:10px}
+.phead h2{font-family:var(--f-head);color:#1e2d4f;margin:0 0 3px}
+.phead small{color:#666}
+@media print{
+  body.printing>*{display:none!important}
+  body.printing #printArea{display:block!important}
+  @page{margin:12mm}
+}
 </style>
 </head>
 <body>
@@ -175,6 +198,8 @@ body.kiosk .kexit:hover{color:var(--navy)}
       <input id="q" placeholder="חיפוש לפי שם ספר, מחבר או תיאור..." autocomplete="off">
     </div>
     <button class="hbtn" id="qbBtn" style="height:46px">⚙️ שאילתא</button>
+    <button class="hbtn" id="printBtn" style="height:46px">🖨️ הדפסה</button>
+    <button class="hbtn adminonly" id="invBtn" style="height:46px;display:none">📊 ספירת מלאי</button>
     <button class="hbtn gold adminonly" id="addBtn" style="height:46px;display:none">➕ הוסף ספר</button>
   </div>
 
@@ -229,6 +254,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
     <button class="bba" onclick="bulkAvail(true)">סמן כזמין</button>
     <button class="bba" onclick="bulkAvail(false)">סמן כבשימוש</button>
     <button class="bba" onclick="bulkExport()">📥 יצוא CSV</button>
+    <button class="bba" onclick="bulkBarcode()">🏷️ מדבקות ברקוד</button>
     <button class="bba del" onclick="bulkDelete()">🗑️ מחק</button>
     <button class="bba" onclick="clearSel()">✕ נקה</button>
   </div>
@@ -250,6 +276,45 @@ body.kiosk .kexit:hover{color:var(--navy)}
 </div>
 
 <button class="kexit" id="kexitBtn">יציאה ממצב קיוסק (מנהל)</button>
+
+<!-- אזור הדפסה (מוסתר עד להדפסה) -->
+<div id="printArea"></div>
+
+<!-- print choice modal -->
+<div class="ov" id="printOv">
+  <div class="modal" style="max-width:420px">
+    <div class="mh"><h3>הדפסה</h3><button class="mx" data-close>×</button></div>
+    <div class="mb">
+      <p style="margin:0 0 12px;color:var(--mu);font-size:14px">בחר מה להדפיס. ההדפסה כוללת את התוצאות המוצגות כעת (<b id="printCnt">0</b> ספרים בעמוד).</p>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button class="btn p" id="prtList" style="justify-content:flex-start">🖨️ רשימת קטלוג (טבלה)</button>
+        <button class="btn p" id="prtLabels" style="justify-content:flex-start">🏷️ מדבקות ברקוד</button>
+      </div>
+      <div class="pwnote" style="margin-top:12px">להדפסת ספרים מסומנים בלבד — סמנו ספרים בטבלה והשתמשו בכפתור "מדבקות ברקוד" בסרגל הבחירה.</div>
+    </div>
+    <div class="mf"><button class="btn s" data-close>סגור</button></div>
+  </div>
+</div>
+
+<!-- inventory modal -->
+<div class="ov" id="invOv">
+  <div class="modal" style="max-width:560px">
+    <div class="mh"><h3>📊 ספירת מלאי</h3><button class="mx" id="invClose">×</button></div>
+    <div class="mb">
+      <p style="margin:0 0 10px;color:var(--mu);font-size:14px">סרקו ברקוד או הקלידו מספר ספר ולחצו Enter. המערכת תסמן את הספר כנוכח.</p>
+      <div class="sbox" style="margin-bottom:10px"><span class="ic">📷</span>
+        <input id="invInput" placeholder="מספר ספר / סריקת ברקוד..." autocomplete="off"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <span class="pill y">נספרו: <b id="invCount">0</b></span>
+        <span style="flex:1"></span>
+        <button class="btn s" id="invExport" style="padding:6px 12px;font-size:13px">📥 יצוא רשימה</button>
+        <button class="btn s del" id="invReset" style="padding:6px 12px;font-size:13px">איפוס</button>
+      </div>
+      <div id="invList" style="max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:9px"></div>
+    </div>
+    <div class="mf"><button class="btn s" id="invDone">סיום</button></div>
+  </div>
+</div>
 
 <!-- login modal -->
 <div class="ov" id="loginOv">
@@ -417,7 +482,7 @@ async function load(){
 }
 
 function render(data){
-  curIds=data.map(b=>b.id);
+  curIds=data.map(b=>b.id); lastData=data;
   if(!data.length){rowsEl.innerHTML='<tr><td colspan="8" class="empty">לא נמצאו ספרים</td></tr>';updateBulkBar();return;}
   rowsEl.innerHTML=data.map(b=>`
     <tr>
@@ -449,7 +514,7 @@ function renderPager(){
 window.go=p=>{page=p;load();window.scrollTo({top:0,behavior:'smooth'});};
 
 // ===== סימון ובחירה מרובה =====
-let selected=new Set(), curIds=[];
+let selected=new Set(), curIds=[], lastData=[];
 function updateBulkBar(){
   const bar=$('#bulkBar'); if(!bar)return;
   bar.style.display=(isMgr&&selected.size)?'flex':'none';
@@ -646,6 +711,83 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('contextmenu',e=>{if(document.body.classList.contains('kiosk'))e.preventDefault();});
 if(location.hash==='#kiosk')enterKiosk();
+
+// ===== הדפסה =====
+function stripLoc(t){ return (t||'').replace(/\s*\((?:ב)?סניף[^)]*\)\s*/g,' ').replace(/\s+/g,' ').trim(); }
+function doPrint(html){
+  $('#printArea').innerHTML=html;
+  document.body.classList.add('printing');
+  const done=()=>{ document.body.classList.remove('printing'); $('#printArea').innerHTML=''; window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  setTimeout(()=>window.print(),60);
+}
+function printCatalog(list){
+  if(!list.length){toast('אין תוצאות להדפסה');return;}
+  const d=new Date().toLocaleDateString('he-IL');
+  let h=`<div class="phead"><h2>קטלוג ספריית בית יוסף</h2><small>מודיעין עילית · הודפס ${d} · ${list.length} ספרים</small></div>`;
+  h+='<table class="ptbl"><thead><tr><th style="width:55px">מספר</th><th>שם הספר</th><th>מחבר</th><th style="width:130px">סיווג</th><th style="width:120px">סניף</th><th style="width:70px">זמינות</th></tr></thead><tbody>';
+  list.forEach(b=>{ const cls=b.classification&&b.classification.main?(b.classification.main+(b.classification.sub?' · '+b.classification.sub:'')):(b.subject||'—');
+    h+=`<tr><td>${b.id}</td><td>${esc(stripLoc(b.title))}</td><td>${esc(b.author)||'—'}</td><td>${esc(cls)}</td><td>${esc(BRANCHES[b.branch]||'—')}</td><td>${b.available?'זמין':'בשימוש'}</td></tr>`; });
+  h+='</tbody></table>';
+  doPrint(h);
+}
+function printLabels(list){
+  if(!list.length){toast('אין ספרים להדפסת מדבקות');return;}
+  let h='<div class="labels">';
+  list.forEach(b=>{ h+=`<div class="label"><div class="lt">${esc(stripLoc(b.title))}</div>${b.author?`<div class="la">${esc(b.author)}</div>`:''}<svg class="bc" data-id="${b.id}"></svg><div class="ln">מס׳ ${b.id}${b.details&&b.details.shelf?' · מדף '+esc(b.details.shelf):''}</div></div>`; });
+  h+='</div>';
+  $('#printArea').innerHTML=h;
+  $('#printArea').querySelectorAll('svg.bc').forEach(sv=>{
+    try{ JsBarcode(sv,String(sv.dataset.id),{format:'CODE128',width:1.6,height:38,fontSize:12,margin:2,displayValue:true}); }catch(e){}
+  });
+  document.body.classList.add('printing');
+  const done=()=>{ document.body.classList.remove('printing'); $('#printArea').innerHTML=''; window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  setTimeout(()=>window.print(),120);
+}
+$('#printBtn').onclick=()=>{ $('#printCnt').textContent=lastData.length; $('#printOv').classList.add('on'); };
+$('#prtList').onclick=()=>{ $('#printOv').classList.remove('on'); printCatalog(lastData); };
+$('#prtLabels').onclick=()=>{ $('#printOv').classList.remove('on'); printLabels(lastData); };
+window.bulkBarcode=async()=>{
+  const ids=[...selected]; if(!ids.length)return; let rows=[];
+  toast('טוען מדבקות…');
+  for(let i=0;i<ids.length;i+=200){ const chunk=ids.slice(i,i+200);
+    const r=await sb('books?id=in.('+chunk.join(',')+')&select=id,title,author,details&order=id.asc',{}); rows=rows.concat(await r.json()); }
+  printLabels(rows);
+};
+
+// ===== ספירת מלאי =====
+let counted=new Map();
+function invRender(){
+  $('#invCount').textContent=counted.size;
+  const el=$('#invList');
+  if(!counted.size){ el.innerHTML='<div class="empty" style="padding:20px;text-align:center;color:var(--faint)">עדיין לא נספרו ספרים</div>'; return; }
+  el.innerHTML=[...counted.values()].reverse().map(b=>`<div style="display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)">
+    <span class="bk-id" style="min-width:48px">${b.id}</span>
+    <span style="flex:1;font-weight:600">${b.found?esc(stripLoc(b.title)):'<span style=\"color:var(--no)\">לא נמצא במאגר</span>'}</span>
+    <span class="pill ${b.found?'y':'n'}">${b.found?'✓':'?'}</span></div>`).join('');
+}
+async function invAdd(idRaw){
+  const id=parseInt(String(idRaw).replace(/\D/g,''),10);
+  if(!id){toast('מספר לא תקין');return;}
+  if(counted.has(id)){ toast('⚠️ ספר '+id+' כבר נספר'); return; }
+  let found=false,title='';
+  try{ const r=await sb('books?id=eq.'+id+'&select=id,title'); const d=await r.json(); if(d&&d.length){found=true;title=d[0].title;} }catch(e){}
+  counted.set(id,{id,title,found});
+  invRender();
+  if(found)toast('✓ נספר: '+id); else toast('⚠️ ספר '+id+' לא נמצא');
+}
+$('#invBtn').onclick=()=>{ $('#invOv').classList.add('on'); invRender(); setTimeout(()=>$('#invInput').focus(),80); };
+$('#invInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=$('#invInput').value.trim(); if(v)invAdd(v); $('#invInput').value=''; } });
+$('#invClose').onclick=$('#invDone').onclick=()=>$('#invOv').classList.remove('on');
+$('#invReset').onclick=()=>{ if(counted.size&&!confirm('לאפס את ספירת המלאי?'))return; counted.clear(); invRender(); };
+$('#invExport').onclick=()=>{
+  if(!counted.size){toast('אין מה לייצא');return;}
+  let csv='﻿מספר,שם הספר,סטטוס\n';
+  [...counted.values()].forEach(b=>{ csv+='"'+b.id+'","'+(b.found?(b.title||'').replace(/"/g,'""'):'לא נמצא')+'","'+(b.found?'נספר':'לא במאגר')+'"\n'; });
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='ספירת_מלאי.csv'; document.body.appendChild(a); a.click(); a.remove();
+  toast('📥 '+counted.size+' רשומות יוצאו');
+};
 
 load();
 </script>
