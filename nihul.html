@@ -400,7 +400,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
 <script>
 const SB_URL='https://ugixnimesxjpjaqddtys.supabase.co';
 const SB_KEY='sb_publishable_v3ATiJW2kIJhenMMZdZKmA_ct6FcyxR';
-const MGR_PW='sifria2026';   // סיסמת מנהל
+let mgrToken='';   // סיסמת מנהל — נשמרת בזיכרון בלבד, לא בקוד
 const BRANCHES=["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"];
 const SUBJECTS=['גמרא','הלכה','הלכה - שבת','הלכה - פסח','תפילה','פרשת שבוע','מוסר ומחשבה','קבלה','חסידות','תנ"ך','ספרי ילדים','כללי'];
 const PER=25;
@@ -416,8 +416,14 @@ CATS.forEach(c=>{$('#e_clsmain').appendChild(opt(c,c));});
 BRANCHES.forEach((b,i)=>{$('#fBr').appendChild(opt(i,b));$('#e_branch').appendChild(opt(i,b));});
 
 async function sb(path,opts={}){
-  return fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:{
-    apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',...(opts.headers||{})}});
+  const h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+  if(mgrToken) h['x-mgr-token']=mgrToken;   // נשלח רק כשמנהל מחובר — מאפשר כתיבה מאובטחת
+  return fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:{...h,...(opts.headers||{})}});
+}
+// אימות סיסמת מנהל מול הפונקציה המאובטחת בשרת (הסיסמה אינה בקוד)
+async function verifyMgr(pw){
+  try{ const r=await fetch(SB_URL+'/rest/v1/rpc/is_mgr',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json','x-mgr-token':pw},body:'{}'}); return (await r.json())===true; }
+  catch(e){ return false; }
 }
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600);}
 function esc(s){return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
@@ -623,12 +629,16 @@ function setMgr(on){
   $('#modeBadge').textContent=on?'מנהל':'צפייה';
   $('#modeBadge').className='badge'+(on?' mgr':'');
   $('#loginBtn').textContent=on?'🔓 מנהל מחובר':'🔑 כניסת מנהל';
-  if(!on)selected.clear(); updateBulkBar();
+  if(!on){selected.clear(); mgrToken='';} updateBulkBar();
   load();
 }
 $('#loginBtn').onclick=()=>{ if(isMgr){setMgr(false);toast('יצאת ממצב מנהל');} else $('#loginOv').classList.add('on'); };
-$('#pwOk').onclick=()=>{
-  if($('#pw').value===MGR_PW){$('#loginOv').classList.remove('on');$('#pw').value='';setMgr(true);toast('✅ ברוך הבא, מנהל');}
+$('#pwOk').onclick=async()=>{
+  const pw=$('#pw').value; if(!pw)return;
+  $('#pwOk').disabled=true;
+  const ok=await verifyMgr(pw);
+  $('#pwOk').disabled=false;
+  if(ok){ mgrToken=pw; $('#loginOv').classList.remove('on'); $('#pw').value=''; setMgr(true); toast('✅ ברוך הבא, מנהל'); }
   else toast('❌ סיסמה שגויה');
 };
 $('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pwOk').click();});
@@ -704,9 +714,10 @@ function exitKiosk(){
   if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
 }
 $('#kioskBtn').onclick=enterKiosk;
-$('#kexitBtn').onclick=()=>{
+$('#kexitBtn').onclick=async()=>{
   const p=prompt('סיסמת מנהל ליציאה:');
-  if(p===MGR_PW)exitKiosk(); else if(p!==null)toast('❌ סיסמה שגויה');
+  if(p===null)return;
+  if(await verifyMgr(p))exitKiosk(); else toast('❌ סיסמה שגויה');
 };
 // block exit attempts in kiosk
 document.addEventListener('keydown',e=>{
