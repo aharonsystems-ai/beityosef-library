@@ -174,6 +174,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
       <span class="ic">🔍</span>
       <input id="q" placeholder="חיפוש לפי שם ספר, מחבר או תיאור..." autocomplete="off">
     </div>
+    <button class="hbtn" id="qbBtn" style="height:46px">⚙️ שאילתא</button>
     <button class="hbtn gold adminonly" id="addBtn" style="height:46px;display:none">➕ הוסף ספר</button>
   </div>
 
@@ -302,6 +303,32 @@ body.kiosk .kexit:hover{color:var(--navy)}
   </div>
 </div>
 
+<!-- query builder modal -->
+<div class="ov" id="qbOv">
+  <div class="modal" style="max-width:650px">
+    <div class="mh"><h3>שאילתא מתקדמת</h3><button class="mx" data-close>×</button></div>
+    <div class="mb">
+      <div style="display:flex;align-items:center;gap:16px;font-size:13px;color:var(--mu);flex-wrap:wrap">
+        <span>שילוב תנאים:</span>
+        <label style="display:flex;gap:5px;align-items:center"><input type="radio" name="qbconn" value="and" checked> וגם (כל התנאים)</label>
+        <label style="display:flex;gap:5px;align-items:center"><input type="radio" name="qbconn" value="or"> או (לפחות אחד)</label>
+      </div>
+      <div id="qbRows" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button class="ib" id="qbAdd" style="align-self:flex-start">＋ הוסף תנאי</button>
+      <div style="border-top:1px solid var(--line);padding-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="qbSaved" style="min-width:150px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;background:var(--surface);color:var(--ink)"><option value="">— שאילתות שמורות —</option></select>
+        <button class="ib" id="qbLoad">טען</button>
+        <button class="ib del" id="qbDelSaved">מחק שמורה</button>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn p" id="qbRun">🔍 חפש</button>
+      <button class="btn s" id="qbSave">💾 שמור שאילתא</button>
+      <button class="btn s" data-close>סגור</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -311,7 +338,7 @@ const MGR_PW='sifria2026';   // סיסמת מנהל
 const BRANCHES=["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"];
 const SUBJECTS=['גמרא','הלכה','הלכה - שבת','הלכה - פסח','תפילה','פרשת שבוע','מוסר ומחשבה','קבלה','חסידות','תנ"ך','ספרי ילדים','כללי'];
 const PER=25;
-let page=0, total=0, isMgr=false, editingId=null;
+let page=0, total=0, isMgr=false, editingId=null, qb=null;
 
 const $=s=>document.querySelector(s);
 const rowsEl=$('#rows'), statEl=$('#stat'), pagerEl=$('#pager');
@@ -338,20 +365,26 @@ function opval(term, method){
   return 'ilike.*'+encodeURIComponent(raw)+'*';   // partial / words
 }
 function buildPath(forCount){
-  const p=[]; const mode=$('#fMode').value, method=$('#fMethod').value, q=$('#q').value.trim();
-  const ov=opval(q,method);
-  if(mode==='commentary'){
-    const area=$('#fArea').value; if(area) p.push('classification->>main=eq.'+encodeURIComponent(area));
-    if(ov) p.push('or=(title.'+ov+',author.'+ov+')');
-  } else if(mode==='all'){
-    if(ov) p.push('or=(title.'+ov+',author.'+ov+',description.'+ov+')');
-  } else if(mode==='type'){
-    if(ov) p.push('classification->>main='+ov);
-  } else if(mode==='browse'){
-    /* עיון — בלי מילת חיפוש, רק סינונים */
+  const p=[];
+  if(qb){
+    if(qb.conn==='or') p.push('or=('+qb.conds.map(c=>c.f+'.'+c.raw).join(',')+')');
+    else qb.conds.forEach(c=>p.push(c.f+'='+c.raw));
   } else {
-    const fmap={title:'title',author:'author',subject:'subject',notes:'description'};
-    if(ov) p.push((fmap[mode]||'title')+'='+ov);
+    const mode=$('#fMode').value, method=$('#fMethod').value, q=$('#q').value.trim();
+    const ov=opval(q,method);
+    if(mode==='commentary'){
+      const area=$('#fArea').value; if(area) p.push('classification->>main=eq.'+encodeURIComponent(area));
+      if(ov) p.push('or=(title.'+ov+',author.'+ov+')');
+    } else if(mode==='all'){
+      if(ov) p.push('or=(title.'+ov+',author.'+ov+',description.'+ov+')');
+    } else if(mode==='type'){
+      if(ov) p.push('classification->>main='+ov);
+    } else if(mode==='browse'){
+      /* עיון — בלי מילת חיפוש, רק סינונים */
+    } else {
+      const fmap={title:'title',author:'author',subject:'subject',notes:'description'};
+      if(ov) p.push((fmap[mode]||'title')+'='+ov);
+    }
   }
   if($('#fBr').value!=='')p.push('branch=eq.'+$('#fBr').value);
   if($('#fAv').value!=='')p.push('available=eq.'+$('#fAv').value);
@@ -446,11 +479,71 @@ window.bulkExport=async()=>{
   toast('📥 '+rows.length+' ספרים יוצאו');
 };
 
+// ===== בונה שאילתות =====
+const QFIELDS=[
+  {k:'title',label:'שם הספר',type:'text'},
+  {k:'author',label:'מחבר',type:'text'},
+  {k:'classification->>main',label:'סיווג',type:'text'},
+  {k:'classification->>sub',label:'תת-סיווג (מסכת/חלק)',type:'text'},
+  {k:'description',label:'תיאור / הערות',type:'text'},
+  {k:'subject',label:'נושא',type:'text'},
+  {k:'branch',label:'סניף',type:'num'},
+  {k:'id',label:'מספר בקטלוג',type:'num'},
+  {k:'available',label:'זמינות',type:'bool'},
+];
+const TEXT_OPS=[['contains','מכיל'],['eq','שווה בדיוק'],['starts','מתחיל ב'],['ncontains','לא מכיל']];
+const NUM_OPS=[['eq','='],['gt','>'],['lt','<'],['gte','≥'],['lte','≤']];
+const _qs='border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;background:var(--surface);color:var(--ink)';
+function _ftype(k){ const f=QFIELDS.find(x=>x.k===k); return f?f.type:'text'; }
+function qbAddRow(field,op,val){
+  const row=document.createElement('div'); row.className='qbrow'; row.style.cssText='display:flex;gap:6px;align-items:center';
+  const fs=document.createElement('select'); fs.style.cssText=_qs+';flex:1';
+  QFIELDS.forEach(f=>{const o=document.createElement('option');o.value=f.k;o.textContent=f.label;fs.appendChild(o);}); if(field)fs.value=field;
+  const os=document.createElement('select'); os.style.cssText=_qs;
+  const vi=document.createElement('input'); vi.style.cssText=_qs+';flex:1'; vi.placeholder='ערך'; if(val!=null)vi.value=val;
+  function fillOps(){ const t=_ftype(fs.value); os.innerHTML='';
+    if(t==='bool'){ [['eq:true','זמין'],['eq:false','בשימוש']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;os.appendChild(o);}); vi.style.display='none'; }
+    else { (t==='num'?NUM_OPS:TEXT_OPS).forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;os.appendChild(o);}); vi.style.display=''; } }
+  fs.onchange=fillOps; fillOps(); if(op)os.value=op;
+  const rm=document.createElement('button'); rm.className='ib del'; rm.textContent='✕'; rm.onclick=()=>row.remove();
+  row.append(fs,os,vi,rm); $('#qbRows').appendChild(row);
+}
+function qbCollect(){
+  const conds=[];
+  document.querySelectorAll('#qbRows .qbrow').forEach(r=>{
+    const sels=r.querySelectorAll('select'), inp=r.querySelector('input');
+    const field=sels[0].value, t=_ftype(field);
+    if(t==='bool'){ conds.push({f:field, raw:sels[1].value.replace(':','.')}); return; }
+    const op=sels[1].value, val=sani(inp.value); if(!val) return;
+    let raw;
+    if(t==='num') raw=op+'.'+encodeURIComponent(val);
+    else { const v=encodeURIComponent(val);
+      raw = op==='eq'?'ilike.'+v : op==='starts'?'ilike.'+v+'*' : op==='ncontains'?'not.ilike.*'+v+'*' : 'ilike.*'+v+'*'; }
+    conds.push({f:field, raw});
+  });
+  return conds;
+}
+function qbSerialize(){ const rows=[]; document.querySelectorAll('#qbRows .qbrow').forEach(r=>{ const sels=r.querySelectorAll('select'), inp=r.querySelector('input'); rows.push({field:sels[0].value, op:sels[1].value, val:inp?inp.value:''}); }); return rows; }
+function qbSavedMap(){ try{return JSON.parse(localStorage.getItem('qbSaved')||'{}');}catch(e){return {};} }
+function qbRefreshSaved(){ const m=qbSavedMap(); const sel=$('#qbSaved'); sel.innerHTML='<option value="">— שאילתות שמורות —</option>'+Object.keys(m).map(n=>'<option>'+esc(n)+'</option>').join(''); }
+$('#qbBtn').onclick=()=>{ if(!$('#qbRows').children.length) qbAddRow(); qbRefreshSaved(); $('#qbOv').classList.add('on'); };
+$('#qbAdd').onclick=()=>qbAddRow();
+$('#qbRun').onclick=()=>{ const conds=qbCollect(); if(!conds.length){toast('הוסף לפחות תנאי אחד');return;}
+  const conn=document.querySelector('input[name=qbconn]:checked').value; qb={conn,conds}; $('#qbOv').classList.remove('on'); page=0; load(); toast('🔎 שאילתא הופעלה'); };
+$('#qbSave').onclick=()=>{ if(!qbCollect().length){toast('אין תנאים לשמור');return;} const name=prompt('שם לשאילתא:'); if(!name)return;
+  const conn=document.querySelector('input[name=qbconn]:checked').value; const m=qbSavedMap(); m[name]={conn, rows:qbSerialize()};
+  try{localStorage.setItem('qbSaved',JSON.stringify(m));}catch(e){} qbRefreshSaved(); toast('💾 נשמר'); };
+$('#qbLoad').onclick=()=>{ const n=$('#qbSaved').value; if(!n)return; const q=qbSavedMap()[n]; if(!q)return;
+  $('#qbRows').innerHTML=''; (q.rows||[]).forEach(r=>qbAddRow(r.field,r.op,r.val));
+  const rb=document.querySelector('input[name=qbconn][value="'+q.conn+'"]'); if(rb)rb.checked=true; };
+$('#qbDelSaved').onclick=()=>{ const n=$('#qbSaved').value; if(!n)return; const m=qbSavedMap(); delete m[n]; try{localStorage.setItem('qbSaved',JSON.stringify(m));}catch(e){} qbRefreshSaved(); };
+
 // filters
-['#q','#fMode','#fArea','#fMethod','#fBr','#fAv','#fSort'].forEach(s=>{
+['#q','#fMode','#fArea','#fMethod'].forEach(s=>{
   const el=$(s);const ev=s==='#q'?'input':'change';
-  el.addEventListener(ev,()=>{page=0;s==='#q'?debounce(load):load();});
+  el.addEventListener(ev,()=>{qb=null;page=0;s==='#q'?debounce(load):load();});
 });
+['#fBr','#fAv','#fSort'].forEach(s=>{ $(s).addEventListener('change',()=>{page=0;load();}); });
 $('#fMode').addEventListener('change',()=>{ $('#fArea').style.display = $('#fMode').value==='commentary'?'':'none'; });
 
 // ===== manager =====
