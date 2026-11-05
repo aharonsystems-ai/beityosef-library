@@ -15,17 +15,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: שליפת כל הספרים וכתיבת גיבוי
         run: node scripts/backup-books.mjs
       - name: שמירת הגיבוי (commit)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet backups/books-latest.json; then
+          git add backups/books-latest.json
+          if git diff --cached --quiet; then
             echo "אין שינוי בספרים — אין מה לשמור"
           else
-            git add backups/books-latest.json
             git commit -m "גיבוי ספרים אוטומטי $(date -u +%Y-%m-%d)"
             git push
           fi
