@@ -33,7 +33,7 @@ function catPath(b) {
 async function fetchAll() {
   let all = [], offset = 0;
   for (;;) {
-    const url = `${SB}/rest/v1/books?select=id,title,author,description,subject,classification,available,branch&order=id.asc&limit=${PAGE}&offset=${offset}`;
+    const url = `${SB}/rest/v1/books?select=id,title,author,description,subject,classification,available,branch,card_type,details&order=id.asc&limit=${PAGE}&offset=${offset}`;
     const r = await fetch(url, { headers: H });
     if (!r.ok) throw new Error('Supabase ' + r.status + ' at offset ' + offset);
     const rows = await r.json();
@@ -60,7 +60,11 @@ const rows = books.map(b => [
   b.description || '',
   catPath(b),
   b.available ? 1 : 0,
-  (typeof b.branch === 'number' ? b.branch : 0)
+  (typeof b.branch === 'number' ? b.branch : 0),
+  (typeof b.card_type === 'number' ? b.card_type : 0),
+  (b.details && b.details.parent) ? b.details.parent : '',
+  (b.details && (b.details.titles || b.details.authors))
+    ? [].concat(b.details.titles || [], b.details.authors || []).join(' ') : ''
 ]);
 
 fs.writeFileSync(OUT, 'var CAT_RAW=' + JSON.stringify(rows) + ';');

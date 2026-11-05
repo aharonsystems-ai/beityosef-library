@@ -345,6 +345,10 @@ body.kiosk .kexit:hover{color:var(--navy)}
         <div class="fld"><label>הוצאה / מו"ל</label><input id="e_pub"></div>
       </div>
       <div class="frow">
+        <div class="fld"><label>שמות נוספים לספר</label><input id="e_titles" placeholder="שם 2, שם 3… (מופרדים בפסיק)"></div>
+        <div class="fld"><label>מחברים נוספים</label><input id="e_authors" placeholder="מחבר 2, מחבר 3… (מופרדים בפסיק)"></div>
+      </div>
+      <div class="frow">
         <div class="fld"><label>קטגוריה ראשית</label><input id="e_clsmain" list="catMainList" placeholder="הלכה / ש&quot;ס / כללי…" autocomplete="off"></div>
         <div class="fld"><label>תת-קטגוריה</label><input id="e_clssub" list="catSubList" placeholder="שבת / בבא קמא…" autocomplete="off"></div>
         <div class="fld"><label>תת-תת (רמה 3)</label><input id="e_clssub2" list="catSub2List" placeholder="הוצאה / פרק… (לא חובה)" autocomplete="off"></div>
@@ -353,6 +357,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
       <div class="fld"><label>תיאור / פרטים</label><textarea id="e_desc"></textarea></div>
       <div class="frow">
         <div class="fld"><label>סוג כרטיס</label><select id="e_ctype"><option value="0">ספר רגיל</option><option value="1">תת-ספר</option><option value="2">כריכה (כמה ספרים)</option></select></div>
+        <div class="fld"><label>ספר אב (מספר קטלוג)</label><input id="e_parent" type="number" min="1" placeholder="אם זה תת-ספר — מספר האב"></div>
         <div class="fld"><label>מדף / מיקום</label><input id="e_shelf"></div>
       </div>
       <div class="frow">
@@ -670,6 +675,8 @@ window.openEdit=function(b){
   $('#e_subtitle').value=d.subtitle||'';$('#e_honor').value=d.honor||'';
   $('#e_pub').value=d.publisher||'';$('#e_shelf').value=d.shelf||'';
   $('#e_vols').value=d.volumes||'';$('#e_parts').value=d.parts||'';
+  $('#e_parent').value=d.parent||'';
+  $('#e_titles').value=(d.titles||[]).join(', ');$('#e_authors').value=(d.authors||[]).join(', ');
   $('#e_clsmain').value=(b.classification&&b.classification.main)||'';
   $('#e_clssub').value=(b.classification&&b.classification.sub)||'';
   $('#e_clssub2').value=(b.classification&&b.classification.sub2)||'';
@@ -680,7 +687,7 @@ window.openEdit=function(b){
 };
 $('#addBtn').onclick=()=>{
   editingId=null;$('#editTitle').textContent='הוספת ספר חדש';
-  ['e_title','e_author','e_desc','e_subtitle','e_honor','e_pub','e_shelf','e_vols','e_parts','e_clssub','e_clssub2'].forEach(id=>$('#'+id).value='');
+  ['e_title','e_author','e_desc','e_subtitle','e_honor','e_pub','e_shelf','e_vols','e_parts','e_clssub','e_clssub2','e_parent','e_titles','e_authors'].forEach(id=>$('#'+id).value='');
   $('#e_clsmain').value='';$('#e_ctype').value=0;$('#e_branch').value=0;$('#e_avail').value='true';
   $('#delBtn').style.display='none';$('#editOv').classList.add('on');
 };
@@ -690,7 +697,9 @@ $('#saveBtn').onclick=async()=>{
   const d={};
   const sv=(id,key,num)=>{const v=$('#'+id).value.trim(); if(v)d[key]=num?parseInt(v):v;};
   sv('e_subtitle','subtitle');sv('e_honor','honor');sv('e_pub','publisher');sv('e_shelf','shelf');
-  sv('e_vols','volumes',1);sv('e_parts','parts',1);
+  sv('e_vols','volumes',1);sv('e_parts','parts',1);sv('e_parent','parent',1);
+  const exT=$('#e_titles').value.split(',').map(x=>x.trim()).filter(Boolean); if(exT.length)d.titles=exT;
+  const exA=$('#e_authors').value.split(',').map(x=>x.trim()).filter(Boolean); if(exA.length)d.authors=exA;
   const cm=$('#e_clsmain').value.trim(), cs=$('#e_clssub').value.trim(), cs2=$('#e_clssub2').value.trim();
   let cls=null; if(cm){ cls={main:cm}; if(cs)cls.sub=cs; if(cs2)cls.sub2=cs2; }
   if(cls) harvestCats([{classification:cls}]);

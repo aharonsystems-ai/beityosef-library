@@ -636,12 +636,11 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   <div class="cw">
     <div class="cs">
       <div class="fh" data-i="cFilter">🔍 סינון וחיפוש</div>
-      <div class="fg"><span class="fl" data-i="cSubj">קטגוריה</span>
-        <select class="fs" id="fSub" onchange="onCat(1)">
-          <option value="" data-i="cAllSubj">כל הקטגוריות</option>
-        </select>
-        <select class="fs" id="fSub2" onchange="onCat(2)" style="display:none;margin-top:6px"><option value="">— הכל —</option></select>
-        <select class="fs" id="fSub3" onchange="onCat(3)" style="display:none;margin-top:6px"><option value="">— הכל —</option></select></div>
+      <div class="fg"><span class="fl">מסכת / נושא</span>
+        <select class="fs" id="fTopic" onchange="onTopic()"><option value="">כל הנושאים</option></select>
+        <select class="fs" id="fPerek" onchange="fC()" style="display:none;margin-top:6px"><option value="">כל הפרקים</option></select></div>
+      <div class="fg"><span class="fl">סוג הספר</span>
+        <select class="fs" id="fType" onchange="fC()"><option value="">הכל</option><option value="0">ספר רגיל</option><option value="1">תת-ספר</option><option value="2">כריכה (כמה ספרים)</option></select></div>
       <div class="fg"><span class="fl" data-i="cBranch">סניף</span>
         <select class="fs" id="fBr" onchange="fC()">
           <option value="" data-i="cAllBr">כל הסניפים</option>
@@ -664,9 +663,8 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="cntl" id="cNt">📚 כל 59,321 הספרים טעונים</div>
         <button class="dlb" onclick="dCSV()" data-i="btnDl">📥 הורד קטלוג</button>
       </div>
-      <div class="ct" id="ctRow">
-        <div class="ctb2 act" onclick="sCT(this,'')" data-i="tabAll">כל הספרים</div>
-      </div>
+      <div style="font-size:11.5px;color:var(--mu);margin-bottom:.35rem;font-weight:600">קטגוריה <span style="font-weight:400">(אפשר לבחור כמה):</span></div>
+      <div class="ct" id="ctRow"></div>
       <div style="font-size:11px;color:var(--mu);background:var(--cr);border:1px solid var(--bd);border-radius:7px;padding:.45rem .7rem;margin-bottom:.6rem" data-i="catNote">ℹ️ כל הספרים לעיון במקום בלבד — אין השאלה. "זמין" = נמצא על המדף · "בשימוש" = בעיון כעת.</div>
       <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th><th data-i="thAct">בקשה</th></tr></thead>
       <tbody id="cTb"></tbody></table>
@@ -1203,11 +1201,11 @@ function hydrateImages(){
 }
 // ── טעינה עצלה של הקטלוג (קובץ גדול) ──
 const _BRN=["האולם המרכזי – ספריית בית יוסף","סניף 1","סניף 2","סניף 3","סניף 4","סניף 5"];
-let CATALOG = (typeof CAT_RAW!=='undefined') ? CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]]})) : [];
+let CATALOG = (typeof CAT_RAW!=='undefined') ? CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]],ct:r[7],pr:r[8],sx:r[9]})) : [];
 let catReady = (typeof CAT_RAW!=='undefined'), catLoading=false;
 function buildCatalog(){
   if(typeof CAT_RAW==='undefined') return;
-  CATALOG = CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]]}));
+  CATALOG = CAT_RAW.map(r=>({i:r[0],n:r[1],a:r[2],d:r[3],s:r[4],v:r[5],b:_BRN[r[6]],ct:r[7],pr:r[8],sx:r[9]}));
   catReady=true;
   const a1=Q('aC1'); if(a1) a1.textContent=CATALOG.length.toLocaleString();
   const cn=Q('cNt'); if(cn) cn.textContent='📚 כל '+CATALOG.length.toLocaleString()+' הספרים טעונים';
@@ -1260,49 +1258,42 @@ const CAT_ALIAS={}; TAX.forEach(n=>{ (n.a||[]).forEach(a=>CAT_ALIAS[a]=n.n); CAT
 function canonL1(v){ return CAT_ALIAS[v]||v; }
 function heb(n){ if(n<=0||n>499) return ''+n; const H=['','ק','ר','ש','ת'],T=['','י','כ','ל','מ','נ','ס','ע','פ','צ'],O=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
   let s=H[Math.floor(n/100)]+T[Math.floor((n%100)/10)]+O[n%10]; s=s.replace('יה','טו').replace('יו','טז'); return s; }
-let CNT={};
-function buildCounts(){ CNT={}; CATALOG.forEach(b=>{ const p=b._cp||(b._cp=catPath(b.s)); if(!p.length) return;
-  const l1=canonL1(p[0]); CNT[l1]=(CNT[l1]||0)+1;
-  if(p[1]){ const k2=l1+'\u0001'+p[1]; CNT[k2]=(CNT[k2]||0)+1;
-    if(p[2]){ const k3=k2+'\u0001'+p[2]; CNT[k3]=(CNT[k3]||0)+1; } } }); }
+// תגיות ספר: מערך {cat,topic,perek}. עתידי: b.tg; היום: נגזר מ-catPath. ספר יכול לכסות כמה נושאים.
+function bookTags(b){ if(b._tg) return b._tg; let tg;
+  if(Array.isArray(b.tg)&&b.tg.length){ tg=b.tg.map(t=>({cat:canonL1(t.cat||t.c||''),topic:t.topic||t.t||'',perek:t.perek||t.p||''})); }
+  else { const p=catPath(b.s); tg=p.length?[{cat:canonL1(p[0]),topic:p[1]||'',perek:p[2]||''}]:[]; }
+  return b._tg=tg; }
+let CNT_CAT={}, CNT_CT={};
+function buildCounts(){ CNT_CAT={}; CNT_CT={};
+  CATALOG.forEach(b=>{ const seen=new Set(); bookTags(b).forEach(t=>{
+    if(t.cat&&!seen.has(t.cat)){ CNT_CAT[t.cat]=(CNT_CAT[t.cat]||0)+1; seen.add(t.cat); }
+    if(t.cat&&t.topic){ const k=t.cat+'\u0001'+t.topic; CNT_CT[k]=(CNT_CT[k]||0)+1; } }); }); }
 function _opt(v,l){ const o=document.createElement('option'); o.value=v; o.textContent=l; return o; }
 function nodeByName(arr,name){ return (arr||[]).find(x=>x.n===name); }
-function childNames(node){ if(!node) return []; if(node.s) return node.s.map(x=>x.n);
-  if(node.c) return Array.from({length:node.c},(_,i)=>'פרק '+heb(i+1)); return []; }
-function dataChildren(l1,l2){ const cl1=canonL1(l1); const pre=l2?(cl1+'\u0001'+l2+'\u0001'):(cl1+'\u0001'); const out=[];
-  Object.keys(CNT).forEach(k=>{ if(k.indexOf(pre)===0){ const rest=k.slice(pre.length); if(rest && rest.indexOf('\u0001')<0 && out.indexOf(rest)<0) out.push(rest); } }); return out; }
-function _fillLevel(sel,l1,l2,names){ const keep=sel.value; const cl1=canonL1(l1);
-  sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'— הכל —':'— All —'));
-  names.forEach(nm=>{ const key=l2?(cl1+'\u0001'+l2+'\u0001'+nm):(cl1+'\u0001'+nm); const c=CNT[key]||0;
-    sel.appendChild(_opt(nm, nm+(c?' ('+c.toLocaleString()+')':''))); });
-  if(keep && names.indexOf(keep)>=0) sel.value=keep; }
-function populateCatUI(){
-  buildCounts();
-  const s1=Q('fSub'); if(!s1) return; const keep=s1.value;
-  const taxNames=TAX.map(n=>n.n);
-  const extra=Object.keys(CNT).filter(k=>k.indexOf('\u0001')<0 && taxNames.indexOf(k)<0).sort();
-  const l1all=taxNames.concat(extra);
-  s1.innerHTML=''; s1.appendChild(_opt('', lang==='he'?'כל הקטגוריות':'All categories'));
-  l1all.forEach(nm=>{ const c=CNT[nm]||0; s1.appendChild(_opt(nm, nm+(c?' ('+c.toLocaleString()+')':''))); });
-  if(keep) s1.value=keep;
-  const row=Q('ctRow');
-  if(row){ row.innerHTML='';
-    const all=document.createElement('div'); all.className='ctb2'+(s1.value?'':' act'); all.textContent=(lang==='he'?'כל הספרים':'All books'); all.onclick=function(){sCT(this,'');}; row.appendChild(all);
-    taxNames.slice(0,7).forEach(nm=>{ const d=document.createElement('div'); d.className='ctb2'+(s1.value===nm?' act':''); d.textContent=nm; d.onclick=function(){sCT(this,nm);}; row.appendChild(d); }); }
-  onCat(1,true);
-}
-function onCat(level,keep){
-  const s1=Q('fSub'),s2=Q('fSub2'),s3=Q('fSub3'); if(!s1) return;
-  if(level<=1){ const node=nodeByName(TAX,s1.value);
-    let list=childNames(node); dataChildren(s1.value,null).forEach(x=>{ if(list.indexOf(x)<0) list.push(x); });
-    if(s1.value && list.length){ if(!keep)s2.value=''; _fillLevel(s2,s1.value,null,list); s2.style.display=''; }
-    else { s2.style.display='none'; s2.value=''; } }
-  if(level<=2){ const node=nodeByName(TAX,s1.value); const n2=node&&nodeByName(node.s,s2.value);
-    let list=childNames(n2); dataChildren(s1.value,s2.value).forEach(x=>{ if(list.indexOf(x)<0) list.push(x); });
-    if(s2.value && list.length){ if(!keep)s3.value=''; _fillLevel(s3,s1.value,s2.value,list); s3.style.display=''; }
-    else { s3.style.display='none'; s3.value=''; } }
-  if(!keep) fC();
-}
+let selCats=new Set();
+function topicsFor(cats){ const names=cats&&cats.length?cats:TAX.map(n=>n.n); const out=[];
+  names.forEach(cn=>{ const node=nodeByName(TAX,cn); (node&&node.s||[]).forEach(s2=>{ if(out.indexOf(s2.n)<0) out.push(s2.n); }); }); return out; }
+function perakimFor(cats,topic){ const names=cats&&cats.length?cats:TAX.map(n=>n.n);
+  for(const cn of names){ const node=nodeByName(TAX,cn); const t=node&&nodeByName(node.s,topic);
+    if(t){ if(t.c) return Array.from({length:t.c},(_,i)=>'פרק '+heb(i+1)); if(t.s) return t.s.map(x=>x.n); } } return []; }
+function renderCatChips(){ const row=Q('ctRow'); if(!row) return; row.innerHTML='';
+  const all=document.createElement('div'); all.className='ctb2'+(selCats.size?'':' act'); all.textContent=(lang==='he'?'הכל':'All'); all.onclick=function(){ selCats.clear(); afterCatChange(); }; row.appendChild(all);
+  TAX.forEach(n=>{ const c=CNT_CAT[n.n]||0; const d=document.createElement('div'); d.className='ctb2'+(selCats.has(n.n)?' act':'');
+    d.textContent=n.n+(c?' ('+c.toLocaleString()+')':''); d.onclick=function(){ if(selCats.has(n.n))selCats.delete(n.n); else selCats.add(n.n); afterCatChange(); }; row.appendChild(d); }); }
+function fillTopicSel(){ const sel=Q('fTopic'); if(!sel) return; const keep=sel.value;
+  const cats=Array.from(selCats); const topics=topicsFor(cats); const scope=cats.length?cats:TAX.map(n=>n.n);
+  sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'כל הנושאים':'All topics'));
+  topics.forEach(tp=>{ let c=0; scope.forEach(cn=>{ c+=CNT_CT[cn+'\u0001'+tp]||0; }); sel.appendChild(_opt(tp, tp+(c?' ('+c.toLocaleString()+')':''))); });
+  if(keep && topics.indexOf(keep)>=0) sel.value=keep; else sel.value='';
+  onTopic(true); }
+function onTopic(keep){ const sel=Q('fPerek'); if(!sel) return;
+  const peraks=perakimFor(Array.from(selCats), Q('fTopic').value);
+  if(Q('fTopic').value && peraks.length){ const kv=keep?sel.value:''; sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'כל הפרקים':'All chapters'));
+    peraks.forEach(p=>sel.appendChild(_opt(p,p))); if(kv&&peraks.indexOf(kv)>=0)sel.value=kv; sel.style.display=''; }
+  else { sel.style.display='none'; sel.value=''; }
+  if(!keep) fC(); }
+function afterCatChange(){ renderCatChips(); fillTopicSel(); fC(); }
+function populateCatUI(){ buildCounts(); renderCatChips(); fillTopicSel(); }
 // ═══════════════════════════════════════════
 // STATE & DATA
 // ═══════════════════════════════════════════
@@ -1792,15 +1783,15 @@ function fC(){
   const au=(Q('fAu')?.value||'');
   const so=Q('cSo')?.value||'';
   fCat=CATALOG.filter(b=>{
-    if(q && !matchQ(b._k||nrm((b.n||'')+' '+(b.a||'')), q)) return false;
+    if(q && !matchQ(b._k||nrm((b.n||'')+' '+(b.a||'')+' '+(b.sx||'')), q)) return false;
     if(au && !nrm(b.a||'').includes(nrm(au))) return false;
-    const p1=Q('fSub')?.value||'', p2=Q('fSub2')?.value||'', p3=Q('fSub3')?.value||'';
-    if(p1||p2||p3){
-      const bp=b._cp||(b._cp=catPath(b.s));
-      if(p1 && canonL1(bp[0]||'')!==p1) return false;
-      if(p2 && (bp[1]||'')!==p2) return false;
-      if(p3 && (bp[2]||'')!==p3) return false;
+    const topic=Q('fTopic')?.value||'', perek=Q('fPerek')?.value||'', typ=Q('fType')?.value||'';
+    if(selCats.size||topic||perek){
+      const ok=bookTags(b).some(t=>
+        (selCats.size===0||selCats.has(t.cat)) && (!topic||t.topic===topic) && (!perek||t.perek===perek));
+      if(!ok) return false;
     }
+    if(typ!=='' && b.ct!==undefined && String(b.ct)!==typ) return false;
     if(br&&b.b!==br) return false;
     if(!av&&b.v===1) return false;
     if(!lo&&b.v===0) return false;
@@ -1812,12 +1803,7 @@ function fC(){
   cPg=1; rC();
 }
 
-function sCT(el,s){
-  document.querySelectorAll('.ctb2').forEach(t=>t.classList.remove('act'));
-  el.classList.add('act');
-  const s1=Q('fSub'); if(s1) s1.value=s;
-  onCat(1); // מרענן תת-רמות + מריץ fC
-}
+// (בחירת קטגוריה מתבצעת כעת דרך צ'יפים ב-renderCatChips — multi-select)
 
 function rC(){
   const tb=Q('cTb'), cnt=Q('rC'); if(!tb) return;
