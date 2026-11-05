@@ -118,6 +118,14 @@ tbody tr:hover{background:var(--surface-2)}
   opacity:0;transition:.25s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* bulk bar buttons */
+.bba{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);
+  border-radius:7px;padding:6px 11px;font-size:12.5px;font-weight:600}
+.bba:hover{background:rgba(255,255,255,.26)}
+.bba.del{background:var(--no);border-color:var(--no)}
+.bba.del:hover{background:#b8473a}
+td input.rowchk,#chkAll{width:17px;height:17px;cursor:pointer;accent-color:var(--gold)}
+
 /* ===== KIOSK ===== */
 body.kiosk header, body.kiosk .adminonly{display:none}
 body.kiosk .wrap{max-width:1100px;padding-top:26px}
@@ -214,10 +222,21 @@ body.kiosk .kexit:hover{color:var(--navy)}
     <div id="stat">טוען...</div>
   </div>
 
+  <div id="bulkBar" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:11px;padding:9px 14px;margin-bottom:10px">
+    <b id="bulkCount" style="font-size:14px"></b>
+    <span style="flex:1;min-width:10px"></span>
+    <button class="bba" onclick="bulkAvail(true)">סמן כזמין</button>
+    <button class="bba" onclick="bulkAvail(false)">סמן כבשימוש</button>
+    <button class="bba" onclick="bulkExport()">📥 יצוא CSV</button>
+    <button class="bba del" onclick="bulkDelete()">🗑️ מחק</button>
+    <button class="bba" onclick="clearSel()">✕ נקה</button>
+  </div>
+
   <div class="tcard">
     <div class="ttop">
       <table>
         <thead><tr>
+          <th class="adminonly" style="width:34px;display:none"><input type="checkbox" id="chkAll" onchange="selAll(this.checked)"></th>
           <th style="width:70px">מספר</th><th>שם הספר</th><th>מחבר</th>
           <th style="width:150px">נושא / סיווג</th><th style="width:150px">סניף</th>
           <th style="width:90px">זמינות</th><th class="adminonly" style="width:120px;display:none">פעולות</th>
@@ -346,7 +365,7 @@ let _t;
 function debounce(fn){clearTimeout(_t);_t=setTimeout(fn,300);}
 
 async function load(){
-  rowsEl.innerHTML='<tr><td colspan="7" class="empty"><span class="spin"></span> טוען...</td></tr>';
+  rowsEl.innerHTML='<tr><td colspan="8" class="empty"><span class="spin"></span> טוען...</td></tr>';
   pagerEl.innerHTML='';
   try{
     const res=await sb(buildPath(false),{headers:{Prefer:'count=exact'}});
@@ -354,19 +373,22 @@ async function load(){
     const cr=res.headers.get('content-range')||'';
     total=parseInt((cr.split('/')[1]||'0'),10)||0;
     render(data);
+    updateBulkBar();
     renderPager();
     const from=total?page*PER+1:0, to=Math.min((page+1)*PER,total);
     statEl.innerHTML=`מציג <b>${from}–${to}</b> מתוך <b>${total.toLocaleString()}</b> ספרים`;
   }catch(e){
-    rowsEl.innerHTML='<tr><td colspan="7" class="empty">❌ שגיאת חיבור למאגר</td></tr>';
+    rowsEl.innerHTML='<tr><td colspan="8" class="empty">❌ שגיאת חיבור למאגר</td></tr>';
     statEl.textContent='';
   }
 }
 
 function render(data){
-  if(!data.length){rowsEl.innerHTML='<tr><td colspan="7" class="empty">לא נמצאו ספרים</td></tr>';return;}
+  curIds=data.map(b=>b.id);
+  if(!data.length){rowsEl.innerHTML='<tr><td colspan="8" class="empty">לא נמצאו ספרים</td></tr>';updateBulkBar();return;}
   rowsEl.innerHTML=data.map(b=>`
     <tr>
+      <td class="adminonly" style="${isMgr?'':'display:none'}"><input type="checkbox" class="rowchk" ${selected.has(b.id)?'checked':''} onchange="toggleSel(${b.id},this.checked)"></td>
       <td class="bk-id">${b.id}</td>
       <td><div class="bk-title">${esc(b.title)}${b.details&&b.details.shelf?` <span style="font-size:11px;color:var(--faint)">· מדף ${esc(b.details.shelf)}</span>`:''}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
       <td>${esc(b.author)||'—'}</td>
@@ -393,6 +415,37 @@ function renderPager(){
 }
 window.go=p=>{page=p;load();window.scrollTo({top:0,behavior:'smooth'});};
 
+// ===== סימון ובחירה מרובה =====
+let selected=new Set(), curIds=[];
+function updateBulkBar(){
+  const bar=$('#bulkBar'); if(!bar)return;
+  bar.style.display=(isMgr&&selected.size)?'flex':'none';
+  if(selected.size)$('#bulkCount').textContent='נבחרו '+selected.size+' ספרים';
+  const ca=$('#chkAll'); if(ca) ca.checked=curIds.length>0 && curIds.every(i=>selected.has(i));
+}
+window.toggleSel=(id,on)=>{ on?selected.add(id):selected.delete(id); updateBulkBar(); };
+window.selAll=(on)=>{ curIds.forEach(i=>on?selected.add(i):selected.delete(i)); document.querySelectorAll('.rowchk').forEach(c=>c.checked=on); updateBulkBar(); };
+window.clearSel=()=>{ selected.clear(); document.querySelectorAll('.rowchk').forEach(c=>c.checked=false); const ca=$('#chkAll');if(ca)ca.checked=false; updateBulkBar(); };
+async function bulkOp(method,body){
+  const ids=[...selected]; if(!ids.length)return 0; let ok=0;
+  for(let i=0;i<ids.length;i+=200){ const chunk=ids.slice(i,i+200);
+    const res=await sb('books?id=in.('+chunk.join(',')+')',{method,headers:{Prefer:'return=minimal'},body:body?JSON.stringify(body):undefined});
+    if(res.ok)ok+=chunk.length; else {toast('❌ הפעולה נכשלה');return 0;} }
+  return ok;
+}
+window.bulkAvail=async(v)=>{ const n=await bulkOp('PATCH',{available:v}); if(n){toast('✅ '+n+' עודכנו');clearSel();load();} };
+window.bulkDelete=async()=>{ if(!selected.size)return; if(!confirm('למחוק '+selected.size+' ספרים לצמיתות?'))return; const n=await bulkOp('DELETE',null); if(n){toast('🗑️ '+n+' נמחקו');clearSel();load();} };
+window.bulkExport=async()=>{
+  const ids=[...selected]; if(!ids.length)return; let rows=[];
+  for(let i=0;i<ids.length;i+=200){ const chunk=ids.slice(i,i+200);
+    const r=await sb('books?id=in.('+chunk.join(',')+')&select=id,title,author,subject,available,branch,classification',{}); rows=rows.concat(await r.json()); }
+  let csv='﻿מספר,שם הספר,מחבר,סיווג,זמינות,סניף\n';
+  rows.forEach(b=>{ const cls=b.classification?(b.classification.main+(b.classification.sub?' '+b.classification.sub:'')):(b.subject||'');
+    csv+='"'+b.id+'","'+(b.title||'').replace(/"/g,'""')+'","'+(b.author||'').replace(/"/g,'""')+'","'+cls+'","'+(b.available?'זמין':'בשימוש')+'","'+(BRANCHES[b.branch]||'')+'"\n'; });
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='ספרים_מסומנים.csv'; document.body.appendChild(a); a.click(); a.remove();
+  toast('📥 '+rows.length+' ספרים יוצאו');
+};
+
 // filters
 ['#q','#fMode','#fArea','#fMethod','#fBr','#fAv','#fSort'].forEach(s=>{
   const el=$(s);const ev=s==='#q'?'input':'change';
@@ -407,6 +460,7 @@ function setMgr(on){
   $('#modeBadge').textContent=on?'מנהל':'צפייה';
   $('#modeBadge').className='badge'+(on?' mgr':'');
   $('#loginBtn').textContent=on?'🔓 מנהל מחובר':'🔑 כניסת מנהל';
+  if(!on)selected.clear(); updateBulkBar();
   load();
 }
 $('#loginBtn').onclick=()=>{ if(isMgr){setMgr(false);toast('יצאת ממצב מנהל');} else $('#loginOv').classList.add('on'); };
