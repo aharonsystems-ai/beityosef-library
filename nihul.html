@@ -250,10 +250,26 @@ body.kiosk .kexit:hover{color:var(--navy)}
     <div class="mb">
       <div class="fld"><label>שם הספר *</label><input id="e_title"></div>
       <div class="frow">
+        <div class="fld"><label>שם משני</label><input id="e_subtitle"></div>
+        <div class="fld"><label>תואר</label><input id="e_honor" placeholder="הגאון / רבי…"></div>
+      </div>
+      <div class="frow">
         <div class="fld"><label>מחבר</label><input id="e_author"></div>
-        <div class="fld"><label>נושא</label><select id="e_subject"></select></div>
+        <div class="fld"><label>הוצאה / מו"ל</label><input id="e_pub"></div>
+      </div>
+      <div class="frow">
+        <div class="fld"><label>סיווג</label><select id="e_clsmain"><option value="">— ללא —</option></select></div>
+        <div class="fld"><label>תת-סיווג (מסכת / חלק)</label><input id="e_clssub" placeholder="בבא קמא / או&quot;ח…"></div>
       </div>
       <div class="fld"><label>תיאור / פרטים</label><textarea id="e_desc"></textarea></div>
+      <div class="frow">
+        <div class="fld"><label>סוג כרטיס</label><select id="e_ctype"><option value="0">ספר רגיל</option><option value="1">תת-ספר</option><option value="2">כריכה (כמה ספרים)</option></select></div>
+        <div class="fld"><label>מדף / מיקום</label><input id="e_shelf"></div>
+      </div>
+      <div class="frow">
+        <div class="fld"><label>מספר כרכים</label><input id="e_vols" type="number" min="0"></div>
+        <div class="fld"><label>מספר חלקים</label><input id="e_parts" type="number" min="0"></div>
+      </div>
       <div class="frow">
         <div class="fld"><label>סניף</label><select id="e_branch"></select></div>
         <div class="fld"><label>זמינות</label><select id="e_avail"><option value="true">זמין</option><option value="false">בשימוש</option></select></div>
@@ -283,7 +299,8 @@ const rowsEl=$('#rows'), statEl=$('#stat'), pagerEl=$('#pager');
 
 // fill selects
 function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
-SUBJECTS.forEach(s=>{$('#e_subject').appendChild(opt(s,s));});
+const CATS=['ש"ס','ירושלמי','רמב"ם','הלכה','הלכה - שבת','הלכה - פסח','תנ"ך','פרשת שבוע','מדרש','מוסר ומחשבה','קבלה','חסידות','תפילה','ספרי ילדים','כללי'];
+CATS.forEach(c=>{$('#e_clsmain').appendChild(opt(c,c));});
 BRANCHES.forEach((b,i)=>{$('#fBr').appendChild(opt(i,b));$('#e_branch').appendChild(opt(i,b));});
 
 async function sb(path,opts={}){
@@ -320,7 +337,7 @@ function buildPath(forCount){
   if($('#fBr').value!=='')p.push('branch=eq.'+$('#fBr').value);
   if($('#fAv').value!=='')p.push('available=eq.'+$('#fAv').value);
   p.push('order='+$('#fSort').value);
-  p.push('select=id,title,author,description,subject,available,branch,classification');
+  p.push('select=id,title,author,description,subject,available,branch,classification,details,card_type');
   if(!forCount){p.push('limit='+PER);p.push('offset='+(page*PER));}
   return 'books?'+p.join('&');
 }
@@ -351,7 +368,7 @@ function render(data){
   rowsEl.innerHTML=data.map(b=>`
     <tr>
       <td class="bk-id">${b.id}</td>
-      <td><div class="bk-title">${esc(b.title)}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
+      <td><div class="bk-title">${esc(b.title)}${b.details&&b.details.shelf?` <span style="font-size:11px;color:var(--faint)">· מדף ${esc(b.details.shelf)}</span>`:''}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
       <td>${esc(b.author)||'—'}</td>
       <td>${b.classification&&b.classification.main?`<span class="subj">${esc(b.classification.main)}${b.classification.sub?' · '+esc(b.classification.sub):''}</span>`:(b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—')}</td>
       <td style="font-size:13px">${esc(BRANCHES[b.branch]||'—')}</td>
@@ -403,23 +420,37 @@ $('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('#pwOk').click();})
 window.openEdit=function(b){
   editingId=b.id;
   $('#editTitle').textContent='עריכת ספר';
+  const d=b.details||{};
   $('#e_title').value=b.title||'';$('#e_author').value=b.author||'';
-  $('#e_desc').value=b.description||'';$('#e_subject').value=b.subject||'כללי';
+  $('#e_desc').value=b.description||'';
+  $('#e_subtitle').value=d.subtitle||'';$('#e_honor').value=d.honor||'';
+  $('#e_pub').value=d.publisher||'';$('#e_shelf').value=d.shelf||'';
+  $('#e_vols').value=d.volumes||'';$('#e_parts').value=d.parts||'';
+  $('#e_clsmain').value=(b.classification&&b.classification.main)||'';
+  $('#e_clssub').value=(b.classification&&b.classification.sub)||'';
+  $('#e_ctype').value=b.card_type||0;
   $('#e_branch').value=b.branch||0;$('#e_avail').value=String(!!b.available);
   $('#delBtn').style.display='inline-block';
   $('#editOv').classList.add('on');
 };
 $('#addBtn').onclick=()=>{
   editingId=null;$('#editTitle').textContent='הוספת ספר חדש';
-  $('#e_title').value='';$('#e_author').value='';$('#e_desc').value='';
-  $('#e_subject').value='כללי';$('#e_branch').value=0;$('#e_avail').value='true';
+  ['e_title','e_author','e_desc','e_subtitle','e_honor','e_pub','e_shelf','e_vols','e_parts','e_clssub'].forEach(id=>$('#'+id).value='');
+  $('#e_clsmain').value='';$('#e_ctype').value=0;$('#e_branch').value=0;$('#e_avail').value='true';
   $('#delBtn').style.display='none';$('#editOv').classList.add('on');
 };
 $('#saveBtn').onclick=async()=>{
   const title=$('#e_title').value.trim();
   if(!title){toast('❌ שם הספר חובה');return;}
+  const d={};
+  const sv=(id,key,num)=>{const v=$('#'+id).value.trim(); if(v)d[key]=num?parseInt(v):v;};
+  sv('e_subtitle','subtitle');sv('e_honor','honor');sv('e_pub','publisher');sv('e_shelf','shelf');
+  sv('e_vols','volumes',1);sv('e_parts','parts',1);
+  const cm=$('#e_clsmain').value, cs=$('#e_clssub').value.trim();
+  const cls=cm?(cs?{main:cm,sub:cs}:{main:cm}):null;
   const body={title,author:$('#e_author').value.trim(),description:$('#e_desc').value.trim(),
-    subject:$('#e_subject').value,branch:parseInt($('#e_branch').value),available:$('#e_avail').value==='true'};
+    subject:cm||'',branch:parseInt($('#e_branch').value),available:$('#e_avail').value==='true',
+    card_type:parseInt($('#e_ctype').value),details:Object.keys(d).length?d:null,classification:cls};
   $('#saveBtn').disabled=true;
   try{
     if(editingId==null){
