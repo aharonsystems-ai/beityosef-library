@@ -1,0 +1,30 @@
+name: שחזור ספרים מגיבוי (ידני)
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'SHA של commit לשחזור ממנו (ריק = הגיבוי האחרון)'
+        required: false
+        default: ''
+      confirm:
+        description: 'כתוב yes כדי לאשר שחזור למאגר'
+        required: true
+        default: 'no'
+
+permissions:
+  contents: read
+
+jobs:
+  restore:
+    if: ${{ github.event.inputs.confirm == 'yes' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: ייבוא הגיבוי חזרה למאגר
+        run: node scripts/restore-books.mjs
