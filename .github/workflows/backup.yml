@@ -18,14 +18,17 @@ jobs:
           node-version: '22'
       - name: שליפת כל הספרים וכתיבת גיבוי
         run: node scripts/backup-books.mjs
-      - name: שמירת הגיבוי (commit)
+      - name: רענון הקטלוג הציבורי (catalog.js) מ-Supabase
+        run: node scripts/gen-catalog.mjs
+        continue-on-error: true   # הגנה: אם המחולל עוצר (ייבוא חלקי) — הגיבוי עדיין נשמר
+      - name: שמירת גיבוי + קטלוג מעודכן (commit)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add backups/books-latest.json
+          git add backups/books-latest.json catalog.js
           if git diff --cached --quiet; then
-            echo "אין שינוי בספרים — אין מה לשמור"
+            echo "אין שינוי — אין מה לשמור"
           else
-            git commit -m "גיבוי ספרים אוטומטי $(date -u +%Y-%m-%d)"
+            git commit -m "גיבוי ספרים + רענון קטלוג אוטומטי $(date -u +%Y-%m-%d)"
             git push
           fi

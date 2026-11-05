@@ -562,7 +562,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <div class="hbg" id="heroBg" data-bg="IMG_HERO"></div>
     <div class="hov"></div>
     <div class="hcnt">
-      <div style="display:flex;justify-content:center;margin:0 auto 1.4rem"><img src="/logo-full.png" alt="ספריית בית יוסף" style="max-width:min(440px,84vw);width:100%;height:auto;background:linear-gradient(135deg,#fdfaf3,#f3ead3);border:1.5px solid rgba(184,150,62,.5);border-radius:20px;padding:12px 20px;box-shadow:0 8px 28px rgba(8,16,38,.45)"></div>
+      <div style="display:flex;justify-content:center;margin:0 auto 1.4rem"><img src="/logo-full.png" alt="ספריית בית יוסף" onclick="secretAdmin()" style="max-width:min(440px,84vw);width:100%;height:auto;background:linear-gradient(135deg,#fdfaf3,#f3ead3);border:1.5px solid rgba(184,150,62,.5);border-radius:20px;padding:12px 20px;box-shadow:0 8px 28px rgba(8,16,38,.45)"></div>
       <div class="hded" data-i="hBadge">על שם איש החסד הרב יוסף אליקום קורלנסקי זצ"ל</div>
       <div class="hbig" data-i="hBig">מרכז עולמי ללומדי תורה ומחברי ספרים</div>
       <div class="htg" data-i="hTag">במקום אחד — יותר ממאה אלף ספרים</div>
@@ -634,13 +634,12 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
   <div class="cw">
     <div class="cs">
       <div class="fh" data-i="cFilter">🔍 סינון וחיפוש</div>
-      <div class="fg"><span class="fl" data-i="cSubj">נושא</span>
-        <select class="fs" id="fSub" onchange="fC()">
-          <option value="" data-i="cAllSubj">כל הנושאים</option>
-          <option>גמרא</option><option>הלכה</option><option>הלכה - שבת</option><option>הלכה - פסח</option>
-          <option>תפילה</option><option>פרשת שבוע</option><option>מוסר ומחשבה</option>
-          <option>קבלה</option><option>חסידות</option><option>תנ"ך</option><option>ספרי ילדים</option><option>כללי</option>
-        </select></div>
+      <div class="fg"><span class="fl" data-i="cSubj">קטגוריה</span>
+        <select class="fs" id="fSub" onchange="onCat(1)">
+          <option value="" data-i="cAllSubj">כל הקטגוריות</option>
+        </select>
+        <select class="fs" id="fSub2" onchange="onCat(2)" style="display:none;margin-top:6px"><option value="">— הכל —</option></select>
+        <select class="fs" id="fSub3" onchange="onCat(3)" style="display:none;margin-top:6px"><option value="">— הכל —</option></select></div>
       <div class="fg"><span class="fl" data-i="cBranch">סניף</span>
         <select class="fs" id="fBr" onchange="fC()">
           <option value="" data-i="cAllBr">כל הסניפים</option>
@@ -663,14 +662,8 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         <div class="cntl" id="cNt">📚 כל 59,321 הספרים טעונים</div>
         <button class="dlb" onclick="dCSV()" data-i="btnDl">📥 הורד קטלוג</button>
       </div>
-      <div class="ct">
+      <div class="ct" id="ctRow">
         <div class="ctb2 act" onclick="sCT(this,'')" data-i="tabAll">כל הספרים</div>
-        <div class="ctb2" onclick="sCT(this,'גמרא')" data-i="tabTal">לפי ש"ס</div>
-        <div class="ctb2" onclick="sCT(this,'הלכה')" data-i="tabHal">הלכה</div>
-        <div class="ctb2" onclick="sCT(this,'מוסר ומחשבה')" data-i="tabMus">מוסר</div>
-        <div class="ctb2" onclick="sCT(this,'פרשת שבוע')" data-i="tabPar">פרשת שבוע</div>
-        <div class="ctb2" onclick="sCT(this,'ספרי ילדים')" data-i="tabKid">ספרי ילדים</div>
-        <div class="ctb2" onclick="sCT(this,'קבלה')" data-i="tabKab">קבלה</div>
       </div>
       <div style="font-size:11px;color:var(--mu);background:var(--cr);border:1px solid var(--bd);border-radius:7px;padding:.45rem .7rem;margin-bottom:.6rem" data-i="catNote">ℹ️ כל הספרים לעיון במקום בלבד — אין השאלה. "זמין" = נמצא על המדף · "בשימוש" = בעיון כעת.</div>
       <table class="bt2"><thead><tr><th>#</th><th data-i="thTitle">שם הספר</th><th data-i="thAuth">מחבר</th><th data-i="thSubj">נושא</th><th data-i="thBr">סניף</th><th data-i="thStat">זמינות</th><th data-i="thAct">בקשה</th></tr></thead>
@@ -1216,6 +1209,7 @@ function buildCatalog(){
   catReady=true;
   const a1=Q('aC1'); if(a1) a1.textContent=CATALOG.length.toLocaleString();
   const cn=Q('cNt'); if(cn) cn.textContent='📚 כל '+CATALOG.length.toLocaleString()+' הספרים טעונים';
+  try{ populateCatUI(); }catch(e){ console.error('cat ui',e); }
 }
 function loadCatalog(cb){
   if(catReady){ if(cb)cb(); return; }
@@ -1255,6 +1249,52 @@ CATALOG.forEach(b=>{ b._k=nrm((b.n||'')+' '+(b.a||'')+' '+(b.d||'')+' '+(b.s||''
 function matchQ(key, words){
   for(let i=0;i<words.length;i++){ if(key.indexOf(words[i])===-1) return false; }
   return true;
+}
+// ═══ קטגוריות דינמיות (עד 3 רמות) — נבנות לבד מהנתונים, בלי רשימה קבועה ═══
+// מבנה: קטגוריה ראשית › קטגוריה › תת-תת. מפרידים נתמכים:  >  ·  |  /  או  " - "
+const CAT_SEP=/\s*[>·|\/]\s*|\s+-\s+/;
+function catPath(s){ if(!s) return []; return s.split(CAT_SEP).map(x=>x.trim()).filter(Boolean).slice(0,3); }
+let CTREE={};
+function buildCatTree(){
+  CTREE={};
+  CATALOG.forEach(b=>{
+    const p=b._cp||(b._cp=catPath(b.s)); if(!p.length) return;
+    const n1=CTREE[p[0]]||(CTREE[p[0]]={_n:0,subs:{}}); n1._n++;
+    if(p[1]){ const n2=n1.subs[p[1]]||(n1.subs[p[1]]={_n:0,subs:{}}); n2._n++;
+      if(p[2]) n2.subs[p[2]]=(n2.subs[p[2]]||0)+1; }
+  });
+}
+function _opt(v,l){ const o=document.createElement('option'); o.value=v; o.textContent=l; return o; }
+function _cnt(x){ return (typeof x==='object'?x._n:x).toLocaleString(); }
+function _fillSub(sel,obj){
+  const keep=sel.value; sel.innerHTML=''; sel.appendChild(_opt('', lang==='he'?'— הכל —':'— All —'));
+  Object.keys(obj).sort((a,b)=>(obj[b]._n||obj[b])-(obj[a]._n||obj[a])).forEach(k=>sel.appendChild(_opt(k,k+' ('+_cnt(obj[k])+')')));
+  if(keep && obj[keep]) sel.value=keep;
+}
+function populateCatUI(){
+  buildCatTree();
+  const s1=Q('fSub'); if(!s1) return;
+  const keep=s1.value;
+  const l1s=Object.keys(CTREE).sort((a,b)=>CTREE[b]._n-CTREE[a]._n);
+  s1.innerHTML=''; s1.appendChild(_opt('', lang==='he'?'כל הקטגוריות':'All categories'));
+  l1s.forEach(k=>s1.appendChild(_opt(k,k+' ('+CTREE[k]._n.toLocaleString()+')')));
+  if(keep && CTREE[keep]) s1.value=keep;
+  const row=Q('ctRow');
+  if(row){ row.innerHTML='';
+    const all=document.createElement('div'); all.className='ctb2'+(s1.value?'':' act'); all.textContent=(lang==='he'?'כל הספרים':'All books'); all.onclick=function(){sCT(this,'');}; row.appendChild(all);
+    l1s.slice(0,6).forEach(k=>{ const d=document.createElement('div'); d.className='ctb2'+(s1.value===k?' act':''); d.textContent=k; d.onclick=function(){sCT(this,k);}; row.appendChild(d); });
+  }
+  onCat(1,true);
+}
+function onCat(level,keep){
+  const s1=Q('fSub'),s2=Q('fSub2'),s3=Q('fSub3'); if(!s1) return;
+  if(level<=1){ const n=CTREE[s1.value];
+    if(s1.value && n && Object.keys(n.subs).length){ if(!keep)s2.value=''; _fillSub(s2,n.subs); s2.style.display=''; }
+    else { s2.style.display='none'; s2.value=''; } }
+  if(level<=2){ const n1=CTREE[s1.value], n2=n1&&n1.subs[s2.value];
+    if(s2.value && n2 && Object.keys(n2.subs).length){ if(!keep)s3.value=''; _fillSub(s3,n2.subs); s3.style.display=''; }
+    else { s3.style.display='none'; s3.value=''; } }
+  if(!keep) fC();
 }
 // ═══════════════════════════════════════════
 // STATE & DATA
@@ -1747,10 +1787,12 @@ function fC(){
   fCat=CATALOG.filter(b=>{
     if(q && !matchQ(b._k||nrm((b.n||'')+' '+(b.a||'')), q)) return false;
     if(au && !nrm(b.a||'').includes(nrm(au))) return false;
-    const sf=cTab||sub;
-    if(sf){
-      if(sf==='הלכה'&&!b.s.includes('הלכה')) return false;
-      else if(sf!=='הלכה'&&sf&&b.s!==sf) return false;
+    const p1=Q('fSub')?.value||'', p2=Q('fSub2')?.value||'', p3=Q('fSub3')?.value||'';
+    if(p1||p2||p3){
+      const bp=b._cp||(b._cp=catPath(b.s));
+      if(p1 && (bp[0]||'')!==p1) return false;
+      if(p2 && (bp[1]||'')!==p2) return false;
+      if(p3 && (bp[2]||'')!==p3) return false;
     }
     if(br&&b.b!==br) return false;
     if(!av&&b.v===1) return false;
@@ -1765,7 +1807,9 @@ function fC(){
 
 function sCT(el,s){
   document.querySelectorAll('.ctb2').forEach(t=>t.classList.remove('act'));
-  el.classList.add('act'); cTab=s; fC();
+  el.classList.add('act');
+  const s1=Q('fSub'); if(s1) s1.value=s;
+  onCat(1); // מרענן תת-רמות + מריץ fC
 }
 
 function rC(){

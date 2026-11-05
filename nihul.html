@@ -344,9 +344,11 @@ body.kiosk .kexit:hover{color:var(--navy)}
         <div class="fld"><label>הוצאה / מו"ל</label><input id="e_pub"></div>
       </div>
       <div class="frow">
-        <div class="fld"><label>סיווג</label><select id="e_clsmain"><option value="">— ללא —</option></select></div>
-        <div class="fld"><label>תת-סיווג (מסכת / חלק)</label><input id="e_clssub" placeholder="בבא קמא / או&quot;ח…"></div>
+        <div class="fld"><label>קטגוריה ראשית</label><input id="e_clsmain" list="catMainList" placeholder="הלכה / ש&quot;ס / כללי…" autocomplete="off"></div>
+        <div class="fld"><label>תת-קטגוריה</label><input id="e_clssub" list="catSubList" placeholder="שבת / בבא קמא…" autocomplete="off"></div>
+        <div class="fld"><label>תת-תת (רמה 3)</label><input id="e_clssub2" list="catSub2List" placeholder="הוצאה / פרק… (לא חובה)" autocomplete="off"></div>
       </div>
+      <datalist id="catMainList"></datalist><datalist id="catSubList"></datalist><datalist id="catSub2List"></datalist>
       <div class="fld"><label>תיאור / פרטים</label><textarea id="e_desc"></textarea></div>
       <div class="frow">
         <div class="fld"><label>סוג כרטיס</label><select id="e_ctype"><option value="0">ספר רגיל</option><option value="1">תת-ספר</option><option value="2">כריכה (כמה ספרים)</option></select></div>
@@ -411,8 +413,18 @@ const rowsEl=$('#rows'), statEl=$('#stat'), pagerEl=$('#pager');
 
 // fill selects
 function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
-const CATS=['ש"ס','ירושלמי','רמב"ם','הלכה','הלכה - שבת','הלכה - פסח','תנ"ך','פרשת שבוע','מדרש','מוסר ומחשבה','קבלה','חסידות','תפילה','ספרי ילדים','כללי'];
-CATS.forEach(c=>{$('#e_clsmain').appendChild(opt(c,c));});
+// קטגוריות דינמיות — נאספות מהנתונים עצמם (בלי רשימה קבועה). זרע התחלתי בלבד:
+const CAT_SEED=['ש"ס','ירושלמי','רמב"ם','הלכה','תנ"ך','פרשת שבוע','מדרש','מוסר ומחשבה','קבלה','חסידות','תפילה','ספרי ילדים','כללי'];
+const CATSET={main:new Set(CAT_SEED),sub:new Set(),sub2:new Set()};
+function _dl(id,set){ const d=$('#'+id); if(!d)return; d.innerHTML=''; Array.from(set).sort((a,b)=>a.localeCompare(b,'he')).forEach(v=>d.appendChild(opt(v,v))); }
+function rebuildCatLists(){ _dl('catMainList',CATSET.main); _dl('catSubList',CATSET.sub); _dl('catSub2List',CATSET.sub2); }
+function harvestCats(rows){ let ch=false;
+  (rows||[]).forEach(b=>{ const c=b&&b.classification; if(!c)return;
+    if(c.main&&!CATSET.main.has(c.main)){CATSET.main.add(c.main);ch=true;}
+    if(c.sub&&!CATSET.sub.has(c.sub)){CATSET.sub.add(c.sub);ch=true;}
+    if(c.sub2&&!CATSET.sub2.has(c.sub2)){CATSET.sub2.add(c.sub2);ch=true;} });
+  if(ch) rebuildCatLists(); }
+rebuildCatLists();
 BRANCHES.forEach((b,i)=>{$('#fBr').appendChild(opt(i,b));$('#e_branch').appendChild(opt(i,b));});
 
 async function sb(path,opts={}){
@@ -493,7 +505,7 @@ async function load(){
 }
 
 function render(data){
-  curIds=data.map(b=>b.id); lastData=data;
+  curIds=data.map(b=>b.id); lastData=data; harvestCats(data);
   if(!data.length){rowsEl.innerHTML='<tr><td colspan="8" class="empty">לא נמצאו ספרים</td></tr>';updateBulkBar();return;}
   rowsEl.innerHTML=data.map(b=>`
     <tr>
@@ -501,7 +513,7 @@ function render(data){
       <td class="bk-id">${b.id}</td>
       <td><div class="bk-title">${esc(b.title)}${b.details&&b.details.shelf?` <span style="font-size:11px;color:var(--faint)">· מדף ${esc(b.details.shelf)}</span>`:''}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
       <td>${esc(b.author)||'—'}</td>
-      <td>${b.classification&&b.classification.main?`<span class="subj">${esc(b.classification.main)}${b.classification.sub?' · '+esc(b.classification.sub):''}</span>`:(b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—')}</td>
+      <td>${b.classification&&b.classification.main?`<span class="subj">${esc(b.classification.main)}${b.classification.sub?' · '+esc(b.classification.sub):''}${b.classification.sub2?' · '+esc(b.classification.sub2):''}</span>`:(b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—')}</td>
       <td style="font-size:13px">${esc(BRANCHES[b.branch]||'—')}</td>
       <td><span class="pill ${b.available?'y':'n'}">${b.available?'זמין':'בשימוש'}</span></td>
       <td class="adminonly" style="${isMgr?'':'display:none'}">
@@ -559,8 +571,9 @@ window.bulkExport=async()=>{
 const QFIELDS=[
   {k:'title',label:'שם הספר',type:'text'},
   {k:'author',label:'מחבר',type:'text'},
-  {k:'classification->>main',label:'סיווג',type:'text'},
-  {k:'classification->>sub',label:'תת-סיווג (מסכת/חלק)',type:'text'},
+  {k:'classification->>main',label:'קטגוריה ראשית',type:'text'},
+  {k:'classification->>sub',label:'תת-קטגוריה',type:'text'},
+  {k:'classification->>sub2',label:'תת-תת (רמה 3)',type:'text'},
   {k:'description',label:'תיאור / הערות',type:'text'},
   {k:'subject',label:'נושא',type:'text'},
   {k:'branch',label:'סניף',type:'num'},
@@ -655,6 +668,7 @@ window.openEdit=function(b){
   $('#e_vols').value=d.volumes||'';$('#e_parts').value=d.parts||'';
   $('#e_clsmain').value=(b.classification&&b.classification.main)||'';
   $('#e_clssub').value=(b.classification&&b.classification.sub)||'';
+  $('#e_clssub2').value=(b.classification&&b.classification.sub2)||'';
   $('#e_ctype').value=b.card_type||0;
   $('#e_branch').value=b.branch||0;$('#e_avail').value=String(!!b.available);
   $('#delBtn').style.display='inline-block';
@@ -662,7 +676,7 @@ window.openEdit=function(b){
 };
 $('#addBtn').onclick=()=>{
   editingId=null;$('#editTitle').textContent='הוספת ספר חדש';
-  ['e_title','e_author','e_desc','e_subtitle','e_honor','e_pub','e_shelf','e_vols','e_parts','e_clssub'].forEach(id=>$('#'+id).value='');
+  ['e_title','e_author','e_desc','e_subtitle','e_honor','e_pub','e_shelf','e_vols','e_parts','e_clssub','e_clssub2'].forEach(id=>$('#'+id).value='');
   $('#e_clsmain').value='';$('#e_ctype').value=0;$('#e_branch').value=0;$('#e_avail').value='true';
   $('#delBtn').style.display='none';$('#editOv').classList.add('on');
 };
@@ -673,8 +687,9 @@ $('#saveBtn').onclick=async()=>{
   const sv=(id,key,num)=>{const v=$('#'+id).value.trim(); if(v)d[key]=num?parseInt(v):v;};
   sv('e_subtitle','subtitle');sv('e_honor','honor');sv('e_pub','publisher');sv('e_shelf','shelf');
   sv('e_vols','volumes',1);sv('e_parts','parts',1);
-  const cm=$('#e_clsmain').value, cs=$('#e_clssub').value.trim();
-  const cls=cm?(cs?{main:cm,sub:cs}:{main:cm}):null;
+  const cm=$('#e_clsmain').value.trim(), cs=$('#e_clssub').value.trim(), cs2=$('#e_clssub2').value.trim();
+  let cls=null; if(cm){ cls={main:cm}; if(cs)cls.sub=cs; if(cs2)cls.sub2=cs2; }
+  if(cls) harvestCats([{classification:cls}]);
   const body={title,author:$('#e_author').value.trim(),description:$('#e_desc').value.trim(),
     subject:cm||'',branch:parseInt($('#e_branch').value),available:$('#e_avail').value==='true',
     card_type:parseInt($('#e_ctype').value),details:Object.keys(d).length?d:null,classification:cls};
