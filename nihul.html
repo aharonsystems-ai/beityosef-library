@@ -222,6 +222,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
       <option value="מדרש">על מדרשים</option>
       <option value='רמב"ם'>על רמב"ם</option>
       <option value="הלכה">שולחן ערוך / הלכה</option>
+      <option value="ראשונים">ראשונים</option>
     </select>
     <select id="fMethod" title="שיטת התאמה">
       <option value="partial">חלק ממילה</option>
@@ -438,7 +439,11 @@ function buildPath(forCount){
     const mode=$('#fMode').value, method=$('#fMethod').value, q=$('#q').value.trim();
     const ov=opval(q,method);
     if(mode==='commentary'){
-      const area=$('#fArea').value; if(area) p.push('classification->>main=eq.'+encodeURIComponent(area));
+      const area=$('#fArea').value;
+      if(area==='ראשונים'){
+        const RISH=['רש"י','רמב"ן','רשב"א','ריטב"א','ר"ן','רא"ש','תוספות','מאירי','רד"ק','אבן עזרא','ספורנו','ראב"ד','רלב"ג','רבינו בחיי','ר"י','מהר"ם','רוקח','ראבי"ה','טור'];
+        p.push('or=('+RISH.map(n=>'author.ilike.*'+encodeURIComponent(n)+'*').join(',')+')');
+      } else if(area){ p.push('classification->>main=eq.'+encodeURIComponent(area)); }
       if(ov) p.push('or=(title.'+ov+',author.'+ov+')');
     } else if(mode==='all'){
       if(ov) p.push('or=(title.'+ov+',author.'+ov+',description.'+ov+')');
