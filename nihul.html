@@ -170,7 +170,32 @@ body.kiosk .kexit:hover{color:var(--navy)}
   </div>
 
   <div class="filters">
-    <select id="fSubj"><option value="">כל הנושאים</option></select>
+    <select id="fMode" title="מצב חיפוש">
+      <option value="all">חיפוש בכל השדות</option>
+      <option value="title">לפי שם הספר</option>
+      <option value="author">לפי מחבר</option>
+      <option value="subject">לפי נושא</option>
+      <option value="type">לפי סוג (סיווג)</option>
+      <option value="notes">לפי הערות</option>
+      <option value="commentary">מפרש על…</option>
+      <option value="browse">עיון בכרטסת</option>
+    </select>
+    <select id="fArea" style="display:none">
+      <option value="">— בחר תחום —</option>
+      <option value='תנ"ך'>על תנ"ך</option>
+      <option value='ש"ס'>על ש"ס</option>
+      <option value="ירושלמי">על ירושלמי</option>
+      <option value="מדרש">על מדרשים</option>
+      <option value='רמב"ם'>על רמב"ם</option>
+      <option value="הלכה">שולחן ערוך / הלכה</option>
+    </select>
+    <select id="fMethod" title="שיטת התאמה">
+      <option value="partial">חלק ממילה</option>
+      <option value="exact">התאמה מדויקת</option>
+      <option value="starts">מתחיל ב…</option>
+      <option value="words">מילים שלמות</option>
+      <option value="initials">ראשי תיבות</option>
+    </select>
     <select id="fBr"><option value="">כל הסניפים</option></select>
     <select id="fAv">
       <option value="">זמינות: הכל</option>
@@ -194,7 +219,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
       <table>
         <thead><tr>
           <th style="width:70px">מספר</th><th>שם הספר</th><th>מחבר</th>
-          <th style="width:130px">נושא</th><th style="width:150px">סניף</th>
+          <th style="width:150px">נושא / סיווג</th><th style="width:150px">סניף</th>
           <th style="width:90px">זמינות</th><th class="adminonly" style="width:120px;display:none">פעולות</th>
         </tr></thead>
         <tbody id="rows"></tbody>
@@ -258,7 +283,7 @@ const rowsEl=$('#rows'), statEl=$('#stat'), pagerEl=$('#pager');
 
 // fill selects
 function opt(v,t){const o=document.createElement('option');o.value=v;o.textContent=t;return o;}
-SUBJECTS.forEach(s=>{$('#fSubj').appendChild(opt(s,s));$('#e_subject').appendChild(opt(s,s));});
+SUBJECTS.forEach(s=>{$('#e_subject').appendChild(opt(s,s));});
 BRANCHES.forEach((b,i)=>{$('#fBr').appendChild(opt(i,b));$('#e_branch').appendChild(opt(i,b));});
 
 async function sb(path,opts={}){
@@ -268,15 +293,34 @@ async function sb(path,opts={}){
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600);}
 function esc(s){return (s==null?'':String(s)).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
 
+function sani(s){ return (s||'').replace(/[(),*]/g,' ').trim(); }
+function opval(term, method){
+  const raw=sani(term); if(!raw) return null;
+  if(method==='exact') return 'ilike.'+encodeURIComponent(raw);
+  if(method==='starts') return 'ilike.'+encodeURIComponent(raw)+'*';
+  if(method==='initials'){ const L=raw.replace(/["'.\s]/g,'').split(''); return 'ilike.'+encodeURIComponent('%'+L.join('%')+'%'); }
+  return 'ilike.*'+encodeURIComponent(raw)+'*';   // partial / words
+}
 function buildPath(forCount){
-  const p=[];
-  const q=$('#q').value.trim().replace(/[%(),*]/g,' ').trim();
-  if(q){const e=encodeURIComponent('*'+q+'*');p.push(`or=(title.ilike.${e},author.ilike.${e},description.ilike.${e})`);}
-  if($('#fSubj').value)p.push('subject=eq.'+encodeURIComponent($('#fSubj').value));
+  const p=[]; const mode=$('#fMode').value, method=$('#fMethod').value, q=$('#q').value.trim();
+  const ov=opval(q,method);
+  if(mode==='commentary'){
+    const area=$('#fArea').value; if(area) p.push('classification->>main=eq.'+encodeURIComponent(area));
+    if(ov) p.push('or=(title.'+ov+',author.'+ov+')');
+  } else if(mode==='all'){
+    if(ov) p.push('or=(title.'+ov+',author.'+ov+',description.'+ov+')');
+  } else if(mode==='type'){
+    if(ov) p.push('classification->>main='+ov);
+  } else if(mode==='browse'){
+    /* עיון — בלי מילת חיפוש, רק סינונים */
+  } else {
+    const fmap={title:'title',author:'author',subject:'subject',notes:'description'};
+    if(ov) p.push((fmap[mode]||'title')+'='+ov);
+  }
   if($('#fBr').value!=='')p.push('branch=eq.'+$('#fBr').value);
   if($('#fAv').value!=='')p.push('available=eq.'+$('#fAv').value);
   p.push('order='+$('#fSort').value);
-  p.push('select=id,title,author,description,subject,available,branch');
+  p.push('select=id,title,author,description,subject,available,branch,classification');
   if(!forCount){p.push('limit='+PER);p.push('offset='+(page*PER));}
   return 'books?'+p.join('&');
 }
@@ -309,7 +353,7 @@ function render(data){
       <td class="bk-id">${b.id}</td>
       <td><div class="bk-title">${esc(b.title)}</div>${b.description?`<div style="font-size:12px;color:var(--faint);margin-top:2px">${esc(b.description).slice(0,70)}</div>`:''}</td>
       <td>${esc(b.author)||'—'}</td>
-      <td>${b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—'}</td>
+      <td>${b.classification&&b.classification.main?`<span class="subj">${esc(b.classification.main)}${b.classification.sub?' · '+esc(b.classification.sub):''}</span>`:(b.subject?`<span class="subj">${esc(b.subject)}</span>`:'—')}</td>
       <td style="font-size:13px">${esc(BRANCHES[b.branch]||'—')}</td>
       <td><span class="pill ${b.available?'y':'n'}">${b.available?'זמין':'בשימוש'}</span></td>
       <td class="adminonly" style="${isMgr?'':'display:none'}">
@@ -333,10 +377,11 @@ function renderPager(){
 window.go=p=>{page=p;load();window.scrollTo({top:0,behavior:'smooth'});};
 
 // filters
-['#q','#fSubj','#fBr','#fAv','#fSort'].forEach(s=>{
+['#q','#fMode','#fArea','#fMethod','#fBr','#fAv','#fSort'].forEach(s=>{
   const el=$(s);const ev=s==='#q'?'input':'change';
   el.addEventListener(ev,()=>{page=0;s==='#q'?debounce(load):load();});
 });
+$('#fMode').addEventListener('change',()=>{ $('#fArea').style.display = $('#fMode').value==='commentary'?'':'none'; });
 
 // ===== manager =====
 function setMgr(on){
