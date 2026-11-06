@@ -926,7 +926,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
     <div class="adn">
       <div class="adnt"><h3>ספריית בית יוסף</h3><p>אזור מנהל מאובטח</p></div>
       <div class="ans">ניהול</div>
-      <a href="/nihul.html" target="_blank" rel="noopener" style="background:#b08d3f;color:#fff;font-weight:700;border-radius:8px;margin:0 0 8px"><span>🗂️</span><span>תוכנת ניהול הספרים</span></a>
+      <a onclick="openNihul()" style="background:#b08d3f;color:#fff;font-weight:700;border-radius:8px;margin:0 0 8px;cursor:pointer"><span>🗂️</span><span>תוכנת ניהול הספרים</span></a>
       <a class="na" onclick="closeP()"><span>📊</span><span>לוח בקרה</span></a>
       <a onclick="openP('books')"><span>📚</span><span>ניהול ספרים</span></a>
       <a onclick="openP('newbooks')"><span>🆕</span><span>ספרים חדשים (בית)</span></a>
@@ -1439,7 +1439,7 @@ async function trackVisit(){
   }catch(e){ console.warn('visit track', e); }
 }
 
-let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false;
+let lang='he', fCat=[], cPg=1, PER=30, cTab='', pend=[], aUnlk=false, mgrPw='';
 let APWD = localStorage.getItem('aP')||'admin123';
 let addedBks=[], PRODS=[
   {id:1,title:'משנה ברורה',author:'החפץ חיים',price:95,orig:120,cat:'kodesh',tag:'20%',img:'',desc:'6 כרכים מלאים'},
@@ -2228,7 +2228,7 @@ async function cAP(){
   if(real || v===APWD){
     aUnlk=true;
     // מעבר מחובר לתוכנת הניהול: שומר טוקן זמני (3 דק') לכניסה אוטומטית
-    if(real){ try{ localStorage.setItem('_mgrHandoff',JSON.stringify({t:v,exp:Date.now()+180000})); }catch(e){} }
+    if(real){ mgrPw=v; try{ localStorage.setItem('_mgrHandoff',JSON.stringify({t:v,exp:Date.now()+180000})); }catch(e){} }
     Q('ag').classList.remove('op'); G('admin'); T('🔐 '+(lang==='he'?'ברוך הבא!':'Welcome!'));
   } else { Q('aPE').style.display='block'; Q('aPI').select(); }
 }
@@ -2250,6 +2250,22 @@ function openP(name){
   if(name==='requests') setTimeout(rReq,50);
 }
 function closeP(){Q('sP').classList.remove('op'); Q('pOv').style.display='none';}
+
+// 🗂️ תוכנת ניהול הספרים — מוטמעת בתוך העמוד (iframe), עם כניסה אוטומטית
+function openNihul(){
+  if(!aUnlk){ eA(); return; }
+  if(mgrPw){ try{ localStorage.setItem('_mgrHandoff',JSON.stringify({t:mgrPw,exp:Date.now()+180000})); }catch(e){} }
+  let ov=document.getElementById('nihulOv');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='nihulOv';
+    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column';
+    ov.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#1d4e66;color:#fff;font-family:system-ui,sans-serif"><span style="font-weight:700;font-size:15px">🗂️ תוכנת ניהול הספרים</span><button onclick="document.getElementById(\'nihulOv\').style.display=\'none\'" style="background:#fff;color:#1d4e66;border:none;border-radius:6px;padding:6px 16px;font-weight:700;cursor:pointer">✕ סגור</button></div><iframe id="nihulFr" style="flex:1;border:0;width:100%" title="תוכנת ניהול הספרים"></iframe>';
+    document.body.appendChild(ov);
+  }
+  ov.style.display='flex';
+  const fr=document.getElementById('nihulFr');
+  if(!fr.getAttribute('src')) fr.setAttribute('src','/nihul.html');
+}
 
 function fld(id,lbl,val,type='text'){
   return `<div class="apf"><label>${lbl}</label><input type="${type}" id="${id}" value="${String(val||'').replace(/"/g,'&quot;')}"></div>`;
