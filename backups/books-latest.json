@@ -1,5 +1,5 @@
 {
- "backup_date": "2026-11-05T09:19:22.374Z",
+ "backup_date": "2026-11-06T07:57:34.002Z",
  "count": 59319,
  "source": "https://ugixnimesxjpjaqddtys.supabase.co",
  "books": [
@@ -44,7 +44,7 @@
    "classification": {
     "main": "ש\"ס"
    },
-   "updated_at": "2026-11-04T17:35:42.686196+00:00",
+   "updated_at": "2026-11-05T11:22:31.329432+00:00",
    "details": null,
    "card_type": 0
   },
