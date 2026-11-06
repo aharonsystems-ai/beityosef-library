@@ -2204,10 +2204,17 @@ function eA(){
   Q('ag').classList.add('op'); Q('aPI').value=''; Q('aPE').style.display='none';
   setTimeout(()=>Q('aPI').focus(),100);
 }
-function cAP(){
-  const v=Q('aPI').value;
-  if(v===APWD){aUnlk=true; Q('ag').classList.remove('op'); G('admin'); T('🔐 '+(lang==='he'?'ברוך הבא!':'Welcome!'));}
-  else{Q('aPE').style.display='block'; Q('aPI').select();}
+async function cAP(){
+  const v=Q('aPI').value; if(!v)return;
+  // אימות מול הסיסמה האמיתית של תוכנת הניהול (Supabase), עם admin123 כגיבוי
+  let real=false;
+  try{ const r=await fetch(SB_URL+'/rest/v1/rpc/is_mgr',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json','x-mgr-token':v},body:'{}'}); real=(await r.json())===true; }catch(e){}
+  if(real || v===APWD){
+    aUnlk=true;
+    // מעבר מחובר לתוכנת הניהול: שומר טוקן זמני (3 דק') לכניסה אוטומטית
+    if(real){ try{ localStorage.setItem('_mgrHandoff',JSON.stringify({t:v,exp:Date.now()+180000})); }catch(e){} }
+    Q('ag').classList.remove('op'); G('admin'); T('🔐 '+(lang==='he'?'ברוך הבא!':'Welcome!'));
+  } else { Q('aPE').style.display='block'; Q('aPI').select(); }
 }
 
 // ═══════════════════════════════════════════

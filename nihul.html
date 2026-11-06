@@ -858,6 +858,9 @@ $('#invExport').onclick=()=>{
   toast('📥 '+counted.size+' רשומות יוצאו');
 };
 
+// כניסה אוטומטית אם המנהל כבר התחבר באתר הראשי (מעבר מחובר)
+(async()=>{ try{ const raw=localStorage.getItem('_mgrHandoff'); if(raw){ localStorage.removeItem('_mgrHandoff');
+  const o=JSON.parse(raw); if(o&&o.t&&o.exp>Date.now()&&await verifyMgr(o.t)){ mgrToken=o.t; setMgr(true); toast('✅ מחובר אוטומטית מהאתר'); } } }catch(e){} })();
 load();
 // ===== AI book scan =====
 let scanImgs=[null,null,null];
