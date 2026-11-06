@@ -661,6 +661,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
         </select>
         <div class="rc" id="rC">טוען...</div>
         <div class="cntl" id="cNt">📚 כל 59,321 הספרים טעונים</div>
+        <button class="dlb" id="favTgl" onclick="toggleFavOnly()" style="background:#fff0f3;border-color:#f0c0cc;color:#c0395a;opacity:.6">❤️ הספרים שלי (<span id="favCnt">0</span>)</button>
         <button class="dlb" onclick="dCSV()" data-i="btnDl">📥 הורד קטלוג</button>
       </div>
       <div id="selStrip" style="margin-bottom:.5rem;display:flex;flex-wrap:wrap;gap:5px"></div>
@@ -1811,6 +1812,7 @@ function fC(){
   const au=(Q('fAu')?.value||'');
   const so=Q('cSo')?.value||'';
   fCat=CATALOG.filter(b=>{
+    if(favOnly && !FAV.has(b.i)) return false;
     if(q && !matchQ(b._k||nrm((b.n||'')+' '+(b.a||'')+' '+(b.sx||'')), q)) return false;
     if(au && !nrm(b.a||'').includes(nrm(au))) return false;
     if(!bookMatchesSpecs(b)) return false;
@@ -1840,8 +1842,8 @@ function rC(){
     <td data-label="נושא" style="font-size:10.5px">${b.s}</td>
     <td data-label="סניף" style="font-size:10.5px">${b.b}</td>
     <td data-label="זמינות"><span class="av ${b.v?'avy':'avn'}">${b.v?(lang==='he'?'זמין':'Available'):(lang==='he'?'בשימוש':'In use')}</span></td>
-    <td class="tact"><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשת תמונה / מידע':'📷 Request'}</button></td>
-  </tr>`).join('');
+    <td class="tact"><button class="favb" title="שמור בספרים שלי" onclick="toggleFav(${b.i},this)" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 5px;vertical-align:middle">${FAV.has(b.i)?'❤️':'🤍'}</button><button class="reqb" onclick="reqBook(${b.i})">${lang==='he'?'📷 בקשת תמונה / מידע':'📷 Request'}</button></td>
+  </tr>`).join(''); updFavCnt();
   const ctrl=Q('pC'); if(!ctrl) return;
   if(pgs<=1){ctrl.innerHTML='';return;}
   let btns='';
@@ -1854,6 +1856,20 @@ function rC(){
 }
 
 function gP(p){cPg=p; rC(); window.scrollTo(0,56);}
+
+// ❤️ הספרים שלי — אזור אישי, נשמר בדפדפן של המשתמש
+let FAV=new Set(), favOnly=false;
+try{ FAV=new Set(JSON.parse(localStorage.getItem('by_fav')||'[]')); }catch(e){}
+function favSave(){ try{ localStorage.setItem('by_fav',JSON.stringify([...FAV])); }catch(e){} }
+function updFavCnt(){ const el=Q('favCnt'); if(el) el.textContent=FAV.size; const t=Q('favTgl'); if(t&&!favOnly) t.style.opacity=FAV.size?'1':'.6'; }
+function toggleFav(id,btn){ if(FAV.has(id)) FAV.delete(id); else FAV.add(id); favSave(); if(btn) btn.textContent=FAV.has(id)?'❤️':'🤍'; updFavCnt(); if(favOnly) fC(); }
+function toggleFavOnly(){
+  const t=Q('favTgl');
+  if(!favOnly && !FAV.size){ T(lang==='he'?'עדיין לא שמרת ספרים — לחץ על 🤍 שליד ספר כדי לשמור':'No saved books yet — tap 🤍 next to a book'); return; }
+  favOnly=!favOnly;
+  if(t){ t.style.background=favOnly?'#c0395a':'#fff0f3'; t.style.color=favOnly?'#fff':'#c0395a'; t.style.opacity='1'; }
+  fC();
+}
 
 // ═══ בקשת תמונה / מידע על ספר ═══
 let reqBk=null;
