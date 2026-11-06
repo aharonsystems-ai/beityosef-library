@@ -957,7 +957,7 @@ body.a11y-big-cursor,body.a11y-big-cursor *{cursor:url("data:image/svg+xml,%3Csv
       </div>
       <div class="adc">
         <div class="adcd"><div class="adcn" id="aC1">0</div><div class="adcl">ספרים בקטלוג</div><div class="adct tu" id="aC1t">נתון אמיתי</div></div>
-        <div class="adcd"><div class="adcn" id="aMem">—</div><div class="adcl">חברים רשומים</div><div class="adct" style="color:var(--mu)">ב-Netlify</div></div>
+        <div class="adcd"><div class="adcn" id="aMem">—</div><div class="adcl">חברים רשומים</div><div class="adct" style="color:var(--mu)">במסד הנתונים</div></div>
         <div class="adcd"><div class="adcn" id="aLoan">0</div><div class="adcl">ספרים בשימוש</div><div class="adct" style="color:var(--mu)">לפי הקטלוג</div></div>
         <div class="adcd"><div class="adcn" id="aDon">₪0</div><div class="adcl">סה"כ תרומות</div><div class="adct" style="color:var(--mu)">ממד ההתקדמות</div></div>
         <div class="adcd"><div class="adcn" id="aSLC">0</div><div class="adcl">פריטי מכירה</div><div class="adct tu">נתון אמיתי</div></div>
@@ -1348,6 +1348,20 @@ function initSB(){
   return false;
 }
 
+// לקוח Supabase בהרשאת מנהל — מוסיף את ה-header x-mgr-token כדי ש-RLS (is_mgr) יאשר קריאה/עריכה של נתונים פרטיים
+let SBM=null, SBM_tok='';
+function sbMgr(){
+  try{
+    if(!window.supabase||!window.supabase.createClient) return null;
+    const tok = mgrPw || '';
+    if(!tok) return null;
+    if(SBM && SBM_tok===tok) return SBM;
+    SBM = window.supabase.createClient(SB_URL, SB_KEY, { global:{ headers:{ 'x-mgr-token': tok } } });
+    SBM_tok = tok;
+    return SBM;
+  }catch(e){ return null; }
+}
+
 // שמירת נתונים בענן
 async function sbSave(key, obj){
   if(!sbReady) return false;
@@ -1603,9 +1617,9 @@ function rMembers(){
 }
 
 async function approveMember(id){
-  if(!sbReady) return T('אין חיבור לענן');
+  const c=sbMgr(); if(!c) return T('נדרשת כניסת מנהל');
   try{
-    const { error } = await SB.from('members').update({status:'מאושר'}).eq('id',id);
+    const { error } = await c.from('members').update({status:'מאושר'}).eq('id',id);
     if(error) return T('❌ '+error.message);
     await loadMembers(); openP('members'); T('✅ החבר אושר');
   }catch(e){ T('❌ שגיאה'); }
@@ -1613,9 +1627,9 @@ async function approveMember(id){
 
 async function delMember(id,name){
   if(!confirm('למחוק את "'+name+'" מרשימת החברים?')) return;
-  if(!sbReady) return T('אין חיבור לענן');
+  const c=sbMgr(); if(!c) return T('נדרשת כניסת מנהל');
   try{
-    const { error } = await SB.from('members').delete().eq('id',id);
+    const { error } = await c.from('members').delete().eq('id',id);
     if(error) return T('❌ '+error.message);
     await loadMembers(); openP('members'); T('🗑️ נמחק');
   }catch(e){ T('❌ שגיאה'); }
@@ -2127,7 +2141,14 @@ let MEMBERS = [];
 
 // ── טעינת החברים מהענן ──
 async function loadMembers(){
-  // ההרשמות נשמרות ב-Netlify Forms, לא במסד. רשימת החברים זמינה בלוח הבקרה של Netlify.
+  const c = sbMgr();
+  if(!c){ MEMBERS=[]; updateMemberStats(); return; }
+  try{
+    const { data, error } = await c.from('members').select('*').order('created_at',{ascending:false});
+    if(error){ console.warn('members load:', error.message); MEMBERS=[]; }
+    else MEMBERS = data || [];
+  }catch(e){ console.warn('members load ex:', e); MEMBERS=[]; }
+  updateMemberStats();
   return;
 }
 
@@ -2165,16 +2186,16 @@ async function doRegister(){
 
   show(lang==='he'?'⏳ שולח את הבקשה...':'⏳ Sending...', true);
 
-  // שליחה ל-Netlify Forms — הפרטים מגיעים למייל של הספרייה + נשמרים בלוח הבקרה של Netlify
+  // שמירה ב-Supabase (טבלת members) — פרטי, נקרא רק ע"י מנהל. מופיע מיד במסך "חברים רשומים".
   let sent = false;
   try{
-    const fd = new URLSearchParams({
-      'form-name':'registration', name, email:mail, phone:tel,
-      branch:br, note:note, subject:'הרשמת חבר חדש לספרייה'
-    });
-    const r = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:fd.toString()});
-    sent = r.ok;
-  }catch(e){ console.warn('netlify form:', e); }
+    if(!sbReady) initSB();
+    if(sbReady){
+      const { error } = await SB.from('members').insert({ name, email:mail, phone:tel, branch:br, note, status:'ממתין' });
+      if(error){ console.warn('register insert:', error.message); }
+      else sent = true;
+    }
+  }catch(e){ console.warn('register:', e); }
 
   if(sent){
     show(lang==='he'
@@ -2246,7 +2267,7 @@ function openP(name){
   Q('pTit').textContent=titles[name]||name;
   Q('pBd').innerHTML=pHTML(name);
   if(name==='cloud') setTimeout(runCloudDiag,50);
-  if(name==='members') setTimeout(rMembers,50);
+  if(name==='members') setTimeout(()=>{ loadMembers().then(rMembers); },50);
   if(name==='requests') setTimeout(rReq,50);
 }
 function closeP(){Q('sP').classList.remove('op'); Q('pOv').style.display='none';}
@@ -2554,20 +2575,20 @@ function pHTML(nm){
     <div class="tip">💡 אם הכל ירוק אבל שינויים עדיין נעלמים — סימן שהקובץ ב-Netlify ישן. הורד והעלה מחדש.</div>`;
 
   if(nm==='members') return `
-    <div class="aps"><div class="apst">👥 חברים רשומים</div>
-      <div style="font-size:12.5px;color:var(--mu);line-height:1.9">
-        ההרשמות נשמרות אוטומטית ב-<b>Netlify</b> ונשלחות למייל:<br>
-        <b style="color:var(--n)">sifriatbethyosef@gmail.com</b>
+    <div class="aps">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+        <div class="apst" style="margin:0">👥 חברים רשומים</div>
+        <div style="display:flex;gap:.4rem">
+          <button class="eb" onclick="loadMembers().then(rMembers)" style="font-size:11px">🔄 רענן</button>
+          <button class="eb" onclick="exportMembers()" style="font-size:11px">📥 ייצוא CSV</button>
+        </div>
       </div>
+      <input id="memSearch" oninput="rMembers()" placeholder="🔍 חיפוש לפי שם / אימייל / טלפון" style="width:100%;margin-top:.6rem;padding:.5rem .7rem;border:1px solid var(--bd);border-radius:8px;font-size:12.5px">
     </div>
-    <div class="aps"><div class="apst">📋 צפייה ברשימת החברים</div>
-      <div style="font-size:12.5px;color:var(--mu);line-height:1.8;margin-bottom:.7rem">
-        כל הנרשמים מופיעים בלוח הבקרה של Netlify תחת <b>Forms → registration</b>.
-        שם ניתן לראות, לייצא ל-CSV ולנהל את כל הפניות.
-      </div>
-      <a href="https://app.netlify.com" target="_blank" rel="noopener" class="asv" style="display:inline-block;text-decoration:none;text-align:center">↗ פתח את Netlify</a>
+    <div id="memList" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem">
+      <div class="aps" style="text-align:center;color:var(--mu);font-size:12.5px">⏳ טוען...</div>
     </div>
-    <div class="tip">💡 כדי שתקבל מייל על כל הרשמה — ב-Netlify: Forms → Settings → Form notifications → הוסף מייל.</div>`;
+    <div class="tip">💡 הרשמות חדשות נשמרות אוטומטית ב-Supabase ומופיעות כאן. לחץ ✓ לאישור חבר או 🗑️ למחיקה.</div>`;
 
   return `<div style="padding:1rem;color:var(--mu)">בחר פאנל מהתפריט</div>`;
 }
@@ -3214,12 +3235,17 @@ function rU(){Q('xlsIn').value=''; Q('uI').textContent='📂'; Q('uT').textConte
 // ═══════════════════════════════════════════
 // CONTACT FORM — Netlify
 // ═══════════════════════════════════════════
-function hCS(e){
+async function hCS(e){
   e.preventDefault();
-  const form=Q('cForm'), data=new FormData(form);
-  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()})
-  .then(()=>{form.reset(); const s=Q('cSuc'); if(s){s.style.display='block'; setTimeout(()=>s.style.display='none',5000);} T('✅ הודעה נשלחה!');})
-  .catch(()=>{T('✅ הודעה נשלחה!'); form.reset();});
+  const form=Q('cForm'), d=new FormData(form);
+  const rec={ kind:'contact', name:d.get('name')||'', email:d.get('email')||'', phone:d.get('phone')||'',
+              subject:d.get('subject')||'', message:d.get('message')||'', status:'חדש' };
+  const done=()=>{ form.reset(); const s=Q('cSuc'); if(s){s.style.display='block'; setTimeout(()=>s.style.display='none',5000);} T('✅ הודעה נשלחה!'); };
+  try{
+    if(!sbReady) initSB();
+    if(sbReady){ const { error } = await SB.from('submissions').insert(rec); if(error) console.warn('contact insert:', error.message); }
+    done();
+  }catch(err){ console.warn('contact:', err); done(); }
 }
 
 // ═══════════════════════════════════════════
