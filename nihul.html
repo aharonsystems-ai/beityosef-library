@@ -202,6 +202,7 @@ body.kiosk .kexit:hover{color:var(--navy)}
     <button class="hbtn" id="printBtn" style="height:46px">🖨️ הדפסה</button>
     <button class="hbtn adminonly" id="invBtn" style="height:46px;display:none">📊 ספירת מלאי</button>
     <button class="hbtn gold adminonly" id="addBtn" style="height:46px;display:none">➕ הוסף ספר</button>
+    <button class="hbtn adminonly" id="scanBtn" style="height:46px;display:none;background:#1d4e66;color:#fff;border-color:#1d4e66">📷 סריקת ספר ב-AI</button>
   </div>
 
   <div class="filters">
@@ -317,6 +318,30 @@ body.kiosk .kexit:hover{color:var(--navy)}
     <div class="mf"><button class="btn s" id="invDone">סיום</button></div>
   </div>
 </div>
+
+<!-- AI scan modal -->
+<div class="ov" id="scanOv">
+  <div class="modal" style="max-width:560px">
+    <h3 style="margin:0 0 4px">📷 סריקת ספר ב-AI</h3>
+    <p style="margin:0 0 14px;color:var(--faint);font-size:13px">צלם את הכריכה, ואם אפשר גם את השער/ההקדמה ואת תוכן העניינים. ה-AI יזהה את הפרטים וימלא את הטופס.</p>
+    <div id="scanSlots" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <label class="scanslot" data-i="0"><span>📕 כריכה</span><input type="file" accept="image/*" capture="environment" hidden></label>
+      <label class="scanslot" data-i="1"><span>📖 שער / הקדמה</span><input type="file" accept="image/*" capture="environment" hidden></label>
+      <label class="scanslot" data-i="2"><span>📑 תוכן עניינים</span><input type="file" accept="image/*" capture="environment" hidden></label>
+    </div>
+    <div id="scanStatus" style="margin:14px 0 0;font-size:13px;color:var(--faint)"></div>
+    <div id="scanResult" style="margin-top:12px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:16px">
+      <button class="hbtn gold" id="scanGo" style="height:44px">🔍 נתח ספר</button>
+      <button class="hbtn" id="scanClose" style="height:44px">ביטול</button>
+    </div>
+  </div>
+</div>
+<style>
+.scanslot{border:2px dashed #c9b887;border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer;font-size:13px;color:#7a6a3a;background:#fcfaf4;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:74px;justify-content:center;background-size:cover;background-position:center;position:relative;overflow:hidden}
+.scanslot.has span{background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:6px}
+.scanslot.has{border-style:solid;border-color:#1d4e66}
+</style>
 
 <!-- login modal -->
 <div class="ov" id="loginOv">
@@ -834,6 +859,95 @@ $('#invExport').onclick=()=>{
 };
 
 load();
+// ===== AI book scan =====
+let scanImgs=[null,null,null];
+function compressImg(file){return new Promise((res,rej)=>{
+  const fr=new FileReader();
+  fr.onload=()=>{const img=new Image();img.onload=()=>{
+    const M=1280;let{width:w,height:h}=img;if(w>h&&w>M){h=h*M/w;w=M;}else if(h>M){w=w*M/h;h=M;}
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+    const url=c.toDataURL('image/jpeg',0.72);res({type:'image/jpeg',data:url.split(',')[1],thumb:url});
+  };img.onerror=rej;img.src=fr.result;};fr.onerror=rej;fr.readAsDataURL(file);
+});}
+document.querySelectorAll('#scanSlots .scanslot').forEach(slot=>{
+  const i=+slot.dataset.i, inp=slot.querySelector('input');
+  slot.onclick=()=>inp.click();
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;
+    slot.querySelector('span').textContent='⏳';
+    try{const r=await compressImg(f);scanImgs[i]={type:r.type,data:r.data};
+      slot.classList.add('has');slot.style.backgroundImage=`url(${r.thumb})`;slot.querySelector('span').textContent='✓ צולם';
+    }catch(e){slot.querySelector('span').textContent='❌ שגיאה';}
+  };
+});
+$('#scanBtn').onclick=()=>{
+  scanImgs=[null,null,null];
+  document.querySelectorAll('#scanSlots .scanslot').forEach((s,i)=>{s.classList.remove('has');s.style.backgroundImage='';
+    s.querySelector('span').textContent=['📕 כריכה','📖 שער / הקדמה','📑 תוכן עניינים'][i];s.querySelector('input').value='';});
+  $('#scanStatus').textContent='';$('#scanResult').innerHTML='';$('#scanGo').disabled=false;
+  $('#scanOv').classList.add('on');
+};
+$('#scanClose').onclick=()=>$('#scanOv').classList.remove('on');
+$('#scanGo').onclick=async()=>{
+  const imgs=scanImgs.filter(Boolean);
+  if(!imgs.length){toast('❌ צרף לפחות תמונה אחת');return;}
+  $('#scanGo').disabled=true;$('#scanResult').innerHTML='';
+  $('#scanStatus').innerHTML='⏳ מנתח את הצילומים… (כמה שניות)';
+  try{
+    const r=await fetch('/scan-book',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:mgrToken,images:imgs,categories:[...CATSET.main]})});
+    const j=await r.json();
+    if(!j.ok){$('#scanStatus').innerHTML='❌ '+(j.message||'הזיהוי נכשל');$('#scanGo').disabled=false;return;}
+    scanShowResult(j.book);
+  }catch(e){$('#scanStatus').innerHTML='❌ תקלת רשת';$('#scanGo').disabled=false;}
+};
+function scanShowResult(bk){
+  const c=bk.classification||{};
+  const clsTxt=[c.main,c.sub,c.sub2].filter(Boolean).join(' · ')||'—';
+  const conf=bk.confidence!=null?Math.round(bk.confidence*100)+'%':'';
+  $('#scanStatus').innerHTML='✅ זוהה'+(conf?` (ביטחון ${conf})`:'');
+  let h=`<div style="background:#f7f3e8;border:1px solid #e3d9bf;border-radius:10px;padding:12px;font-size:13px;line-height:1.7">
+    <b>${esc(bk.title||'ללא שם')}</b>${bk.author?' · '+esc(bk.author):''}<br>
+    <span style="color:var(--faint)">קטגוריה: ${esc(clsTxt)}</span>${bk.description?`<br><span style="color:var(--faint)">${esc(bk.description).slice(0,120)}</span>`:''}
+  </div><div id="scanMatches" style="margin-top:10px;font-size:13px;color:var(--faint)">🔎 מחפש בקטלוג…</div>`;
+  $('#scanResult').innerHTML=h;
+  $('#scanGo').disabled=false;
+  scanSearchCatalog(bk);
+}
+async function scanSearchCatalog(bk){
+  let matches=[];
+  const t=(bk.title||'').replace(/["'׳״]/g,'').trim();
+  if(t){try{
+    const r=await sb('books?title=ilike.*'+encodeURIComponent(t)+'*&select=id,title,author,description,classification,details,card_type,branch,available,subject&limit=8');
+    matches=await r.json();
+  }catch(e){}}
+  const box=$('#scanMatches');if(!box)return;
+  let h='';
+  if(matches&&matches.length){
+    h=`<div style="font-weight:600;color:#1d4e66;margin-bottom:6px">נמצאו ${matches.length} ספרים דומים בקטלוג — לעדכן אחד מהם?</div>`;
+    matches.forEach(m=>{h+=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #eee;padding:6px 0">
+      <span>${esc(m.title)}${m.author?' · <span style="color:var(--faint)">'+esc(m.author)+'</span>':''} <span style="color:#bbb">#${m.id}</span></span>
+      <button class="hbtn" style="height:32px;font-size:12px" data-upd="${m.id}">✏️ עדכן זה</button></div>`;});
+  }else{
+    h=`<div style="color:var(--faint)">לא נמצא ספר דומה בקטלוג.</div>`;
+  }
+  h+=`<button class="hbtn gold" style="height:40px;margin-top:10px" id="scanNew">➕ צור ספר חדש מהזיהוי</button>`;
+  box.innerHTML=h;
+  window._scanBk=bk;window._scanMatches=matches;
+  $('#scanNew').onclick=()=>{$('#scanOv').classList.remove('on');$('#addBtn').click();applyBookToForm(bk,false);};
+  box.querySelectorAll('[data-upd]').forEach(btn=>btn.onclick=()=>{
+    const m=matches.find(x=>x.id==btn.dataset.upd);if(!m)return;
+    $('#scanOv').classList.remove('on');openEdit(m);applyBookToForm(bk,true);
+  });
+}
+function applyBookToForm(bk,onlyEmpty){
+  const c=bk.classification||{};
+  const set=(id,val)=>{if(val==null||val==='')return;const el=$('#'+id);if(onlyEmpty&&el.value.trim())return;el.value=val;};
+  set('e_title',bk.title);set('e_author',bk.author);set('e_honor',bk.honor);set('e_subtitle',bk.subtitle);
+  set('e_pub',bk.publisher);set('e_desc',bk.description);
+  set('e_titles',(bk.titles||[]).join(', '));set('e_authors',(bk.authors||[]).join(', '));
+  set('e_clsmain',c.main);set('e_clssub',c.sub);set('e_clssub2',c.sub2);
+  toast('✨ הטופס מולא מהזיהוי — בדוק ושמור');
+}
 </script>
 </body>
 </html>
